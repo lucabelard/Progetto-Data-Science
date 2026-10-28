@@ -1,0 +1,749 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.10.26)  26 OCT 2026 18:16
+entering extended mode
+ restricted \write18 enabled.
+ file:line:error style messages enabled.
+ %&-line parsing enabled.
+**c:/Users/lucab/OneDrive/Documenti/GitHub/Progetto-Data-Science/relazione_spotify.tex
+(c:/Users/lucab/OneDrive/Documenti/GitHub/Progetto-Data-Science/relazione_spotify.tex
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-09-09>
+(C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/base\article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/base\size12.clo
+File: size12.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count276
+\c@section=\count277
+\c@subsection=\count278
+\c@subsubsection=\count279
+\c@paragraph=\count280
+\c@subparagraph=\count281
+\c@figure=\count282
+\c@table=\count283
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen150
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/base\inputenc.sty
+Package: inputenc 2024/02/08 v1.3d Input encoding file
+\inpenc@prehook=\toks17
+\inpenc@posthook=\toks18
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/base\fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/lm\lmodern.sty
+Package: lmodern 2015/05/01 v1.6.1 Latin Modern Fonts
+LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
+(Font)                  OT1/cmr/m/n --> OT1/lmr/m/n on input line 22.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `normal'
+(Font)                  OML/cmm/m/it --> OML/lmm/m/it on input line 23.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
+(Font)                  OMS/cmsy/m/n --> OMS/lmsy/m/n on input line 24.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
+(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 25.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 26.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
+(Font)                  OML/cmm/b/it --> OML/lmm/b/it on input line 27.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
+(Font)                  OMS/cmsy/b/n --> OMS/lmsy/b/n on input line 28.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 29.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 31.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
+(Font)                  OT1/cmss/m/n --> OT1/lmss/m/n on input line 32.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
+(Font)                  OT1/cmr/m/it --> OT1/lmr/m/it on input line 33.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
+(Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 34.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 35.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
+(Font)                  OT1/cmss/bx/n --> OT1/lmss/bx/n on input line 36.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
+(Font)                  OT1/cmr/bx/it --> OT1/lmr/bx/it on input line 37.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
+(Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 38.
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/babel\babel.sty
+Package: babel 2026/10/15 v26.14 The multilingual framework for LuaLaTeX, pdfLaTeX and XeLaTeX
+\babel@savecnt=\count284
+LaTeX Encoding Info:    Redeclaring text command \ij (encoding OT1) on input line 2118.
+LaTeX Encoding Info:    Redeclaring text command \IJ (encoding OT1) on input line 2120.
+LaTeX Encoding Info:    Redeclaring text command \ij (encoding T1) on input line 2122.
+LaTeX Encoding Info:    Redeclaring text command \IJ (encoding T1) on input line 2123.
+LaTeX Encoding Info:    Ignoring declaration for text command \ij (encoding ?) on input line 2124.
+LaTeX Encoding Info:    Ignoring declaration for text command \IJ (encoding ?) on input line 2126.
+LaTeX Encoding Info:    Ignoring declaration for text command \SS (encoding ?) on input line 2151.
+\U@D=\dimen151
+\l@unhyphenated=\language79
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/babel\txtbabel.def)
+\bbl@readstream=\read2
+\bbl@dirlevel=\count285
+Package babel Info: Configuration files are deprecated, as
+(babel)             they can break document portability.
+(babel)             Reported on input line 4366.
+
+*************************************
+* Local config file bblopts.cfg used
+*
+(C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/arabi\bblopts.cfg
+File: bblopts.cfg 2005/09/08 v0.1 add Arabic and Farsi to "declared" options of babel
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/babel/locale/it\babel-italian.tex)
+Package babel Info: Importing font and identification data for 'italian'
+(babel)             from babel-it.ini. Reported on input line 4494.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/babel-italian\italian.ldf
+Language: italian 2026/01/13 v.1.5.02 Italian support for the babel system
+\it@lettering=\count286
+\it@doublequoteactive=\count287
+\it@ISOcompliance=\count288
+)) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/etoolbox\etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count289
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/amsmath\amsmath.sty
+Package: amsmath 2026/05/19 v2.18d AMS math features
+\@mathmargin=\skip51
+
+For additional information on amsmath, use the `?' option.
+(C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/amsmath\amstext.sty
+Package: amstext 2024/11/17 v2.01 AMS text
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/amsmath\amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks19
+\ex@=\dimen152
+)) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/amsmath\amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen153
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/amsmath\amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count290
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count291
+\leftroot@=\count292
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count293
+\DOTSCASE@=\count294
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box53
+\strutbox@=\box54
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen154
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count295
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count296
+\dotsspace@=\muskip17
+\c@parentequation=\count297
+\dspbrk@lvl=\count298
+\tag@help=\toks20
+\row@=\count299
+\column@=\count300
+\maxfields@=\count301
+\andhelp@=\toks21
+\eqnshift@=\dimen155
+\alignsep@=\dimen156
+\tagshift@=\dimen157
+\tagwidth@=\dimen158
+\totwidth@=\dimen159
+\lineht@=\dimen160
+\@envbody=\toks22
+\multlinegap=\skip52
+\multlinetaggap=\skip53
+\mathdisplay@stack=\toks23
+LaTeX Info: Redefining \[ on input line 2965.
+LaTeX Info: Redefining \] on input line 2966.
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/amsfonts\amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/amsfonts\amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/graphics\graphicx.sty
+Package: graphicx 2026-05-17 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/graphics\keyval.sty
+Package: keyval 2026-05-17 v1.15 key=value parser (DPC)
+\KV@toks@=\toks24
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/graphics\graphics.sty
+Package: graphics 2026-05-17 v1.4h Standard LaTeX Graphics (DPC,SPQR)
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/graphics\trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/graphics-cfg\graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 106.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/graphics-def\pdftex.def
+File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen161
+\Gin@req@width=\dimen162
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/booktabs\booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen163
+\lightrulewidth=\dimen164
+\cmidrulewidth=\dimen165
+\belowrulesep=\dimen166
+\belowbottomsep=\dimen167
+\aboverulesep=\dimen168
+\abovetopsep=\dimen169
+\cmidrulesep=\dimen170
+\cmidrulekern=\dimen171
+\defaultaddspace=\dimen172
+\@cmidla=\count302
+\@cmidlb=\count303
+\@aboverulesep=\dimen173
+\@belowrulesep=\dimen174
+\@thisruleclass=\count304
+\@lastruleclass=\count305
+\@thisrulewidth=\dimen175
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/geometry\geometry.sty
+Package: geometry 2026/03/07 v6.0 Page Geometry
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/iftex\ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/iftex\iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+))
+\Gm@cnth=\count306
+\Gm@cntv=\count307
+\c@Gm@tempcnt=\count308
+\Gm@bindingoffset=\dimen176
+\Gm@wd@mp=\dimen177
+\Gm@odd@mp=\dimen178
+\Gm@even@mp=\dimen179
+\Gm@layoutwidth=\dimen180
+\Gm@layoutheight=\dimen181
+\Gm@layouthoffset=\dimen182
+\Gm@layoutvoffset=\dimen183
+\Gm@dimlist=\toks25
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/geometry\geometry.cfg)) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/hyperref\hyperref.sty
+Package: hyperref 2026-10-09 v7.01s Hypertext links for LaTeX
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/kvsetkeys\kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/kvdefinekeys\kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/pdfescape\pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/ltxcmds\ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/pdftexcmds\pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/infwarerr\infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/hycolor\hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/hyperref\nameref.sty
+Package: nameref 2026-01-29 v2.58 Cross-referencing by name of section
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/refcount\refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/gettitlestring\gettitlestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/kvoptions\kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+))
+\c@section@level=\count309
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/stringenc\stringenc.sty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO)
+)
+\@linkdim=\dimen184
+\Hy@linkcounter=\count310
+\Hy@pagecounter=\count311
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/hyperref\pd1enc.def
+File: pd1enc.def 2026-10-09 v7.01s Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/intcalc\intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count312
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/hyperref\puenc.def
+File: puenc.def 2026-10-09 v7.01s Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+)
+Package hyperref Info: Hyper figures OFF on input line 4199.
+Package hyperref Info: Link nesting OFF on input line 4204.
+Package hyperref Info: Hyper index ON on input line 4207.
+Package hyperref Info: Plain pages OFF on input line 4214.
+Package hyperref Info: Backreferencing OFF on input line 4219.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4466.
+\c@Hy@tempcnt=\count313
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/url\url.sty
+\Urlmuskip=\muskip18
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 4805.
+\XeTeXLinkMargin=\dimen185
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/bitset\bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/bigintcalc\bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
+))
+\Fld@menulength=\count314
+\Field@Width=\dimen186
+\Fld@charsize=\dimen187
+Package hyperref Info: Hyper figures OFF on input line 6091.
+Package hyperref Info: Link nesting OFF on input line 6096.
+Package hyperref Info: Hyper index ON on input line 6099.
+Package hyperref Info: backreferencing OFF on input line 6106.
+Package hyperref Info: Link coloring OFF on input line 6111.
+Package hyperref Info: Link coloring with OCG OFF on input line 6116.
+Package hyperref Info: PDF/A mode OFF on input line 6121.
+\Hy@abspage=\count315
+\c@Item=\count316
+\c@Hfootnote=\count317
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/hyperref\hpdftex.def
+File: hpdftex.def 2026-10-09 v7.01s Hyperref driver for pdfTeX
+\Fld@listcount=\count318
+\c@bookmark@seq@number=\count319
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/rerunfilecheck\rerunfilecheck.sty
+Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/generic/uniquecounter\uniquecounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 284.
+)
+\Hy@SectionHShift=\skip54
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/float\float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count320
+\float@exts=\toks26
+\float@box=\box55
+\@float@everytoks=\toks27
+\@floatcapt=\box56
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/caption\caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/caption\caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen188
+\captionmargin=\dimen189
+\caption@leftmargin=\dimen190
+\caption@rightmargin=\dimen191
+\caption@width=\dimen192
+\caption@indent=\dimen193
+\caption@parindent=\dimen194
+\caption@hangindent=\dimen195
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count321
+\c@continuedfloat=\count322
+Package caption Info: float package is loaded.
+Package caption Info: hyperref package is loaded.
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/caption\subcaption.sty
+Package: subcaption 2023/07/28 v1.6b Sub-captions (AR)
+Package caption Info: New subtype `subfigure' on input line 238.
+\c@subfigure=\count323
+Package caption Info: New subtype `subtable' on input line 238.
+\c@subtable=\count324
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/xcolor\xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/graphics-cfg\color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 274.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/graphics\mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/titlesec\titlesec.sty
+Package: titlesec 2025/01/04 v2.17 Sectioning titles
+\ttl@box=\box57
+\beforetitleunit=\skip55
+\aftertitleunit=\skip56
+\ttl@plus=\dimen196
+\ttl@minus=\dimen197
+\ttl@toksa=\toks28
+\titlewidth=\dimen198
+\titlewidthlast=\dimen199
+\titlewidthfirst=\dimen256
+)
+Package hyperref Info: Option `colorlinks' set `true' on input line 32.
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 34.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/lm\t1lmr.fd
+File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/l3kernel\l3backend-pdftex.def
+File: l3backend-pdftex.def 2026-09-09 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count325
+) (relazione_spotify.aux)
+\openout1 = `relazione_spotify.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 34.
+LaTeX Font Info:    ... okay on input line 34.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 34.
+LaTeX Font Info:    ... okay on input line 34.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 34.
+LaTeX Font Info:    ... okay on input line 34.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 34.
+LaTeX Font Info:    ... okay on input line 34.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 34.
+LaTeX Font Info:    ... okay on input line 34.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 34.
+LaTeX Font Info:    ... okay on input line 34.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 34.
+LaTeX Font Info:    ... okay on input line 34.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 34.
+LaTeX Font Info:    ... okay on input line 34.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 34.
+LaTeX Font Info:    ... okay on input line 34.
+LaTeX Info: Redefining \it@ocap on input line 34.
+LaTeX Info: Redefining \it@ccap on input line 34.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/context/base/mkii\supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count326
+\scratchdimen=\dimen257
+\scratchbox=\box58
+\nofMPsegments=\count327
+\nofMParguments=\count328
+\everyMPshowfont=\toks29
+\MPscratchCnt=\count329
+\MPscratchDim=\dimen258
+\MPnumerator=\count330
+\makeMPintoPDFobject=\count331
+\everyMPtoPDFconversion=\toks30
+) (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/epstopdf-pkg\epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/00miktex\epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
+))
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(71.13188pt, 455.24411pt, 71.13188pt)
+* v-part:(T,H,B)=(71.13188pt, 702.78308pt, 71.13188pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=455.24411pt
+* \textheight=702.78308pt
+* \oddsidemargin=-1.1381pt
+* \evensidemargin=-1.1381pt
+* \topmargin=-38.1381pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=12.0pt
+* \footskip=30.0pt
+* \marginparwidth=35.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.8pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+Package hyperref Info: Link coloring ON on input line 34.
+(relazione_spotify.out) (relazione_spotify.out)
+\@outlinefile=\write3
+\openout3 = `relazione_spotify.out'.
+
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
+Package babel Info: Main language set to 'italian'.
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 55.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/lm\ot1lmr.fd
+File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 55.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/lm\omllmm.fd
+File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 55.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/lm\omslmsy.fd
+File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 55.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/lm\omxlmex.fd
+File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <12> on input line 55.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <8> on input line 55.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <6> on input line 55.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 55.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/amsfonts\umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 55.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/amsfonts\umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) [1
+
+{C:/Users/lucab/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/enc/dvips/lm/lm-ec.enc}] (relazione_spotify.toc)
+\tf@toc=\write4
+\openout4 = `relazione_spotify.toc'.
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.73 \newpage
+              [1]
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 87.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/lm\ts1lmr.fd
+File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+) [2{C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/enc/dvips/lm/lm-ts1.enc}]
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 133.
+ (C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex/latex/lm\t1lmtt.fd
+File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+) [3]
+<figures/fig01_distribuzione_generi.png, id=188, 867.24pt x 433.62pt>
+File: figures/fig01_distribuzione_generi.png Graphic file (type png)
+<use figures/fig01_distribuzione_generi.png>
+Package pdftex.def Info: figures/fig01_distribuzione_generi.png  used on input line 146.
+(pdftex.def)             Requested size: 400.61703pt x 200.3079pt.
+<figures/fig02_audio_features_hist_kde.png, id=191, 1156.32pt x 1011.78pt>
+File: figures/fig02_audio_features_hist_kde.png Graphic file (type png)
+<use figures/fig02_audio_features_hist_kde.png>
+Package pdftex.def Info: figures/fig02_audio_features_hist_kde.png  used on input line 162.
+(pdftex.def)             Requested size: 432.48051pt x 378.41306pt.
+ [4 <./figures/fig01_distribuzione_generi.png>]
+<figures/fig03_discrete_features.png, id=200, 1156.32pt x 289.08pt>
+File: figures/fig03_discrete_features.png Graphic file (type png)
+<use figures/fig03_discrete_features.png>
+Package pdftex.def Info: figures/fig03_discrete_features.png  used on input line 172.
+(pdftex.def)             Requested size: 432.48051pt x 108.11801pt.
+ [5 <./figures/fig02_audio_features_hist_kde.png> <./figures/fig03_discrete_features.png>]
+<figures/fig04_matrice_correlazione_iniziale.png, id=210, 794.97pt x 650.43pt>
+File: figures/fig04_matrice_correlazione_iniziale.png Graphic file (type png)
+<use figures/fig04_matrice_correlazione_iniziale.png>
+Package pdftex.def Info: figures/fig04_matrice_correlazione_iniziale.png  used on input line 188.
+(pdftex.def)             Requested size: 364.19667pt x 297.98068pt.
+ [6{C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/enc/dvips/lm/lm-mathsy.enc}{C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/enc/dvips/lm/lm-rm.enc} <./figures/fig04_matrice_correlazione_iniziale.png>]
+<figures/fig05_distribuzione_sampling.png, id=221, 1011.78pt x 433.62pt>
+File: figures/fig05_distribuzione_sampling.png Graphic file (type png)
+<use figures/fig05_distribuzione_sampling.png>
+Package pdftex.def Info: figures/fig05_distribuzione_sampling.png  used on input line 221.
+(pdftex.def)             Requested size: 409.71692pt x 175.59529pt.
+ [7]
+<figures/fig06_matrice_correlazione_post_sampling.png, id=231, 794.97pt x 650.43pt>
+File: figures/fig06_matrice_correlazione_post_sampling.png Graphic file (type png)
+<use figures/fig06_matrice_correlazione_post_sampling.png>
+Package pdftex.def Info: figures/fig06_matrice_correlazione_post_sampling.png  used on input line 231.
+(pdftex.def)             Requested size: 364.19667pt x 297.98068pt.
+ [8 <./figures/fig05_distribuzione_sampling.png> <./figures/fig06_matrice_correlazione_post_sampling.png>]
+Overfull \hbox (39.484pt too wide) in paragraph at lines 255--269
+ [][] 
+ []
+
+<figures/fig07_confronto_modelli_baseline.png, id=241, 867.24pt x 433.62pt>
+File: figures/fig07_confronto_modelli_baseline.png Graphic file (type png)
+<use figures/fig07_confronto_modelli_baseline.png>
+Package pdftex.def Info: figures/fig07_confronto_modelli_baseline.png  used on input line 273.
+(pdftex.def)             Requested size: 400.61703pt x 200.3079pt.
+[9] [10{C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/enc/dvips/lm/lm-mathex.enc} <./figures/fig07_confronto_modelli_baseline.png>]
+<figures/fig08_confusion_matrix_best_model.png, id=268, 939.51pt x 794.97pt>
+File: figures/fig08_confusion_matrix_best_model.png Graphic file (type png)
+<use figures/fig08_confusion_matrix_best_model.png>
+Package pdftex.def Info: figures/fig08_confusion_matrix_best_model.png  used on input line 302.
+(pdftex.def)             Requested size: 400.61703pt x 338.97983pt.
+<figures/fig09_classification_report_heatmap.png, id=269, 722.7pt x 578.16pt>
+File: figures/fig09_classification_report_heatmap.png Graphic file (type png)
+<use figures/fig09_classification_report_heatmap.png>
+Package pdftex.def Info: figures/fig09_classification_report_heatmap.png  used on input line 309.
+(pdftex.def)             Requested size: 341.43307pt x 273.14676pt.
+ [11 <./figures/fig08_confusion_matrix_best_model.png>]
+<figures/fig10_roc_curves_multiclass.png, id=277, 867.24pt x 578.16pt>
+File: figures/fig10_roc_curves_multiclass.png Graphic file (type png)
+<use figures/fig10_roc_curves_multiclass.png>
+Package pdftex.def Info: figures/fig10_roc_curves_multiclass.png  used on input line 322.
+(pdftex.def)             Requested size: 223.07211pt x 148.71245pt.
+<figures/fig11_precision_recall_curves.png, id=278, 867.24pt x 578.16pt>
+File: figures/fig11_precision_recall_curves.png Graphic file (type png)
+<use figures/fig11_precision_recall_curves.png>
+Package pdftex.def Info: figures/fig11_precision_recall_curves.png  used on input line 327.
+(pdftex.def)             Requested size: 223.07211pt x 148.71245pt.
+<figures/fig12_learning_curve.png, id=279, 722.7pt x 433.62pt>
+File: figures/fig12_learning_curve.png Graphic file (type png)
+<use figures/fig12_learning_curve.png>
+Package pdftex.def Info: figures/fig12_learning_curve.png  used on input line 336.
+(pdftex.def)             Requested size: 364.19667pt x 218.51653pt.
+ [12 <./figures/fig09_classification_report_heatmap.png> <./figures/fig10_roc_curves_multiclass.png> <./figures/fig11_precision_recall_curves.png>]
+<figures/fig13_feature_importance.png, id=291, 867.24pt x 505.89pt>
+File: figures/fig13_feature_importance.png Graphic file (type png)
+<use figures/fig13_feature_importance.png>
+Package pdftex.def Info: figures/fig13_feature_importance.png  used on input line 352.
+(pdftex.def)             Requested size: 386.96027pt x 225.72629pt.
+ [13 <./figures/fig12_learning_curve.png> <./figures/fig13_feature_importance.png>]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10> on input line 367.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <7> on input line 367.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 367.
+<figures/fig14_pca_varianza_cumulativa.png, id=302, 722.7pt x 433.62pt>
+File: figures/fig14_pca_varianza_cumulativa.png Graphic file (type png)
+<use figures/fig14_pca_varianza_cumulativa.png>
+Package pdftex.def Info: figures/fig14_pca_varianza_cumulativa.png  used on input line 378.
+(pdftex.def)             Requested size: 341.43307pt x 204.86006pt.
+<figures/fig15_tsne_2d_overview.png, id=303, 939.51pt x 650.43pt>
+File: figures/fig15_tsne_2d_overview.png Graphic file (type png)
+<use figures/fig15_tsne_2d_overview.png>
+Package pdftex.def Info: figures/fig15_tsne_2d_overview.png  used on input line 385.
+(pdftex.def)             Requested size: 400.61703pt x 277.34712pt.
+ [14 <./figures/fig14_pca_varianza_cumulativa.png>]
+<figures/fig16_kmeans_elbow_wcss.png, id=315, 722.7pt x 433.62pt>
+File: figures/fig16_kmeans_elbow_wcss.png Graphic file (type png)
+<use figures/fig16_kmeans_elbow_wcss.png>
+Package pdftex.def Info: figures/fig16_kmeans_elbow_wcss.png  used on input line 401.
+(pdftex.def)             Requested size: 341.43307pt x 204.86006pt.
+ [15 <./figures/fig15_tsne_2d_overview.png>]
+<figures/fig17_kmeans_tsne_clusters.png, id=327, 867.24pt x 578.16pt>
+File: figures/fig17_kmeans_tsne_clusters.png Graphicef)             Requested size: 418.82375pt x 209.41551pt.
+<figures/fig19_kmeans_silhouette_plot.png, id=303, 722.7pt x 505.89pt>
+File: figures/fig19_kmeans_silhouette_plot.png Graphic file (type png)
+<use figures/fig19_kmeans_silhouette_plot.png>
+Package pdftex.def Info: figures/fig19_kmeans_silhouette_plot.png  used on inpu
+t line 435.
+(pdftex.def)             Requested size: 341.43307pt x 239.0034pt.
+ [17 <./figures/fig17_kmeans_tsne_clusters.png> <./figures/fig18_kmeans_feature
+_profiling.png>]
+
+LaTeX Warning: Reference `fig:dbscan_knn' on page 18 undefined on input line 44
+4.
+
+
+LaTeX Warning: Reference `fig:dbscan_grid' on page 18 undefined on input line 4
+45.
+
+<figures/fig20_dbscan_knn_distance.png, id=312, 722.7pt x 433.62pt>
+File: figures/fig20_dbscan_knn_distance.png Graphic file (type png)
+<use figures/fig20_dbscan_knn_distance.png>
+Package pdftex.def Info: figures/fig20_dbscan_knn_distance.png  used on input l
+ine 450.
+(pdftex.def)             Requested size: 223.07211pt x 133.84517pt.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10.95> on input line 451.
+<figures/fig21_dbscan_grid_search.png, id=313, 650.43pt x 433.62pt>
+File: figures/fig21_dbscan_grid_search.png Graphic file (type png)
+<use figures/fig21_dbscan_grid_search.png>
+Package pdftex.def Info: figures/fig21_dbscan_grid_search.png  used on input li
+ne 456.
+(pdftex.def)             Requested size: 223.07211pt x 148.71245pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 457--457
+[]\T1/lmr/m/n/10.95 (b) |Gri-glia di tu-ning pa-ra-me-tri
+ []
+
+[18 <./figures/fig19_kmeans_silhouette_plot.png>]
+
+LaTeX Warning: Reference `fig:dbscan_tsne' on page 19 undefined on input line 4
+64.
+
+
+LaTeX Warning: Reference `fig:dbscan_noise' on page 19 undefined on input line 
+465.
+
+LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <12> not available
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 467.
+<figures/fig22_dbscan_tsne_clusters_noise.png, id=320, 867.24pt x 578.16pt>
+File: figures/fig22_dbscan_tsne_clusters_noise.png Graphic file (type png)
+<use figures/fig22_dbscan_tsne_clusters_noise.png>
+Package pdftex.def Info: figures/fig22_dbscan_tsne_clusters_noise.png  used on 
+input line 474.
+(pdftex.def)             Requested size: 400.61703pt x 267.07721pt.
+[19 <./figures/fig20_dbscan_knn_distance.png> <./figures/fig21_dbscan_grid_sear
+ch.png>]
+<figures/fig23_dbscan_noise_profiling.png, id=333, 1156.32pt x 361.35pt>
+File: figures/fig23_dbscan_noise_profiling.png Graphic file (type png)
+<use figures/fig23_dbscan_noise_profiling.png>
+Package pdftex.def Info: figures/fig23_dbscan_noise_profiling.png  used on inpu
+t line 481.
+(pdftex.def)             Requested size: 432.48051pt x 135.14752pt.
+ [20 <./figures/fig22_dbscan_tsne_clusters_noise.png> <./figures/fig23_dbscan_n
+oise_profiling.png>] [21] (relazione_spotify.aux)
+ ***********
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-09-09>
+ ***********
+
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+
+Package rerunfilecheck Warning: File `relazione_spotify.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `relazione_spotify.out':
+(rerunfilecheck)             Before: C009CB6BA9A2153DD48947ED02A7746D;6743
+(rerunfilecheck)             After:  C34D553DC76C338A0F5AF4CFE83ABB8B;7333.
+ ) 
+Here is how much of TeX's memory you used:
+ 14626 strings out of 467391
+ 244033 string characters out of 5402691
+ 672028 words of memory out of 5000000
+ 43681 multiletter control sequences out of 15000+600000
+ 702100 words of font info for 95 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 74i,10n,79p,723b,583s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/public/lm/dpi720\ec-l
+mtk10.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/public/lm/dpi6
+57\lmsy10.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/public/lm/
+dpi657\rm-lmr10.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/publ
+ic/lm/dpi657\lmmi10.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/
+public/lm/dpi600\lmsy8.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modele
+ss/public/lm/dpi600\lmmi6.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/mod
+eless/public/lm/dpi600\ec-lmr10.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/
+pk/modeless/public/lm/dpi600\ec-lmr7.pk> <C:\Users\lucab\AppData\Local\MiKTeX\f
+onts/pk/modeless/public/lm/dpi600\ec-lmr8.pk> <C:\Users\lucab\AppData\Local\MiK
+TeX\fonts/pk/modeless/public/lm/dpi600\lmex10.pk> <C:\Users\lucab\AppData\Local
+\MiKTeX\fonts/pk/modeless/public/lm/dpi600\rm-lmr8.pk> <C:\Users\lucab\AppData\
+Local\MiKTeX\fonts/pk/modeless/public/lm/dpi600\lmmi8.pk> <C:\Users\lucab\AppDa
+ta\Local\MiKTeX\fonts/pk/modeless/public/lm/dpi600\rm-lmr12.pk> <C:\Users\lucab
+\AppData\Local\MiKTeX\fonts/pk/modeless/public/lm/dpi720\lmsy10.pk> <C:\Users\l
+ucab\AppData\Local\MiKTeX\fonts/pk/modeless/public/lm/dpi600\lmmi12.pk> <C:\Use
+rs\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/public/lm/dpi600\ec-lmtt12.pk> 
+<C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/public/lm/dpi600\ec-lmri
+12.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/public/lm/dpi600\
+ts1-lmr12.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/public/lm/
+dpi600\ec-lmr12.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/publ
+ic/lm/dpi600\ec-lmbx12.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modele
+ss/public/lm/dpi1037\ec-lmbx12.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/p
+k/modeless/public/lm/dpi657\ec-lmr10.pk> <C:\Users\lucab\AppData\Local\MiKTeX\f
+onts/pk/modeless/public/lm/dpi720\ec-lmr12.pk> <C:\Users\lucab\AppData\Local\Mi
+KTeX\fonts/pk/modeless/public/lm/dpi720\ec-lmbx12.pk> <C:\Users\lucab\AppData\L
+ocal\MiKTeX\fonts/pk/modeless/public/lm/dpi864\ec-lmbx12.pk>
+Output written on relazione_spotify.pdf (22 pages, 12559466 bytes).
+PDF statistics:
+ 949 PDF objects out of 1000 (max. 8388607)
+ 93 named destinations out of 1000 (max. 500000)
+ 356 words of extra memory for PDF output out of 10000 (max. 10000000)
+
