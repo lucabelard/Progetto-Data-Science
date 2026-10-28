@@ -1,0 +1,444 @@
+PWD c:\Users\lucab\OneDrive\Documenti\GitHub\Progetto-Data-Science
+INPUT C:\Users\lucab\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
+INPUT c:\Users\lucab\OneDrive\Documenti\GitHub\Progetto-Data-Science\relazione_spotify.tex
+OUTPUT relazione_spotify.log
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\base\article.cls
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\base\article.cls
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\base\size12.clo
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\base\size12.clo
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\base\size12.clo
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\cm\cmr12.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\base\inputenc.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\base\inputenc.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\base\fontenc.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\base\fontenc.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\jknappen\ec\ecrm1200.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\lmodern.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\lmodern.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\babel\babel.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\babel\babel.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\babel\txtbabel.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\arabi\bblopts.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\arabi\bblopts.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\arabi\bblopts.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\babel\locale\it\babel-italian.tex
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\babel\locale\it\babel-italian.tex
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\babel\locale\it\babel-italian.tex
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\babel\locale\it\babel-it.ini
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\babel-italian\italian.ldf
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\babel-italian\italian.ldf
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\babel-italian\italian.ldf
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\etoolbox\etoolbox.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\etoolbox\etoolbox.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsmath\amsmath.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsmath\amsmath.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsmath\amsopn.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsmath\amstext.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsmath\amstext.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsmath\amsgen.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsmath\amsgen.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsmath\amsbsy.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsmath\amsbsy.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsmath\amsopn.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsfonts\amssymb.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsfonts\amssymb.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsfonts\amsfonts.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsfonts\amsfonts.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics\graphicx.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics\graphicx.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics\keyval.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics\keyval.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics\graphics.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics\graphics.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics\trig.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics\trig.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics-cfg\graphics.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics-cfg\graphics.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics-cfg\graphics.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics-def\pdftex.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics-def\pdftex.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics-def\pdftex.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\booktabs\booktabs.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\booktabs\booktabs.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\geometry\geometry.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\geometry\geometry.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\iftex\ifvtex.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\iftex\ifvtex.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\iftex\iftex.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\iftex\iftex.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\geometry\geometry.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\geometry\geometry.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\geometry\geometry.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hyperref\hyperref.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hyperref\hyperref.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\kvsetkeys\kvsetkeys.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\kvsetkeys\kvsetkeys.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\kvdefinekeys\kvdefinekeys.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\kvdefinekeys\kvdefinekeys.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\pdfescape\pdfescape.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\pdfescape\pdfescape.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\ltxcmds\ltxcmds.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\ltxcmds\ltxcmds.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\pdftexcmds\pdftexcmds.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\pdftexcmds\pdftexcmds.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\infwarerr\infwarerr.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\infwarerr\infwarerr.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hycolor\hycolor.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hycolor\hycolor.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hyperref\nameref.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hyperref\nameref.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\refcount\refcount.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\refcount\refcount.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\gettitlestring\gettitlestring.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\gettitlestring\gettitlestring.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\kvoptions\kvoptions.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\kvoptions\kvoptions.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\stringenc\stringenc.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\stringenc\stringenc.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hyperref\pd1enc.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hyperref\pd1enc.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hyperref\pd1enc.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\intcalc\intcalc.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\intcalc\intcalc.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hyperref\puenc.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hyperref\puenc.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hyperref\puenc.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\url\url.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\url\url.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\bitset\bitset.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\bitset\bitset.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\bigintcalc\bigintcalc.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\bigintcalc\bigintcalc.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hyperref\hpdftex.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hyperref\hpdftex.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\hyperref\hpdftex.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\rerunfilecheck\rerunfilecheck.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\rerunfilecheck\rerunfilecheck.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\uniquecounter\uniquecounter.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\generic\uniquecounter\uniquecounter.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\float\float.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\float\float.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\caption\caption.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\caption\caption.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\caption\caption3.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\caption\caption3.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\caption\subcaption.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\caption\subcaption.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\xcolor\xcolor.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\xcolor\xcolor.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics-cfg\color.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics-cfg\color.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics-cfg\color.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics\mathcolor.ltx
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics\mathcolor.ltx
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics\mathcolor.ltx
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\titlesec\titlesec.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\titlesec\titlesec.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\t1lmr.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\t1lmr.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\t1lmr.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmr12.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\l3kernel\l3backend-pdftex.def
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\l3kernel\l3backend-pdftex.def
+INPUT .\relazione_spotify.aux
+INPUT .\relazione_spotify.aux
+INPUT relazione_spotify.aux
+OUTPUT relazione_spotify.aux
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\context\base\mkii\supp-pdf.mkii
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\context\base\mkii\supp-pdf.mkii
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\context\base\mkii\supp-pdf.mkii
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\epstopdf-pkg\epstopdf-base.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\epstopdf-pkg\epstopdf-base.sty
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\00miktex\epstopdf-sys.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\00miktex\epstopdf-sys.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\00miktex\epstopdf-sys.cfg
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\graphics\color.sty
+INPUT .\relazione_spotify.out
+INPUT .\relazione_spotify.out
+INPUT relazione_spotify.out
+INPUT relazione_spotify.out
+OUTPUT relazione_spotify.pdf
+INPUT .\relazione_spotify.out
+INPUT .\relazione_spotify.out
+OUTPUT relazione_spotify.out
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmr17.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmbx12.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmr12.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmbx12.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmr10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmr17.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmbx12.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmbx12.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\ot1lmr.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\ot1lmr.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\ot1lmr.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\rm-lmr12.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\rm-lmr8.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\rm-lmr6.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\omllmm.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\omllmm.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\omllmm.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmmi12.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmmi8.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmmi6.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\omslmsy.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\omslmsy.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\omslmsy.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmsy10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmsy8.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmsy6.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\omxlmex.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\omxlmex.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\omxlmex.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmex10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsfonts\umsa.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsfonts\umsa.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsfonts\umsa.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msam10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msam10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msam7.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsfonts\umsb.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsfonts\umsb.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\amsfonts\umsb.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
+INPUT C:\Users\lucab\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\enc\dvips\lm\lm-ec.enc
+INPUT .\relazione_spotify.toc
+INPUT .\relazione_spotify.toc
+INPUT relazione_spotify.toc
+OUTPUT relazione_spotify.toc
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\ts1lmr.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\ts1lmr.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\ts1lmr.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ts1-lmr12.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmri12.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\enc\dvips\lm\lm-ts1.enc
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\t1lmtt.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\t1lmtt.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\tex\latex\lm\t1lmtt.fd
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmtt12.tfm
+INPUT .\figures\fig01_distribuzione_generi.png
+INPUT .\figures\fig01_distribuzione_generi.png
+INPUT .\figures\fig01_distribuzione_generi.png
+INPUT .\figures\fig01_distribuzione_generi.png
+INPUT .\figures\fig01_distribuzione_generi.png
+INPUT .\figures\fig01_distribuzione_generi.png
+INPUT .\figures\fig01_distribuzione_generi.png
+INPUT .\figures\fig02_audio_features_hist_kde.png
+INPUT .\figures\fig02_audio_features_hist_kde.png
+INPUT .\figures\fig02_audio_features_hist_kde.png
+INPUT .\figures\fig02_audio_features_hist_kde.png
+INPUT .\figures\fig02_audio_features_hist_kde.png
+INPUT .\figures\fig02_audio_features_hist_kde.png
+INPUT .\figures\fig02_audio_features_hist_kde.png
+INPUT .\figures\fig03_discrete_features.png
+INPUT .\figures\fig03_discrete_features.png
+INPUT .\figures\fig03_discrete_features.png
+INPUT .\figures\fig03_discrete_features.png
+INPUT .\figures\fig03_discrete_features.png
+INPUT .\figures\fig03_discrete_features.png
+INPUT .\figures\fig03_discrete_features.png
+INPUT .\figures\fig04_matrice_correlazione_iniziale.png
+INPUT .\figures\fig04_matrice_correlazione_iniziale.png
+INPUT .\figures\fig04_matrice_correlazione_iniziale.png
+INPUT .\figures\fig04_matrice_correlazione_iniziale.png
+INPUT .\figures\fig04_matrice_correlazione_iniziale.png
+INPUT .\figures\fig04_matrice_correlazione_iniziale.png
+INPUT .\figures\fig04_matrice_correlazione_iniziale.png
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\enc\dvips\lm\lm-mathit.enc
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\enc\dvips\lm\lm-mathsy.enc
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\enc\dvips\lm\lm-rm.enc
+INPUT .\figures\fig05_distribuzione_sampling.png
+INPUT .\figures\fig05_distribuzione_sampling.png
+INPUT .\figures\fig05_distribuzione_sampling.png
+INPUT .\figures\fig05_distribuzione_sampling.png
+INPUT .\figures\fig05_distribuzione_sampling.png
+INPUT .\figures\fig05_distribuzione_sampling.png
+INPUT .\figures\fig05_distribuzione_sampling.png
+INPUT .\figures\fig06_matrice_correlazione_post_sampling.png
+INPUT .\figures\fig06_matrice_correlazione_post_sampling.png
+INPUT .\figures\fig06_matrice_correlazione_post_sampling.png
+INPUT .\figures\fig06_matrice_correlazione_post_sampling.png
+INPUT .\figures\fig06_matrice_correlazione_post_sampling.png
+INPUT .\figures\fig06_matrice_correlazione_post_sampling.png
+INPUT .\figures\fig06_matrice_correlazione_post_sampling.png
+INPUT .\figures\fig07_confronto_modelli_baseline.png
+INPUT .\figures\fig07_confronto_modelli_baseline.png
+INPUT .\figures\fig07_confronto_modelli_baseline.png
+INPUT .\figures\fig07_confronto_modelli_baseline.png
+INPUT .\figures\fig07_confronto_modelli_baseline.png
+INPUT .\figures\fig07_confronto_modelli_baseline.png
+INPUT .\figures\fig07_confronto_modelli_baseline.png
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\enc\dvips\lm\lm-mathex.enc
+INPUT .\figures\fig08_confusion_matrix_best_model.png
+INPUT .\figures\fig08_confusion_matrix_best_model.png
+INPUT .\figures\fig08_confusion_matrix_best_model.png
+INPUT .\figures\fig08_confusion_matrix_best_model.png
+INPUT .\figures\fig08_confusion_matrix_best_model.png
+INPUT .\figures\fig08_confusion_matrix_best_model.png
+INPUT .\figures\fig08_confusion_matrix_best_model.png
+INPUT .\figures\fig09_classification_report_heatmap.png
+INPUT .\figures\fig09_classification_report_heatmap.png
+INPUT .\figures\fig09_classification_report_heatmap.png
+INPUT .\figures\fig09_classification_report_heatmap.png
+INPUT .\figures\fig09_classification_report_heatmap.png
+INPUT .\figures\fig09_classification_report_heatmap.png
+INPUT .\figures\fig09_classification_report_heatmap.png
+INPUT .\figures\fig10_roc_curves_multiclass.png
+INPUT .\figures\fig10_roc_curves_multiclass.png
+INPUT .\figures\fig10_roc_curves_multiclass.png
+INPUT .\figures\fig10_roc_curves_multiclass.png
+INPUT .\figures\fig10_roc_curves_multiclass.png
+INPUT .\figures\fig10_roc_curves_multiclass.png
+INPUT .\figures\fig10_roc_curves_multiclass.png
+INPUT .\figures\fig11_precision_recall_curves.png
+INPUT .\figures\fig11_precision_recall_curves.png
+INPUT .\figures\fig11_precision_recall_curves.png
+INPUT .\figures\fig11_precision_recall_curves.png
+INPUT .\figures\fig11_precision_recall_curves.png
+INPUT .\figures\fig11_precision_recall_curves.png
+INPUT .\figures\fig11_precision_recall_curves.png
+INPUT .\figures\fig12_learning_curve.png
+INPUT .\figures\fig12_learning_curve.png
+INPUT .\figures\fig12_learning_curve.png
+INPUT .\figures\fig12_learning_curve.png
+INPUT .\figures\fig12_learning_curve.png
+INPUT .\figures\fig12_learning_curve.png
+INPUT .\figures\fig12_learning_curve.png
+INPUT .\figures\fig13_feature_importance.png
+INPUT .\figures\fig13_feature_importance.png
+INPUT .\figures\fig13_feature_importance.png
+INPUT .\figures\fig13_feature_importance.png
+INPUT .\figures\fig13_feature_importance.png
+INPUT .\figures\fig13_feature_importance.png
+INPUT .\figures\fig13_feature_importance.png
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmr8.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmr10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\rm-lmr10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\rm-lmr7.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\rm-lmr5.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmmi10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmmi7.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmmi5.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmsy10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmsy7.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmsy5.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msam10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msam7.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msam5.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msbm5.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmr7.tfm
+INPUT .\figures\fig14_pca_varianza_cumulativa.png
+INPUT .\figures\fig14_pca_varianza_cumulativa.png
+INPUT .\figures\fig14_pca_varianza_cumulativa.png
+INPUT .\figures\fig14_pca_varianza_cumulativa.png
+INPUT .\figures\fig14_pca_varianza_cumulativa.png
+INPUT .\figures\fig14_pca_varianza_cumulativa.png
+INPUT .\figures\fig14_pca_varianza_cumulativa.png
+INPUT .\figures\fig15_tsne_2d_overview.png
+INPUT .\figures\fig15_tsne_2d_overview.png
+INPUT .\figures\fig15_tsne_2d_overview.png
+INPUT .\figures\fig15_tsne_2d_overview.png
+INPUT .\figures\fig15_tsne_2d_overview.png
+INPUT .\figures\fig15_tsne_2d_overview.png
+INPUT .\figures\fig15_tsne_2d_overview.png
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmr6.tfm
+INPUT .\figures\fig16_kmeans_elbow_wcss.png
+INPUT .\figures\fig16_kmeans_elbow_wcss.png
+INPUT .\figures\fig16_kmeans_elbow_wcss.png
+INPUT .\figures\fig16_kmeans_elbow_wcss.png
+INPUT .\figures\fig16_kmeans_elbow_wcss.png
+INPUT .\figures\fig16_kmeans_elbow_wcss.png
+INPUT .\figures\fig16_kmeans_elbow_wcss.png
+INPUT .\figures\fig17_kmeans_tsne_clusters.png
+INPUT .\figures\fig17_kmeans_tsne_clusters.png
+INPUT .\figures\fig17_kmeans_tsne_clusters.png
+INPUT .\figures\fig17_kmeans_tsne_clusters.png
+INPUT .\figures\fig17_kmeans_tsne_clusters.png
+INPUT .\figures\fig17_kmeans_tsne_clusters.png
+INPUT .\figures\fig17_kmeans_tsne_clusters.png
+INPUT .\figures\fig18_kmeans_feature_profiling.png
+INPUT .\figures\fig18_kmeans_feature_profiling.png
+INPUT .\figures\fig18_kmeans_feature_profiling.png
+INPUT .\figures\fig18_kmeans_feature_profiling.png
+INPUT .\figures\fig18_kmeans_feature_profiling.png
+INPUT .\figures\fig18_kmeans_feature_profiling.png
+INPUT .\figures\fig18_kmeans_feature_profiling.png
+INPUT .\figures\fig19_kmeans_silhouette_plot.png
+INPUT .\figures\fig19_kmeans_silhouette_plot.png
+INPUT .\figures\fig19_kmeans_silhouette_plot.png
+INPUT .\figures\fig19_kmeans_silhouette_plot.png
+INPUT .\figures\fig19_kmeans_silhouette_plot.png
+INPUT .\figures\fig19_kmeans_silhouette_plot.png
+INPUT .\figures\fig19_kmeans_silhouette_plot.png
+INPUT .\figures\fig20_dbscan_knn_distance.png
+INPUT .\figures\fig20_dbscan_knn_distance.png
+INPUT .\figures\fig20_dbscan_knn_distance.png
+INPUT .\figures\fig20_dbscan_knn_distance.png
+INPUT .\figures\fig20_dbscan_knn_distance.png
+INPUT .\figures\fig20_dbscan_knn_distance.png
+INPUT .\figures\fig20_dbscan_knn_distance.png
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\rm-lmr10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmmi10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\lmsy10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msam10.tfm
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
+INPUT .\figures\fig21_dbscan_grid_search.png
+INPUT .\figures\fig21_dbscan_grid_search.png
+INPUT .\figures\fig21_dbscan_grid_search.png
+INPUT .\figures\fig21_dbscan_grid_search.png
+INPUT .\figures\fig21_dbscan_grid_search.png
+INPUT .\figures\fig21_dbscan_grid_search.png
+INPUT .\figures\fig21_dbscan_grid_search.png
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\tfm\public\lm\ec-lmtk10.tfm
+INPUT .\figures\fig22_dbscan_tsne_clusters_noise.png
+INPUT .\figures\fig22_dbscan_tsne_clusters_noise.png
+INPUT .\figures\fig22_dbscan_tsne_clusters_noise.png
+INPUT .\figures\fig22_dbscan_tsne_clusters_noise.png
+INPUT .\figures\fig22_dbscan_tsne_clusters_noise.png
+INPUT .\figures\fig22_dbscan_tsne_clusters_noise.png
+INPUT .\figures\fig22_dbscan_tsne_clusters_noise.png
+INPUT .\figures\fig23_dbscan_noise_profiling.png
+INPUT .\figures\fig23_dbscan_noise_profiling.png
+INPUT .\figures\fig23_dbscan_noise_profiling.png
+INPUT .\figures\fig23_dbscan_noise_profiling.png
+INPUT .\figures\fig23_dbscan_noise_profiling.png
+INPUT .\figures\fig23_dbscan_noise_profiling.png
+INPUT .\figures\fig23_dbscan_noise_profiling.png
+INPUT relazione_spotify.aux
+INPUT .\relazione_spotify.out
+INPUT .\relazione_spotify.out
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmbx12.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmbx12.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmex10.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmex10.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmmi10.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmmi10.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmmi12.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmmi12.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmmi6.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmmi6.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmmi8.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmmi8.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmr10.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmr10.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmr12.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmr12.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmr7.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmr7.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmr8.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmr8.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmri12.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmri12.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmsy10.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmsy10.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmsy8.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmsy8.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmtk10.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmtk10.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmtt12.pfb
+INPUT C:\Users\lucab\OneDrive\Desktop\Nuova cartella (2)\fonts\type1\public\lm\lmtt12.pfb

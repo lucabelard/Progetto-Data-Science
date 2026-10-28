@@ -716,6 +716,7 @@ Here is how much of TeX's memory you used:
  74i,10n,79p,723b,583s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/public/lm/dpi720\ec-l
 mtk10.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/public/lm/dpi6
+<<<<<<< Updated upstream
 57\lmsy10.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/public/lm/
 dpi657\rm-lmr10.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/publ
 ic/lm/dpi657\lmmi10.pk> <C:\Users\lucab\AppData\Local\MiKTeX\fonts/pk/modeless/
@@ -746,4 +747,12 @@ PDF statistics:
  949 PDF objects out of 1000 (max. 8388607)
  93 named destinations out of 1000 (max. 500000)
  356 words of extra memory for PDF output out of 10000 (max. 10000000)
+=======
+57\lmsy10.pk> <C:\UseDrive/Desktop/Nuova cartella (2)/fonts/type1/public/lm/lmmi6.pfb><C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/type1/public/lm/lmmi8.pfb><C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/type1/public/lm/lmr10.pfb><C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/type1/public/lm/lmr12.pfb><C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/type1/public/lm/lmr7.pfb><C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/type1/public/lm/lmr8.pfb><C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/type1/public/lm/lmri12.pfb><C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/type1/public/lm/lmsy10.pfb><C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/type1/public/lm/lmsy8.pfb><C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/type1/public/lm/lmtk10.pfb><C:/Users/lucab/OneDrive/Desktop/Nuova cartella (2)/fonts/type1/public/lm/lmtt12.pfb>
+Output written on relazione_spotify.pdf (22 pages, 12649421 bytes).
+PDF statistics:
+ 484 PDF objects out of 1000 (max. 8388607)
+ 93 named destinations out of 1000 (max. 500000)
+ 372 words of extra memory for PDF output out of 10000 (max. 10000000)
+>>>>>>> Stashed changes
 
