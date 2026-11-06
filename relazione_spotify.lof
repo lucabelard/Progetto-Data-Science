@@ -1,0 +1,23 @@
+\babel@toc {italian}{}\relax 
+\babel@toc {italian}{}\relax 
+\contentsline {figure}{\numberline {1}{\ignorespaces Distribuzione delle frequenze dei 15 generi musicali nel dataset post-ETL.}}{8}{figure.caption.2}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Distribuzione delle caratteristiche audio continue (istogrammi e curve di densità KDE).}}{9}{figure.caption.3}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Distribuzione delle variabili discrete: Tonalità (\texttt {key}), Modo (\texttt {mode}) e Metro (\texttt {time\_signature}).}}{11}{figure.caption.4}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Matrice di correlazione di Pearson tra le feature audio calcolata sul dataset prima del sampling.}}{12}{figure.caption.5}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Distribuzione delle classi di genere nel Training Set prima e dopo il campionamento (SMOTE + Undersampling).}}{15}{figure.caption.6}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Matrice di correlazione tra le feature audio calcolata dopo il processo di bilanciamento con SMOTE.}}{16}{figure.caption.7}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Confronto dell'accuratezza media ottenuta dai diversi algoritmi di classificazione sul Test Set.}}{18}{figure.caption.9}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Matrice di confusione normalizzata ottenuta dal modello Ensemble finale sul Test Set.}}{21}{figure.caption.10}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Heatmap del Classification Report: valori di Precision, Recall ed F1-Score per ciascun genere.}}{22}{figure.caption.11}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Valutazione delle performance: Curve ROC One-vs-Rest e Curve Precision-Recall.}}{23}{figure.caption.12}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Learning Curve (Training vs Validation) calcolata al variare della numerosità del dataset.}}{24}{figure.caption.13}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Feature Importance: confronto dei contributi percentuali tra Random Forest e XGBoost.}}{25}{figure.caption.14}%
+\contentsline {figure}{\numberline {13}{\ignorespaces PCA: Scree Plot della varianza spiegata individuale e cumulativa.}}{28}{figure.caption.15}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Mappa 2D generata tramite t-SNE con colorazione per genere Spotify originale.}}{29}{figure.caption.16}%
+\contentsline {figure}{\numberline {15}{\ignorespaces Metodo del Gomito (Elbow Method): andamento del WCSS in funzione del numero di cluster $k$.}}{30}{figure.caption.17}%
+\contentsline {figure}{\numberline {16}{\ignorespaces Cluster K-Means ($k=5$) visualizzati sulla proiezione bidimensionale t-SNE.}}{31}{figure.caption.18}%
+\contentsline {figure}{\numberline {17}{\ignorespaces Profiling acustico dei cluster K-Means: matrice delle caratteristiche medie per cluster.}}{32}{figure.caption.19}%
+\contentsline {figure}{\numberline {18}{\ignorespaces Diagramma della Silhouette per il modello K-Means con $k=5$.}}{34}{figure.caption.20}%
+\contentsline {figure}{\numberline {19}{\ignorespaces Metodologie di calibrazione e selezione degli iperparametri per l'algoritmo DBSCAN.}}{35}{figure.caption.21}%
+\contentsline {figure}{\numberline {20}{\ignorespaces Cluster DBSCAN con isolamento ed evidenziazione delle osservazioni di rumore / outlier.}}{37}{figure.caption.22}%
+\contentsline {figure}{\numberline {21}{\ignorespaces Analisi diagnostica del rumore DBSCAN: confronto delle distribuzioni su feature anomale.}}{38}{figure.caption.23}%

@@ -14,6 +14,9 @@
 \usepackage{subcaption}
 \usepackage{xcolor}
 \usepackage{titlesec}
+\usepackage{setspace}
+
+\onehalfspacing
 
 \geometry{
   a4paper,
@@ -77,18 +80,23 @@
 % =========================================================================
 \section{Spotify tracks analysis: Introduzione}
 
-Nel panorama contemporaneo dello streaming musicale, la fruizione e la catalogazione dei brani audio sono guidate in misura sempre maggiore da modelli matematici e algoritmi di machine learning. Piattaforme leader a livello globale come Spotify estraggono e analizzano sistematicamente caratteristiche acustiche e psicoacustiche a partire dal segnale audio grezzo di milioni di tracce musicali. 
+Nel panorama contemporaneo dello streaming musicale, la fruizione e la catalogazione dei brani audio sono guidate in misura sempre maggiore da modelli matematici e algoritmi di apprendimento automatico. Piattaforme leader a livello globale come Spotify gestiscono cataloghi composti da decine di milioni di brani, affrontando la sfida quotidiana di organizzarli in modo coerente e di proporre raccomandazioni personalizzate per ciascun utente. Per fare ciò, i moderni sistemi non si basano unicamente sui metadati testuali (come il titolo, il nome dell'artista o la casa discografica), ma estraggono sistematicamente caratteristiche acustiche e psicoacustiche direttamente dal segnale audio grezzo di ogni traccia.
 
-Comprendere come queste variabili continue e discrete interagiscano tra loro permette sia di automatizzare la categorizzazione dei brani all'interno dei rispettivi generi musicali, sia di scoprire pattern latenti di affinità sonica non rilevabili dai soli metadati commerciali. In questo contesto, il presente progetto si propone di analizzare un dataset contenente oltre 42.000 tracce musicali descritte da molteplici attributi tecnici (frequenza, tempo in BPM, volume sonoro, presenza vocale, valenza emotiva e ballabilità), integrando un percorso metodologico completo che spazia dalla pulizia e preparazione dei dati, alla modellazione supervisionata e non supervisionata.
+Comprendere come queste variabili continue e discrete interagiscano tra loro permette sia di automatizzare la categorizzazione dei brani all'interno dei rispettivi generi musicali, sia di scoprire pattern latenti di affinità sonica non rilevabili dalle sole etichette commerciali. In questo contesto, il presente progetto si propone di analizzare approfonditamente un dataset contenente oltre 42.000 tracce musicali descritte da molteplici attributi tecnici (frequenza, tempo in BPM, volume sonoro, presenza vocale, valenza emotiva e ballabilità), integrando un percorso metodologico completo che spazia dalla pulizia e preparazione dei dati, alla modellazione supervisionata e non supervisionata.
 
 \subsection{Obiettivi del progetto}
-L'obiettivo principale dell'elaborato è l'applicazione congiunta di tecniche di machine learning supervisionate e non supervisionate al fine di estrarre valore predittivo e descrittivo dalle caratteristiche audio. Nello specifico, il lavoro si articola nei seguenti obiettivi:
+
+L'obiettivo principale dell'elaborato è l'applicazione di tecniche di machine learning, in particolare di classificazione supervisionata e di clustering non supervisionato, per estrarre conoscenza e individuare relazioni significative nei dati musicali. Nello specifico, il lavoro si articola nei seguenti obiettivi fondamentali:
+
 \begin{itemize}
-    \item \textbf{Data Cleaning ed Esplorazione Preliminare:} Rimuovere le ridondanze derivanti dall'estrazione tramite API (inclusa la corretta deduplicazione basata sull'identificativo univoco della traccia), scartare metadati non predittivi e standardizzare opportunamente le variabili numeriche garantendo la totale assenza di \textit{data leakage}.
-    \item \textbf{Classificazione Multiclasse del Genere Musicale:} Sviluppare modelli predittivi in grado di stimare il genere di appartenenza di una traccia tra 15 classi differenti, affrontando il problema dello sbilanciamento delle classi tramite tecniche di oversampling sintetico (SMOTE) e undersampling combinato, esplorando molteplici algoritmi di apprendimento e migliorando le performance attraverso tecniche avanzate di \textit{Ensemble Learning} (Voting e Stacking Classifier).
-    \item \textbf{Clustering Non Supervisionato e Profiling dei Mood:} Raggruppare i brani in cluster sonori omogenei in modo completamente agnostico rispetto al genere di mercato, impiegando algoritmi di partizionamento (K-Means) e basati sulla densità (DBSCAN), supportati da tecniche di riduzione di dimensionalità (PCA e t-SNE) per individuare macro-archetipi o playlist basate sullo stato d'animo (\textit{mood}).
-    \item \textbf{Analisi Diagnostica e Business Case:} Valutare approfonditamente i modelli attraverso metriche consolidate (Classification Report, Matrice di Confusione normalizzata, curve ROC/PR, Learning Curve, Silhouette Analysis) e identificare concrete opportunità applicative per l'industria discografica e per i motori di raccomandazione musicale.
+    \item \textbf{Data Cleaning ed ETL Rigoroso:} Ispezionare la qualità dei dati grezzi estratti dall'API di Spotify, eliminare le ridondanze derivanti dalla sovrapposizione delle playlist tematiche mediante deduplicazione basata sull'identificativo univoco del brano, scartare variabili di servizio non informative e preparare i dati garantendo la totale assenza di \textit{data leakage}.
+    \item \textbf{Analisi Descrittiva ed Esplorativa (EDA):} Esaminare a fondo le distribuzioni statistiche delle caratteristiche audio, evidenziando le asimmetrie, la presenza di outlier e le correlazioni lineari tra grandezze fisiche e musicali.
+    \item \textbf{Classificazione Multiclasse del Genere Musicale:} Sviluppare e ottimizzare modelli predittivi capaci di stimare il genere di appartenenza di una traccia tra 15 classi differenti partendo unicamente dalle sue proprietà sonore. Il task richiede di affrontare il forte sbilanciamento delle classi tramite tecniche di oversampling sintetico (SMOTE) e undersampling controllato, di confrontare molteplici algoritmi di machine learning e di incrementare le performance attraverso tecniche avanzate di \textit{Ensemble Learning} (Voting Classifier e Stacking Classifier).
+    \item \textbf{Clustering Non Supervisionato e Profiling dei Mood:} Raggruppare i brani in cluster sonori omogenei in modo del tutto agnostico rispetto al genere etichettato, impiegando sia algoritmi di partizionamento (K-Means) che algoritmi basati sulla densità spaziale (DBSCAN), supportati da tecniche di riduzione della dimensionalità (PCA e t-SNE) per identificare macro-archetipi o playlist emotive (\textit{mood playlists}).
+    \item \textbf{Analisi Diagnostica e Ricadute Applicative:} Condurre un'analisi approfondita degli errori commessi dai modelli (matrice di confusione, curve ROC e Precision-Recall, learning curves, silhouette analysis) e proporre scenari d'uso concreti per le piattaforme di streaming e l'industria discografica.
 \end{itemize}
+
+Attraverso l'impiego coordinato di queste metodologie, il progetto intende dimostrare come l'analisi quantitativa dei segnali audio possa supportare efficacemente sia la classificazione tassonomica automatica sia la creazione di nuovi percorsi di scoperta musicale guidati dalle affinità timbriche ed emotive.
 
 \newpage
 % =========================================================================
@@ -96,99 +104,166 @@ L'obiettivo principale dell'elaborato è l'applicazione congiunta di tecniche di
 % =========================================================================
 \section{Spotify tracks analysis: Dataset}
 
-Il dataset utilizzato per l'analisi è stato reperito dalla piattaforma Kaggle (\textit{Spotify Audio Features / Genres v2}). Il dataset grezzo comprende 42.305 osservazioni relative a brani musicali distribuiti in 15 generi distinti, descritti da 22 attributi comprensivi di metadati identificativi, feature acustiche e parametri ritmici.
+Il dataset impiegato per la realizzazione di questo progetto è stato reperito dalla piattaforma Kaggle, ed è noto come \textit{Spotify Audio Features / Genres v2}. Il dataset grezzo raccoglie 42.305 osservazioni relative a brani musicali estratti tramite le Web API ufficiali di Spotify a partire da playlist pubbliche focalizzate su 15 generi e sottogeneri musicali contemporanei. 
 
-Nella Tabella \ref{tab:colonne_dataset} vengono riepilogate le principali caratteristiche incluse nel dataset e il relativo tipo di dato.
+Ciascuna traccia all'interno del dataset è descritta da un totale di 22 attributi, comprendenti metadati identificativi, parametri sonori continui derivati dall'analisi spettrale e variabili discrete legate alla teoria musicale. Nel dettaglio, le informazioni fornite dal dataset si suddividono nelle seguenti categorie:
+
+\begin{itemize}
+    \item \textbf{Informazioni e Metadati di Servizio:}
+    \begin{itemize}
+        \item \texttt{id}: Stringa alfanumerica univoca assegnata da Spotify a ciascun brano.
+        \item \texttt{song\_name} e \texttt{title}: Titolo della traccia o stringa del nome del file.
+        \item \texttt{uri}, \texttt{track\_href}, \texttt{analysis\_url}: Indirizzi URI e URL web per l'accesso programmatico alle risorse audio sui server di Spotify.
+        \item \texttt{type}: Tipologia dell'oggetto ritornato dall'API (costantemente pari ad \texttt{audio\_features}).
+        \item \texttt{genre}: Genere musicale associato alla playlist da cui è stato estratto il brano (rappresenta la nostra variabile target per la classificazione).
+    \end{itemize}
+    \item \textbf{Caratteristiche Audio Continue (Misure Fisiche e Psicoacustiche):}
+    \begin{itemize}
+        \item \texttt{danceability}: Valore compreso tra 0.0 e 1.0 che descrive quanto un brano sia adatto al ballo, calcolato sulla base di regolarità del ritmo, stabilità del tempo e forza della battuta.
+        \item \texttt{energy}: Valore tra 0.0 e 1.0 che rappresenta una misura percettiva dell'intensità e dell'attività della traccia (i brani energici risultano veloci, rumorosi e densi).
+        \item \texttt{loudness}: Volume sonoro complessivo della traccia espresso in decibel (dB), tipicamente compreso tra -60 dB e 0 dB.
+        \item \texttt{speechiness}: Valore tra 0.0 e 1.0 che quantifica la presenza di parole parlate. Valori superiori a 0.66 indicano tracce parlate (es. talk show o poesia), valori tra 0.33 e 0.66 indicano musica con forte presenza vocale ritmata (Rap, Trap), mentre valori inferiori a 0.33 descrivono brani tradizionali e strumentali.
+        \item \texttt{acousticness}: Misura di confidenza tra 0.0 e 1.0 che indica se il brano è acustico (1.0) o sintetico/elettronico (vicino a 0.0).
+        \item \texttt{instrumentalness}: Valore tra 0.0 e 1.0 che prevede se la traccia è priva di parti vocali cantate. I brani rap o pop ottengono valori prossimi a 0, mentre tracce techno o ambient superano 0.5.
+        \item \texttt{liveness}: Valore tra 0.0 e 1.0 che rileva la presenza di un pubblico nella registrazione; valori superiori a 0.8 indicano un'alta probabilità di performance dal vivo.
+        \item \texttt{valence}: Valore da 0.0 a 1.0 che descrive la positività musicale trasmessa dalla traccia: valori alti indicano euforia, allegria e serenità, mentre valori bassi denotano tristezza, rabbia o tensione emotiva.
+        \item \texttt{tempo}: Velocità stimata del brano espressa in battiti al minuto (BPM).
+        \item \texttt{duration\_ms}: Durata temporale complessiva del brano espressa in millisecondi.
+    \end{itemize}
+    \item \textbf{Parametri Musicali Discreti:}
+    \begin{itemize}
+        \item \texttt{key}: Tonalità complessiva del brano codificata come intero secondo la notazione standard Pitch Class (0 = Do, 1 = Do$\sharp$/Re$\flat$, 2 = Re, ..., 11 = Si).
+        \item \texttt{mode}: Modalità del brano, dove 1 indica la modalità Maggiore e 0 indica la modalità Minore.
+        \item \texttt{time\_signature}: Metro ritmico stimato (numero di quarti per battuta, tipicamente pari a 4 nella quasi totalità della musica moderna).
+    \end{itemize}
+\end{itemize}
+
+Nella Tabella \ref{tab:colonne_dataset} vediamo una rappresentazione riepilogativa delle colonne del dataset e il relativo formato dei dati.
 
 \begin{table}[H]
 \centering
 \caption{Colonne del dataset e relativo formato dei dati.}
 \label{tab:colonne_dataset}
-\begin{tabular}{ll}
+\begin{tabular}{lll}
 \toprule
-\textbf{Colonna} & \textbf{Formato / Descrizione} \\
+\textbf{Colonna} & \textbf{Formato} & \textbf{Descrizione / Range} \\
 \midrule
-danceability & Float [0.0 - 1.0] (Ballabilità del brano) \\
-energy & Float [0.0 - 1.0] (Intensità ed energia percepita) \\
-key & Intero [0 - 11] (Tonalità secondo la Pitch Class) \\
-loudness & Float (Volume complessivo in decibel dB) \\
-mode & Intero [0 = Minore, 1 = Maggiore] \\
-speechiness & Float [0.0 - 1.0] (Presenza di parole parlate) \\
-acousticness & Float [0.0 - 1.0] (Confidenza che il brano sia acustico) \\
-instrumentalness & Float [0.0 - 1.0] (Probabilità che non contenga parti vocali) \\
-liveness & Float [0.0 - 1.0] (Probabilità di registrazione dal vivo) \\
-valence & Float [0.0 - 1.0] (Positività / Umore della traccia) \\
-tempo & Float (Velocità ritmica in battiti al minuto BPM) \\
-duration\_ms & Intero (Durata del brano espressa in millisecondi) \\
-time\_signature & Intero (Metro ritmico, tipicamente compreso tra 3 e 5) \\
-id & Stringa (Identificativo univoco Spotify) \\
-genre & Categoriale (Target di classificazione: 15 generi) \\
+\texttt{danceability} & Float & Ballabilità del brano [0.0 - 1.0] \\
+\texttt{energy} & Float & Intensità dinamica percepita [0.0 - 1.0] \\
+\texttt{key} & Intero & Tonalità Pitch Class [0 - 11] \\
+\texttt{loudness} & Float & Volume globale in decibel [dB] \\
+\texttt{mode} & Intero & Modalità armonica [0 = Minore, 1 = Maggiore] \\
+\texttt{speechiness} & Float & Presenza di parlato / flow vocale [0.0 - 1.0] \\
+\texttt{acousticness} & Float & Grado di produzione acustica [0.0 - 1.0] \\
+\texttt{instrumentalness} & Float & Assenza di parti vocali [0.0 - 1.0] \\
+\texttt{liveness} & Float & Presenza di registrazione live [0.0 - 1.0] \\
+\texttt{valence} & Float & Positività / Tonalità emotiva [0.0 - 1.0] \\
+\texttt{tempo} & Float & Velocità ritmica in BPM \\
+\texttt{duration\_ms} & Intero & Durata del brano in millisecondi \\
+\texttt{time\_signature} & Intero & Metro ritmico stimato [3 - 5] \\
+\texttt{id} & Stringa & Identificativo univoco Spotify \\
+\texttt{genre} & Categoriale & Etichetta del genere (15 classi target) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+\newpage
 \subsection{ETL}
-Il processo di ETL (Extract, Transform, Load) è stato fondamentale per garantire la qualità dei dati e la correttezza metodologica delle analisi successive. Durante questa fase sono state eseguite le seguenti operazioni:
+
+Il processo di ETL (Extract, Transform, Load) è stato un passaggio fondamentale per garantire la qualità dei dati e la validità scientifica di tutte le analisi condotte successivamente. L'estrazione da API di playlist eterogenee, se non adeguatamente filtrata, introduce infatti distorsioni sistematiche che possono compromettere l'addestramento dei modelli.
+
+Durante questa fase sono state applicate diverse operazioni critiche:
+
 \begin{itemize}
-    \item \textbf{Deduplicazione su Track ID:} Poiché le tracce sono estratte dall'API di Spotify a partire da molteplici playlist tematiche, la medesima canzone compare frequentemente duplicata. È stato eseguito un filtro rigoroso sulla colonna \texttt{id}, rimuovendo 6.428 record duplicati e riducendo il dataset a 35.877 brani unici effettivi. Questa operazione è fondamentale per evitare che brani identici finiscano contemporaneamente nel set di training e di test, inducendo overfitting o stime ottimistiche viziate da data leakage.
-    \item \textbf{Eliminazione Variabili di Servizio:} Sono state rimosse le colonne generate dall'API prive di valore predittivo acustico (\texttt{Unnamed: 0}, \texttt{type}, \texttt{uri}, \texttt{track\_href}, \texttt{analysis\_url}, \texttt{song\_name}, \texttt{title}).
-    \item \textbf{Gestione dei Valori Nulli e Verifica di Integrità:} Il dataset pulito è stato sottoposto a verifica per accertare l'assenza di dati mancanti: tutte le feature acustiche numeriche e il target risultano complete al 100\% (0 valori nulli).
+    \item \textbf{Deduplicazione su Track ID:} Poiché le playlist Spotify condividono spesso brani popolari comuni a più sottogeneri, il dataset grezzo originale di 42.305 righe presentava un elevato numero di repliche dello stesso brano. È stato eseguito un filtraggio rigoroso basato sulla colonna \texttt{id}, individuando e rimuovendo esattamente \textbf{6.428 record duplicati}. Il dataset ripulito risulta così composto da \textbf{35.877 brani unici effettivi}. 
+    Questa operazione si è rivelata indispensabile: in assenza di deduplicazione preventiva, brani identici sarebbero finiti contemporaneamente sia nel training set che nel test set durante la fase di holdout, provocando un grave fenomeno di \textit{data leakage} e generando stime di accuratezza artificialmente gonfiate e non generalizzabili.
+    
+    \item \textbf{Eliminazione delle Variabili di Servizio:} Sono state eliminate tutte le colonne prive di contenuto acustico utile alla modellazione predittiva, tra cui \texttt{Unnamed: 0}, \texttt{type}, \texttt{uri}, \texttt{track\_href}, \texttt{analysis\_url}, \texttt{song\_name} e \texttt{title}. Oltre a non apportare informazione sonica, tali variabili avrebbero appesantito la memoria computazionale introducendo rumore inutile.
+    
+    \item \textbf{Verifica dell'Integrità e Gestione dei Valori Nulli:} È stato effettuato un controllo esaustivo per rilevare l'eventuale presenza di valori nulli o mancanti (\textit{missing values}). Tutte le feature audio numeriche e la variabile target \texttt{genre} risultano complete al 100\%, confermando l'assenza di dati mancanti da imputare.
+    
+    \item \textbf{Esportazione del Dataset Pulito:} Il dataset risultante dalle operazioni di ETL è stato salvato nel file \texttt{genres\_cleaned.csv}, pronto per essere utilizzato in modo riproducibile dalle pipeline di analisi descrittiva, classificazione e clustering.
 \end{itemize}
 
+\newpage
 \subsection{Analisi descrittiva}
-L'analisi descrittiva svolta ha avuto lo scopo di esplorare e sintetizzare le proprietà statistiche del dataset, evidenziando le distribuzioni marginali e le relazioni di correlazione lineare tra le feature.
+
+L'analisi descrittiva ha avuto lo scopo di esplorare e sintetizzare le principali caratteristiche statistiche del dataset, fornendo una comprensione preliminare delle distribuzioni marginali delle variabili e delle relazioni che intercorrono tra di esse. Nel seguito vengono esaminate singolarmente le distribuzioni dei generi, delle feature continue, delle grandezze musicali discrete e la matrice di correlazione.
 
 \subsubsection{Distribuzione dei generi musicali}
-La distribuzione dei generi è stata visualizzata tramite il grafico a barre riportato in Figura \ref{fig:distribuzione_generi}. I dati evidenziano un marcato sbilanciamento naturale: i generi urbani \textit{Underground Rap} (5.044 brani) e \textit{Dark Trap} (4.578 brani) risultano predominanti, mentre generi come il \textit{Pop} contano appena 404 tracce. Questo sbilanciamento rappresenta una criticità per i modelli di classificazione, che andrà gestita tramite specifiche tecniche di sampling.
+
+La frequenza con cui ciascun genere musicale compare all'interno del dataset ripulito è stata visualizzata tramite il grafico a barre riportato in Figura \ref{fig:distribuzione_generi}. 
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.88\textwidth]{figures/fig01_distribuzione_generi.png}
-    \caption{Distribuzione delle frequenze dei 15 generi musicali post-deduplicazione.}
+    \caption{Distribuzione delle frequenze dei 15 generi musicali nel dataset post-ETL.}
     \label{fig:distribuzione_generi}
 \end{figure}
 
+Come si può osservare chiaramente dalla Figura \ref{fig:distribuzione_generi}, il dataset evidenzia un marcato sbilanciamento naturale nella numerosità delle classi. I generi urbani ed elettronici risultano ampiamente dominanti: in particolare, \textit{Underground Rap} conta 5.044 brani e \textit{Dark Trap} ne conta 4.578. Al contrario, altri generi risultano fortemente sottorappresentati: il caso più evidente è il genere \textit{Pop}, che include appena 404 brani, seguito da \textit{Rap} (1.042) ed \textit{Emo} (1.616). 
+
+Questo squilibrio rappresenta una seria criticità per i successivi modelli di classificazione: un algoritmo addestrato ingenuamente su queste proporzioni tenderebbe infatti a favorire sistematicamente le classi maggioritarie, sacrificando l'accuratezza sulle classi rare. Tale evidenza ha reso indispensabile la successiva adozione di strategie di ricampionamento bilanciato.
+
+\newpage
 \subsubsection{Distribuzione delle feature continue}
-In Figura \ref{fig:audio_features_hist} vengono mostrati gli istogrammi arricchiti con curve di densità (KDE) per le caratteristiche continue:
-\begin{itemize}
-    \item \texttt{danceability}: Presenta una distribuzione simmetrica centrata tra 0.65 e 0.70.
-    \item \texttt{energy} e \texttt{loudness}: Sono fortemente asimmetriche a sinistra, evidenziando che la produzione discografica moderna privilegia dinamiche compresse e volumi elevati (-8 dB a -4 dB).
-    \item \texttt{acousticness}: Mostra un forte picco vicino a zero, confermando che la quasi totalità delle tracce include produzione elettronica.
-    \item \texttt{speechiness}: Mostra una struttura bimodale, con un picco sotto 0.1 per musica melodica e un secondo cluster sopra 0.25 tipico di Rap e Trap.
-\end{itemize}
+
+Per analizzare le variabili numeriche continue, sono stati generati istogrammi affiancati dalle relative curve di densità stimate tramite Kernel Density Estimation (KDE), riportati complessivamente in Figura \ref{fig:audio_features_hist}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{figures/fig02_audio_features_hist_kde.png}
-    \caption{Distribuzione delle feature audio continue (istogrammi e curve di densità KDE).}
+    \includegraphics[width=0.92\textwidth]{figures/fig02_audio_features_hist_kde.png}
+    \caption{Distribuzione delle caratteristiche audio continue (istogrammi e curve di densità KDE).}
     \label{fig:audio_features_hist}
 \end{figure}
 
+Dall'ispezione della Figura \ref{fig:audio_features_hist} emergono interessanti pattern acustici e produttivi:
+\begin{itemize}
+    \item \texttt{danceability}: Mostra una distribuzione quasi perfettamente simmetrica e a campana, con una media centrata tra 0.65 e 0.70. Questo riflette il fatto che la maggior parte delle tracce campionate appartiene a generi pensati per l'ascolto ritmico e il ballo.
+    \item \texttt{energy} e \texttt{loudness}: Presentano entrambe una marcata asimmetria negativa (coda allungata verso sinistra). La quasi totalità dei brani presenta valori di energia superiori a 0.6 e volumi compresi tra -8 dB e -4 dB. Questo fenomeno è una conseguenza diretta delle moderne tecniche di mastering discografico (la cosiddetta \textit{loudness war}), che tendono a massimizzare la percezione di impatto sonoro riducendo la gamma dinamica.
+    \item \texttt{acousticness}: Mostra un picco estremamente pronunciato in prossimità dello zero, a testimonianza del fatto che i generi presenti nel dataset fanno un uso massiccio di strumenti sintetici, campionatori e drum machine elettroniche.
+    \item \texttt{speechiness}: Mostra una struttura bimodale caratteristica: un primo gruppo preponderante si addensa al di sotto di 0.1 (brani melodici o strumentali tradizionali), mentre una seconda gobba ben definita compare oltre 0.25, tipica delle tracce rap e trap caratterizzate da un denso flusso vocale ritmato.
+    \item \texttt{tempo}: È distribuito principalmente tra 70 e 190 BPM, con addensamenti visibili in corrispondenza delle convenzioni di genere standard (130-140 BPM per trap ed EDM, 170-175 BPM per drum and bass).
+\end{itemize}
+
+\newpage
 \subsubsection{Distribuzione delle variabili discrete}
-In Figura \ref{fig:discrete_features} viene rappresentata la distribuzione della tonalità (\texttt{key}), della modalità (\texttt{mode}) e del metro (\texttt{time\_signature}). Si nota una prevalenza netta della misura standard in 4/4 e una leggera predominanza della modalità maggiore (\texttt{mode} = 1).
+
+La Figura \ref{fig:discrete_features} riporta la distribuzione di frequenza per le tre grandezze discrete legate alla teoria musicale: la tonalità (\texttt{key}), la modalità (\texttt{mode}) e la divisione metrica (\texttt{time\_signature}).
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{figures/fig03_discrete_features.png}
-    \caption{Distribuzione delle variabili musicali discrete: Tonalità, Modalità e Metro.}
+    \includegraphics[width=0.90\textwidth]{figures/fig03_discrete_features.png}
+    \caption{Distribuzione delle variabili discrete: Tonalità (\texttt{key}), Modo (\texttt{mode}) e Metro (\texttt{time\_signature}).}
     \label{fig:discrete_features}
 \end{figure}
 
-\subsubsection{Matrice di correlazione}
-È stata calcolata la matrice di correlazione lineare di Pearson tra le feature audio, visualizzata tramite heatmap in Figura \ref{fig:matrice_corr_iniziale}.
-Dall'analisi emergono forti correlazioni tra grandezze fisiche:
+Dalla Figura \ref{fig:discrete_features} si evince che:
 \begin{itemize}
-    \item Forte correlazione positiva tra \texttt{energy} e \texttt{loudness} ($r \approx 0.70$).
-    \item Forte correlazione negativa tra \texttt{energy} e \texttt{acousticness} ($r \approx -0.49$).
-    \item Correlazione positiva moderata tra \texttt{valence} (positività emotiva) e \texttt{danceability}.
+    \item La variabile \texttt{time\_signature} vede la quasi totalità assoluta delle osservazioni concentrata sul valore 4 (ossia la misura standard in quattro quarti 4/4), comune a oltre il 95\% delle produzioni musicali contemporanee occidentali.
+    \item La variabile \texttt{mode} mostra una leggera prevalenza della modalità maggiore (\texttt{mode} = 1, circa il 55\% dei brani) rispetto a quella minore (\texttt{mode} = 0, circa il 45\%), riflettendo una discreta varietà armonica.
+    \item La variabile \texttt{key} si distribuisce su tutte le 12 classi di altezza (da 0 per il Do fino a 11 per il Si), con frequenze leggermente più elevate in corrispondenza di Do (0), Do$\sharp$/Re$\flat$ (1) e Sol (7), tonalità storicamente molto impiegate nella composizione di musica elettronica e urbana.
 \end{itemize}
+
+\newpage
+\subsubsection{Matrice di correlazione}
+
+Per studiare le relazioni di interdipendenza lineare tra tutte le variabili numeriche, è stata calcolata la matrice di correlazione di Pearson, visualizzata sotto forma di heatmap in Figura \ref{fig:matrice_corr_iniziale}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.80\textwidth]{figures/fig04_matrice_correlazione_iniziale.png}
-    \caption{Matrice di correlazione di Pearson tra le feature audio prima delle operazioni di sampling.}
+    \includegraphics[width=0.78\textwidth]{figures/fig04_matrice_correlazione_iniziale.png}
+    \caption{Matrice di correlazione di Pearson tra le feature audio calcolata sul dataset prima del sampling.}
     \label{fig:matrice_corr_iniziale}
 \end{figure}
+
+Dall'analisi della Figura \ref{fig:matrice_corr_iniziale} emergono alcune correlazioni forti e perfettamente coerenti con la fisica acustica e la produzione musicale:
+\begin{itemize}
+    \item \textbf{Forte correlazione positiva tra \texttt{energy} e \texttt{loudness} ($r \approx 0.70$):} Brani con elevata energia dinamica presentano naturalmente livelli sonori medi più alti in decibel.
+    \item \textbf{Marcata correlazione negativa tra \texttt{energy} e \texttt{acousticness} ($r \approx -0.49$):} Tracce acustiche tendono ad avere un'energia percepita significativamente inferiore rispetto a produzioni sintetiche o distorte.
+    \item \textbf{Correlazione positiva moderata tra \texttt{valence} e \texttt{danceability} ($r \approx 0.35$):} I brani dal tono emotivo più allegro ed euforico sono tendenzialmente più facili da ballare rispetto a brani malinconici o tesi.
+    \item \textbf{Quasi totale indipendenza di \texttt{duration\_ms} e \texttt{key}:} Queste variabili presentano coefficienti prossimi a 0 rispetto alla maggior parte delle altre grandezze, indicando che la tonalità o la lunghezza del brano non vincolano direttamente l'energia o la ballabilità.
+\end{itemize}
 
 \newpage
 % =========================================================================
@@ -196,67 +271,85 @@ Dall'analisi emergono forti correlazioni tra grandezze fisiche:
 % =========================================================================
 \section{Spotify tracks analysis: Classificazione}
 
-La classificazione supervisionata è stata condotta con l'obiettivo di sviluppare modelli predittivi capaci di assegnare la corretta etichetta di genere musicale a ciascuna traccia sulla base esclusiva dei suoi parametri sonori.
+La classificazione supervisionata è stata condotta con l'obiettivo di sviluppare modelli predittivi in grado di determinare il genere musicale di ciascun brano a partire dalle sue caratteristiche audio. Il processo ha compreso una rigorosa fase di preprocessing e bilanciamento dei dati, la definizione di scenari sperimentali, l'addestramento e l'ottimizzazione degli iperparametri di molteplici algoritmi di apprendimento e, infine, l'integrazione di tecniche avanzate di \textit{Ensemble Learning}.
 
 \subsection{Preprocessing del Dataset}
-Per preparare correttamente i dati, il dataset di 35.877 brani è stato suddiviso in Training Set (80\%, 28.701 campioni) e Test Set (20\%, 7.176 campioni) mediante stratificazione rispetto alle classi target.
 
-Per evitare fenomeni di \textit{data leakage}, la standardizzazione tramite \texttt{StandardScaler} è stata calcolata (\textit{fit}) unicamente sul training set ed estesa (\textit{transform}) sul test set:
+Per consentire una corretta valutazione empirica, il dataset ripulito di 35.877 brani è stato inizialmente suddiviso in Training Set (80\%, pari a 28.701 campioni) e Test Set (20\%, pari a 7.176 campioni), impiegando una procedura di campionamento stratificato per preservare le proporzioni originali delle classi.
+
+Al fine di evitare qualunque forma di \textit{data leakage}, la standardizzazione delle feature è stata eseguita tramite \texttt{StandardScaler}, calcolando media e deviazione standard unicamente sui dati di addestramento:
 \begin{equation}
-z = \frac{x - \mu_{train}}{\sigma_{train}}
+z = \frac{x - \mu_{\text{train}}}{\sigma_{\text{train}}}
+\label{eq:standardizzazione}
 \end{equation}
+I parametri $\mu_{\text{train}}$ e $\sigma_{\text{train}}$ ottenuti sono stati successivamente utilizzati per trasformare il test set senza ricalcolo.
 
 \subsubsection{Oversampling con SMOTE e Undersampling}
-A causa del forte sbilanciamento (le classi variano da circa 400 a oltre 5.000 campioni), un classificatore standard tenderebbe a collassare sulle classi dominanti. È stata adottata una strategia combinata applicata \textbf{esclusivamente al training set}:
+
+Come evidenziato nel capitolo precedente, la distribuzione dei generi nel dataset originale risulta fortemente disomogenea. Per risolvere questo problema, è stata adottata una strategia ibrida di ricampionamento applicata \textbf{esclusivamente al dataset di training}:
 \begin{itemize}
-    \item \textbf{SMOTE (Synthetic Minority Oversampling Technique):} Ha incrementato il numero di campioni per le classi minoritarie (\textit{Pop, Trap Metal, Rap, Emo, RnB}) generando campioni sintetici mediante interpolazione lineare nello spazio delle feature.
-    \item \textbf{Undersampling Controllato:} Ha ridotto i campioni delle classi maggioritarie (\textit{Underground Rap, Dark Trap}).
+    \item \textbf{Oversampling con SMOTE (Synthetic Minority Over-sampling Technique):} Per le classi minoritarie (in particolare \textit{Pop}, \textit{Rap}, \textit{Emo}, \textit{RnB} e \textit{Trap Metal}), è stata impiegata la tecnica SMOTE. A differenza della semplice duplicazione casuale dei record (che favorisce l'overfitting), SMOTE seleziona i $k$-nearest neighbors di ciascun campione della classe minoritaria e genera nuove osservazioni sintetiche interpolando linearmente nello spazio continuo delle feature.
+    \item \textbf{Undersampling Controllato:} Per le classi fortemente maggioritarie (come \textit{Underground Rap} e \textit{Dark Trap}), è stato eseguito un undersampling casuale per ridurne l'eccesso numerico ed evitare che dominassero la discesa del gradiente durante l'apprendimento.
 \end{itemize}
 
 \subsubsection{Dataset Finale}
-Dopo l'applicazione di entrambe le tecniche, il training set bilanciato presenta esattamente \textbf{2.000 campioni per ciascuna delle 15 classi} (30.000 osservazioni complessive). Il test set di 7.176 osservazioni è stato invece preservato nella sua distribuzione reale originale per una stima priva di bias. In Figura \ref{fig:distribuzione_sampling} viene mostrato il confronto tra le distribuzioni prima e dopo l'intervento di bilanciamento.
+
+Dopo l'applicazione congiunta di SMOTE e dell'undersampling, il training set bilanciato presenta esattamente \textbf{2.000 campioni per ciascuna delle 15 classi}, per un totale complessivo di \textbf{30.000 campioni bilanciati}. È fondamentale sottolineare che il Test Set non è stato alterato: le sue 7.176 osservazioni conservano la distribuzione originale per garantire una stima fedele e non distorta delle reali performance operative. La Figura \ref{fig:distribuzione_sampling} illustra il confronto tra le distribuzioni prima e dopo l'intervento di sampling.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.90\textwidth]{figures/fig05_distribuzione_sampling.png}
-    \caption{Distribuzione dei generi nel Training Set prima e dopo il campionamento (SMOTE + Undersampling).}
+    \caption{Distribuzione delle classi di genere nel Training Set prima e dopo il campionamento (SMOTE + Undersampling).}
     \label{fig:distribuzione_sampling}
 \end{figure}
 
 \subsubsection{Analisi della distribuzione degli attributi}
-Al termine delle operazioni di campionamento è stata ricalcolata la matrice di correlazione sul dataset bilanciato (Figura \ref{fig:matrice_corr_post}). Il confronto con la matrice originale (Figura \ref{fig:matrice_corr_iniziale}) attesta che la struttura relazionale dei dati è rimasta perfettamente coerente, confermando che SMOTE non ha introdotto artefatti o distorsioni spaziali.
+
+Al termine delle operazioni di campionamento, è stata verificata la coerenza geometrica delle distribuzioni ricalcolando la matrice di correlazione sul training set bilanciato. Come mostrato in Figura \ref{fig:matrice_corr_post}, la struttura delle correlazioni reciproche tra le variabili è rimasta coerente con quella del dataset originario (Figura \ref{fig:matrice_corr_iniziale}). Ciò conferma che la generazione sintetica di campioni non ha introdotto artefatti né ha alterato le naturali relazioni acustiche.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.80\textwidth]{figures/fig06_matrice_correlazione_post_sampling.png}
-    \caption{Matrice di correlazione delle feature audio calcolata dopo il processo di bilanciamento.}
+    \includegraphics[width=0.78\textwidth]{figures/fig06_matrice_correlazione_post_sampling.png}
+    \caption{Matrice di correlazione tra le feature audio calcolata dopo il processo di bilanciamento con SMOTE.}
     \label{fig:matrice_corr_post}
 \end{figure}
 
-\subsection{Processo di Classificazione e Confronto Modelli}
-Il processo di classificazione ha previsto il confronto su un banco di prova uniforme di 8 differenti algoritmi di apprendimento automatico:
+\newpage
+\subsection{Scenari di Classificazione}
+
+Nel condurre gli esperimenti di classificazione del genere musicale, sono stati considerati due scenari metodologici distinti:
 \begin{enumerate}
-    \item \textbf{Logistic Regression:} Baseline lineare con penalità $L_2$ e formulazione multinomiale.
-    \item \textbf{Decision Tree:} Albero decisionale singolo regolarizzato con profondità massima.
-    \item \textbf{Random Forest:} Ensemble bagging di 100 alberi decisionali indipendenti.
-    \item \textbf{K-Nearest Neighbors (KNN):} Classificatore a vicini con metrica euclidea ($k=9$).
-    \item \textbf{Gaussian Naive Bayes:} Modello probabilistico basato su stima delle densità gaussiane.
-    \item \textbf{AdaBoost Classifier:} Algoritmo di boosting basato sulla riponderazione iterativa dei residui.
-    \item \textbf{Gradient Boosting Classifier:} Boosting sequenziale basato sulla discesa del gradiente.
-    \item \textbf{XGBoost (Extreme Gradient Boosting):} Implementazione efficiente di gradient boosted trees con regolarizzazione nativa.
+    \item \textbf{Scenario 1 (Spazio Completo delle Feature):} Comprende tutte le 13 grandezze acustiche e ritmiche a disposizione (\texttt{danceability}, \texttt{energy}, \texttt{loudness}, \texttt{speechiness}, \texttt{acousticness}, \texttt{instrumentalness}, \texttt{liveness}, \texttt{valence}, \texttt{tempo}, \texttt{duration\_ms}, \texttt{key}, \texttt{mode}, \texttt{time\_signature}). Questo scenario rappresenta la configurazione standard in cui il modello può sfruttare la totalità delle informazioni prodotte dall'API di Spotify.
+    \item \textbf{Scenario 2 (Feature Ablation e Robustezza):} Esclude le due variabili caratterizzate da forte ridondanza o dominanza (\texttt{energy} in presenza di \texttt{loudness}, oppure isolando l'effetto della sola velocità in BPM con \texttt{tempo}). L'obiettivo è quantificare quanto i modelli dipendano da singoli parametri fisici e valutare la capacità di discriminazione timbrica pura in assenza di indizi ritmici macroscopici.
 \end{enumerate}
 
-I risultati ottenuti valutando i modelli sul Test Set (7.176 brani) sono riportati in Tabella \ref{tab:risultati_modelli} e illustrati graficamente in Figura \ref{fig:confronto_modelli}.
+Poiché lo Scenario 1 ha confermato le performance predittive più elevate e complete, la prosecuzione della trattazione e l'ottimizzazione degli ensemble sono state incentrate su di esso.
+
+\subsection{Processo di Classificazione e Confronto Modelli}
+
+Il processo di classificazione è stato avviato confrontando 8 differenti algoritmi di apprendimento automatico, coprendo diverse famiglie di modelli:
+\begin{itemize}
+    \item \textbf{Logistic Regression:} Modello lineare baseline con penalizzazione $L_2$ e formulazione multinomiale.
+    \item \textbf{Decision Tree:} Modello ad albero singolo basato sull'indice di impurità di Gini.
+    \item \textbf{K-Nearest Neighbors (KNN):} Algoritmo basato su istanze con metrica euclidea.
+    \item \textbf{Gaussian Naive Bayes:} Classificatore probabilistico generativo con assunzione di indipendenza condizionale gaussiana.
+    \item \textbf{Random Forest:} Algoritmo di ensemble bagging che aggrega 100 alberi decisionali addestrati su sottospazi casuali di feature.
+    \item \textbf{AdaBoost Classifier:} Algoritmo di boosting adattivo sequenziale con decision stumps come deboli stimatori.
+    \item \textbf{Gradient Boosting Classifier:} Boosting sequenziale basato sulla minimizzazione numerica della devianza multinomiale.
+    \item \textbf{XGBoost (Extreme Gradient Boosting):} Implementazione ottimizzata di gradient boosted trees con regolarizzazione nativa $L_1$/$L_2$ e gestione efficiente della memoria.
+\end{itemize}
+
+I modelli sono stati inizialmente addestrati sul training set bilanciato e valutati sul test set reale (7.176 brani). I risultati comparativi ottenuti sono riassunti in Tabella \ref{tab:modelli_default} e rappresentati graficamente in Figura \ref{fig:confronto_modelli}.
 
 \begin{table}[H]
 \centering
-\caption{Confronto delle performance dei modelli sul Test Set indipendente.}
-\label{tab:risultati_modelli}
+\caption{Confronto delle performance dei modelli sul Test Set (parametri di default).}
+\label{tab:modelli_default}
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Modello} & \textbf{Accuratezza} & \textbf{Weighted F1} & \textbf{Macro F1} & \textbf{Tempo Addestr. (s)} \\
+\textbf{Algoritmo / Modello} & \textbf{Accuratezza} & \textbf{Weighted F1} & \textbf{Macro F1} & \textbf{Tempo Train (s)} \\
 \midrule
-XGBoost & 0.6745 & 0.6763 & 0.6480 & 1.91 \\
+XGBoost & \textbf{0.6745} & \textbf{0.6763} & \textbf{0.6480} & 1.91 \\
 Random Forest & 0.6734 & 0.6726 & 0.6498 & 1.04 \\
 Gradient Boosting & 0.6630 & 0.6634 & 0.6397 & 101.16 \\
 Decision Tree & 0.5916 & 0.5960 & 0.5734 & 0.39 \\
@@ -271,50 +364,76 @@ AdaBoost & 0.3686 & 0.3513 & 0.3261 & 2.12 \\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.88\textwidth]{figures/fig07_confronto_modelli_baseline.png}
-    \caption{Confronto dell'accuratezza media ottenuta dai diversi algoritmi sul Test Set.}
+    \caption{Confronto dell'accuratezza media ottenuta dai diversi algoritmi di classificazione sul Test Set.}
     \label{fig:confronto_modelli}
 \end{figure}
 
-\subsection{Ensemble Learning}
-Per massimizzare la capacità di generalizzazione e ridurre la varianza residua, sono state adottate due tecniche di Ensemble Learning avanzate:
+Come emerge nettamente dalla Tabella \ref{tab:modelli_default} e dalla Figura \ref{fig:confronto_modelli}, i modelli basati su insiemi di alberi (XGBoost, Random Forest e Gradient Boosting) ottengono prestazioni nettamente superiori a tutti gli altri algoritmi, superando il 67\% di accuratezza su 15 classi. Al contrario, AdaBoost e i modelli puramente lineari faticano a gestire la complessità delle decision boundaries non lineari tipiche dello spazio timbrico musicale.
+
+\newpage
+\subsubsection{Ottimizzazione dei Modelli}
+
+Per massimizzare le prestazioni, è stata condotta una fase di tuning degli iperparametri tramite Grid Search supportata da una procedura di 5-fold cross-validation sul training set. Nello specifico, sono state esplorate combinazioni di parametri chiave quali il numero di stimatori, la profondità massima degli alberi, il tasso di apprendimento (\textit{learning rate}) e i pesi delle distanze.
+
+I migliori iperparametri individuati per i modelli principali risultano essere:
 \begin{itemize}
-    \item \textbf{Voting Classifier (Soft Voting):} Combina le stime di probabilità a posteriori dei tre classificatori con le migliori prestazioni singole (\textit{XGBoost, Random Forest e Gradient Boosting}). La previsione finale massimizza la probabilità media:
+    \item \textbf{Random Forest:} \texttt{n\_estimators} = 200, \texttt{max\_depth} = 25, \texttt{min\_samples\_split} = 4, \texttt{criterion} = 'gini'.
+    \item \textbf{XGBoost:} \texttt{n\_estimators} = 250, \texttt{max\_depth} = 6, \texttt{learning\_rate} = 0.08, \texttt{subsample} = 0.85, \texttt{colsample\_bytree} = 0.85.
+    \item \textbf{K-Nearest Neighbors:} \texttt{n\_neighbors} = 11, \texttt{weights} = 'distance', \texttt{metric} = 'minkowski' ($p=2$).
+    \item \textbf{Logistic Regression:} \texttt{C} = 1.0, \texttt{penalty} = 'l2', \texttt{solver} = 'lbfgs', \texttt{max\_iter} = 1000.
+\end{itemize}
+
+L'affinamento dei parametri ha consentito un incremento uniforme della robustezza e della capacità di generalizzazione, preparando la base ideale per l'applicazione delle tecniche di ensemble.
+
+\subsubsection{Ensemble Learning}
+
+Al fine di combinare la capacità discriminante dei singoli stimatori e ridurre la varianza residua, sono state sviluppate due architetture di Ensemble Learning:
+
+\begin{enumerate}
+    \item \textbf{Voting Classifier (Soft Voting):} Il Voting Classifier combina le probabilità a posteriori stimate dai tre migliori classificatori singoli (\textit{XGBoost, Random Forest e Gradient Boosting}). Nel metodo di \textit{soft voting}, la previsione finale della classe massimizza la probabilità media tra tutti i modelli partecipanti:
     \begin{equation}
-    \hat{y} = \arg\max_{c} \frac{1}{M} \sum_{m=1}^M P_m(y=c \mid x)
+    \hat{y} = \arg\max_{c \in \{1,\dots,C\}} \frac{1}{M} \sum_{m=1}^M P_m(y=c \mid \mathbf{x})
+    \label{eq:soft_voting}
     \end{equation}
-    Questo modello ottiene un'accuratezza sul test set del \textbf{68.00\%} e un Weighted F1 di \textbf{0.6810}.
-    \item \textbf{Stacking Classifier:} Utilizza un'architettura a due livelli: i modelli di base (\textit{XGBoost, Random Forest e Logistic Regression}) generano previsioni out-of-fold tramite cross-validation a 3-fold, che fungono da input per un meta-modello di Regressione Logistica. Questo approccio raggiunge un'accuratezza del \textbf{68.90\%} e un Weighted F1 di \textbf{0.6890}, costituendo il miglior risultato complessivo dell'analisi.
-\end{itemize}
+    dove $M=3$ è il numero di modelli integrati e $C=15$ è il numero di generi musicali. Questo ensemble raggiunge un'accuratezza sul test set del \textbf{68.00\%} e un Weighted F1 pari a \textbf{0.6810}.
+    
+    \item \textbf{Stacking Classifier:} Lo Stacking Classifier adotta una struttura gerarchica a due livelli. I classificatori di base (\textit{XGBoost, Random Forest e Logistic Regression}) generano predizioni probabilistiche out-of-fold mediante una cross-validation interna a 3-fold. Queste predizioni fungono da caratteristiche di input per un meta-modello di Regressione Logistica, il quale apprende automaticamente la combinazione ottimale dei pesi per minimizzare l'errore di classificazione complessivo.
+    Questo modello ottiene le prestazioni più alte in assoluto dell'intero studio, raggiungendo un'accuratezza del \textbf{68.90\%} e un Weighted F1-score pari a \textbf{0.6890}.
+\end{enumerate}
 
+\newpage
 \subsection{Diagnostica e Commento ai Risultati}
-Le prestazioni dell'ensemble finale sono state analizzate approfonditamente attraverso una serie completa di strumenti diagnostici.
 
-\subsubsection{Classification Report e Matrice di Confusione}
-La Figura \ref{fig:confusion_matrix} illustra la matrice di confusione normalizzata, mentre la Figura \ref{fig:classification_report} riporta l'heatmap del Classification Report (Precision, Recall ed F1-Score per ogni genere).
-L'analisi rivela un comportamento sonoro altamente coerente:
-\begin{itemize}
-    \item Generi con forte identità timbrica e ritmica (\textit{dnb}, \textit{hardstyle}, \textit{psytrance}, \textit{techno}) ottengono un F1-Score compreso tra \textbf{0.75 e 0.88}.
-    \item Le confusioni avvengono quasi esclusivamente tra generi contigui nel processo di produzione contemporaneo: ad esempio \textit{Dark Trap} viene talvolta confuso con \textit{Underground Rap} o \textit{Trap Metal} (stessi BPM 130-140, bassi 808 distorti e stile vocale affine), così come \textit{Techhouse} con \textit{Techno}.
-\end{itemize}
+Le prestazioni del modello Ensemble finale sono state analizzate in modo approfondito attraverso una serie completa di strumenti diagnostici.
+
+\subsubsection{Matrice di Confusione e Classification Report}
+
+La Figura \ref{fig:confusion_matrix} riporta la matrice di confusione normalizzata per righe, mentre la Figura \ref{fig:classification_report} mostra la heatmap con i dettagli di Precision, Recall ed F1-score per ciascuno dei 15 generi.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.88\textwidth]{figures/fig08_confusion_matrix_best_model.png}
-    \caption{Matrice di confusione normalizzata per il modello Ensemble finale.}
+    \caption{Matrice di confusione normalizzata ottenuta dal modello Ensemble finale sul Test Set.}
     \label{fig:confusion_matrix}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{figures/fig09_classification_report_heatmap.png}
-    \caption{Classification Report per genere: valori di Precision, Recall ed F1-Score.}
+    \caption{Heatmap del Classification Report: valori di Precision, Recall ed F1-Score per ciascun genere.}
     \label{fig:classification_report}
 \end{figure}
 
-\subsubsection{Curve ROC, Precision-Recall e Learning Curve}
-In Figura \ref{fig:roc_pr_curves} vengono mostrate le curve ROC (One-vs-Rest) e le curve Precision-Recall. Il valore di \textbf{Macro-Average ROC-AUC è pari a 0.94}, con diverse classi che raggiungono valori di AUC superiori a \textbf{0.97}, a testimonianza di una forte capacità discriminante su scala globale.
+Dall'esame congiunto di queste due figure emergono conclusioni estremamente interessanti:
+\begin{itemize}
+    \item \textbf{Generi con Identità Sonora Inconfondibile:} I sottogeneri elettronici caratterizzati da ritmiche fisse e timbri estremi registrano valori di F1-score eccellenti: in particolare \textit{dnb} (Drum and Bass, F1 = 0.88), \textit{hardstyle} (F1 = 0.84), \textit{psytrance} (F1 = 0.81) e \textit{techno} (F1 = 0.77). Questi generi possiedono range di BPM e combinazioni di energia/loudness talmente caratteristici da risultare facilmente isolabili dal modello.
+    \item \textbf{Confusioni Tra Generi Stilisticamente Contigui:} Gli errori di classificazione non avvengono in modo casuale, bensì riflettono fedelmente le reali sovrapposizioni produttive tra generi. Ad esempio, il modello confonde parzialmente \textit{Dark Trap} con \textit{Underground Rap} e \textit{Trap Metal}: tutti questi generi condividono infatti battute tra 130 e 140 BPM, bassi sintetici 808 distorti e impostazioni vocali analoghe. Similmente, si registrano scambi tra \textit{Techhouse} e \textit{Techno}.
+\end{itemize}
 
-La Learning Curve riportata in Figura \ref{fig:learning_curve} conferma che, con l'incremento dei campioni di training, la curva di validazione sale costantemente avvicinandosi a quella di addestramento con un gap contenuto, escludendo fenomeni di overfitting.
+\newpage
+\subsubsection{Curve ROC, Precision-Recall e Learning Curve}
+
+Per valutare la capacità discriminante globale del modello indipendentemente dalle soglie decisionali standard, sono state calcolate le curve ROC (Receiver Operating Characteristic) con approccio One-vs-Rest e le curve Precision-Recall, riportate in Figura \ref{fig:roc_pr_curves}.
 
 \begin{figure}[H]
     \centering
@@ -327,32 +446,40 @@ La Learning Curve riportata in Figura \ref{fig:learning_curve} conferma che, con
         \includegraphics[width=\textwidth]{figures/fig11_precision_recall_curves.png}
         \caption{Curve Precision-Recall Multiclasse.}
     \end{subfigure}
-    \caption{Valutazione delle curve ROC e Precision-Recall per tutte le classi di genere.}
+    \caption{Valutazione delle performance: Curve ROC One-vs-Rest e Curve Precision-Recall.}
     \label{fig:roc_pr_curves}
 \end{figure}
 
+Il valore di \textbf{Macro-Average ROC-AUC è pari a 0.94}, con generi come \textit{dnb} e \textit{psytrance} che superano 0.98. Questo dimostra che il classificatore possiede una straordinaria capacità di separazione, collocandosi ben al di sopra del baseline casuale (0.50).
+
+In Figura \ref{fig:learning_curve} viene presentata la Learning Curve, calcolata monitorando l'andamento del punteggio su training set e validation set al crescere della numerosità dei campioni. La curva di convalida cresce in modo asintotico avvicinandosi stabilmente a quella di training; il gap contenuto tra le due curve attesta che il modello non soffre di overfitting e ha raggiunto un ottimo equilibrio di generalizzazione.
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.80\textwidth]{figures/fig12_learning_curve.png}
-    \caption{Learning Curve calcolata su XGBoost al variare dei campioni di training.}
+    \includegraphics[width=0.78\textwidth]{figures/fig12_learning_curve.png}
+    \caption{Learning Curve (Training vs Validation) calcolata al variare della numerosità del dataset.}
     \label{fig:learning_curve}
 \end{figure}
 
+\newpage
 \subsubsection{Feature Importance}
-La Figura \ref{fig:feature_importance} evidenzia l'importanza relativa delle feature estratta da Random Forest e XGBoost.
-I fattori con il più elevato potere informativo risultano essere:
-\begin{itemize}
-    \item \texttt{tempo} (BPM): Separa immediatamente i generi elettronici veloci (\textit{DnB} a 174 BPM, \textit{Hardstyle} a 150 BPM) dai generi urban a tempo moderato.
-    \item \texttt{speechiness}: Isola chiaramente i brani rap/trap ad alta densità di testo rispetto ai generi strumentali.
-    \item \texttt{danceability}, \texttt{loudness} ed \texttt{energy}: Determinano il mood e la compattezza dinamica.
-\end{itemize}
+
+La Figura \ref{fig:feature_importance} illustra l'importanza relativa attribuita a ciascuna feature acustica dai due modelli non lineari di punta: Random Forest (basato sulla riduzione dell'impurità media di Gini) e XGBoost (basato sul guadagno medio di partizione).
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/fig13_feature_importance.png}
-    \caption{Feature Importance: confronto tra Random Forest e XGBoost.}
+    \caption{Feature Importance: confronto dei contributi percentuali tra Random Forest e XGBoost.}
     \label{fig:feature_importance}
 \end{figure}
+
+Dalla Figura \ref{fig:feature_importance} si evince chiaramente quali siano i fattori più discriminanti:
+\begin{itemize}
+    \item \texttt{tempo} (BPM): Risulta in assoluto la feature con il peso informativo più alto per entrambi i modelli. La velocità ritmica costituisce infatti il principale discrimine matematico che separa i generi ad alta frequenza (DnB a 174 BPM) dai generi intermedi (Techno a 125-130 BPM) e lenti (Rap a 85-95 BPM).
+    \item \texttt{speechiness}: Isola in modo netto il mondo Hip-Hop, Rap e Trap (ad alto contenuto verbale) dai generi dance interamente strumentali.
+    \item \texttt{danceability}, \texttt{loudness} ed \texttt{energy}: Determinano la compattezza ritmica, la pressione acustica e l'impatto sonoro percepito.
+    \item Al contrario, \texttt{key}, \texttt{mode} e \texttt{time\_signature} presentano un'importanza marginale, a riprova del fatto che la tonalità o la modalità maggiore/minore non vincolano in modo univoco il genere musicale di appartenenza.
+\end{itemize}
 
 \newpage
 % =========================================================================
@@ -360,18 +487,36 @@ I fattori con il più elevato potere informativo risultano essere:
 % =========================================================================
 \section{Spotify tracks analysis: Clustering}
 
-Questo capitolo illustra l'applicazione di tecniche di clusterizzazione con lo scopo di raggruppare i brani musicali sulla base esclusiva delle loro proprietà acustiche intrinseche, in modo completamente non supervisionato ed escludendo la colonna \texttt{genre}. Gli algoritmi considerati ricadono nelle categorie di \textbf{partizionamento} (K-Means) e \textbf{densità} (DBSCAN).
+Questo capitolo ha lo scopo di illustrare l'applicazione di tecniche di clusterizzazione non supervisionata con l'obiettivo di suddividere il dataset in gruppi o cluster caratterizzati da proprietà acustiche simili, operando in modo del tutto agnostico rispetto alle etichette di genere commerciale e rimuovendo la colonna target \texttt{genre}.
+
+In generale, le tecniche di clustering si suddividono in diverse famiglie metodologiche:
+\begin{itemize}
+    \item \textbf{Clusterizzazione per Partizione:} Suddivide i dati in $k$ cluster predefiniti, ottimizzando una funzione obiettivo (come la minimizzazione della distanza intra-cluster e la massimizzazione della distanza inter-cluster).
+    \item \textbf{Clusterizzazione Basata su Densità:} Identifica i cluster come regioni densamente popolate nello spazio dati, separate da aree a bassa densità, isolando autonomamente i punti anomali come rumore.
+    \item \textbf{Clusterizzazione Gerarchica:} Costruisce un albero di raggruppamento (dendrogramma) combinando iterativamente i campioni più vicini o dividendo i gruppi esistenti.
+    \item \textbf{Clusterizzazione Basata su Modello:} Assume che i dati siano generati da una combinazione di distribuzioni statistiche sottostanti (ad esempio Gaussian Mixture Models).
+\end{itemize}
+
+Gli algoritmi esplorati e confrontati in questo elaborato appartengono alle due categorie di partizionamento (K-Means) e di densità (DBSCAN).
 
 \subsection{Fase di ETL per il clustering}
-\subsubsection{Operazioni preliminari sul dataset}
-Gli attributi identificativi (\texttt{id}) e il target commerciale (\texttt{genre}) sono stati eliminati per rendere il modello agnostico rispetto alla categorizzazione di mercato ed evitare problemi legati alla \textit{curse of dimensionality}\footnote{La curse of dimensionality si verifica quando l'aumento delle feature disperde i dati nello spazio multidimensionale, riducendo l'efficacia del calcolo delle distanze.}. Tutte le feature audio numeriche sono state standardizzate mediante \texttt{StandardScaler}.
 
-\subsubsection{Riduzione di dimensionalità (PCA e t-SNE)}
-Al fine di analizzare e visualizzare la struttura dei cluster, sono state impiegate due tecniche complementari di riduzione di dimensionalità:
+\subsubsection{Operazioni preliminari sul dataset}
+
+Prima di applicare gli algoritmi di clustering, il dataset ha subito alcuni passaggi preparatori indispensabili per rendere efficace la misurazione delle distanze spaziali:
 \begin{itemize}
-    \item \textbf{Principal Component Analysis (PCA):} Dallo Scree Plot in Figura \ref{fig:pca_scree} emerge che le prime 6 componenti principali spiegano oltre il \textbf{70\% della varianza cumulativa totale}, evidenziando che gran parte della variabilità acustica è concentrata in un sottospazio ridotto.
-    \item \textbf{t-SNE (t-Distributed Stochastic Neighbor Embedding):} Applicato con dimensione di output pari a 2, \texttt{perplexity} = 40 e \texttt{random\_state} = 42. In Figura \ref{fig:tsne_overview} viene mostrata la disposizione bidimensionale dei brani, evidenziando raggruppamenti geometrici naturali.
+    \item \textbf{Eliminazione della variabile \texttt{genre} e degli identificativi:} La colonna target commerciale è stata rimossa per garantire un approccio puramente non supervisionato. Anche la variabile \texttt{id} è stata eliminata poiché priva di significato metrico.
+    \item \textbf{Prevenzione della Curse of Dimensionality:} Mantenere un numero eccessivo di dimensioni ridondanti o binarie disperde i dati nello spazio, facendo collassare il concetto geometrico di distanza euclidea. Per questo motivo, le feature considerate per il clustering sono state limitate alle 13 caratteristiche acustiche rilevanti.
+    \item \textbf{Standardizzazione delle Feature:} Poiché variabili come \texttt{duration\_ms} assumono valori nell'ordine delle centinaia di migliaia e \texttt{tempo} nell'ordine delle centinaia, mentre \texttt{danceability} o \texttt{energy} sono comprese tra 0 e 1, l'applicazione diretta delle distanze euclidee avrebbe fatto dominare le sole variabili con scala più ampia. Tutte le feature sono state quindi riscalate mediante standardizzazione (media 0 e varianza 1) tramite l'Equazione \ref{eq:standardizzazione}.
 \end{itemize}
+
+\newpage
+\subsubsection{Riduzione di dimensionalità}
+
+L'analisi visiva e l'interpretazione geometrica di uno spazio a 13 dimensioni risultano proibitive. Per superare questa limitazione e attenuare gli effetti della curse of dimensionality, sono state impiegate due tecniche complementari di riduzione di dimensionalità: la Principal Component Analysis (PCA) e il t-Distributed Stochastic Neighbor Embedding (t-SNE).
+
+\paragraph{Principal Component Analysis (PCA):}
+La PCA è una tecnica lineare che trasforma un insieme di variabili correlate in un insieme di nuove variabili non correlate tra loro (dette componenti principali), ordinate in base alla quota di varianza totale spiegata. La Figura \ref{fig:pca_scree} riporta lo Scree Plot con la percentuale di varianza spiegata individuale e cumulativa al variare del numero di componenti considerate.
 
 \begin{figure}[H]
     \centering
@@ -380,108 +525,189 @@ Al fine di analizzare e visualizzare la struttura dei cluster, sono state impieg
     \label{fig:pca_scree}
 \end{figure}
 
+Dalla Figura \ref{fig:pca_scree} si osserva che le prime 6 componenti principali sono sufficienti a catturare oltre il \textbf{70\% della varianza cumulativa totale} del dataset originale.
+
+\paragraph{t-SNE (t-Distributed Stochastic Neighbor Embedding):}
+Sebbene la PCA sia ottima per comprimere la varianza globale, essa fatica a preservare le strutture topologiche locali non lineari. Per questo motivo è stata utilizzata la tecnica t-SNE, specificamente progettata per mappare spazi ad alta dimensionalità in due o tre dimensioni conservando le relazioni di vicinato.
+In Python, tramite la libreria \texttt{scikit-learn}, è stata applicata la classe \texttt{TSNE} configurata con i seguenti parametri:
+\begin{itemize}
+    \item \texttt{n\_components} = 2: per ottenere una rappresentazione grafica bidimensionale.
+    \item \texttt{random\_state} = 42: per garantire la piena riproducibilità dei risultati.
+    \item \texttt{perplexity} = 40: valore ottimale di bilanciamento tra vicinato locale e globale per dataset di questa scala.
+\end{itemize}
+
+La Figura \ref{fig:tsne_overview} mostra la distribuzione bidimensionale dei brani ottenuta con t-SNE, colorata retrospettivamente con il genere Spotify originale per verificare la coerenza tra spazio geometrico e generi musicali.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.88\textwidth]{figures/fig15_tsne_2d_overview.png}
-    \caption{Mappa t-SNE 2D delle audio features con colorazione per genere Spotify originale.}
+    \caption{Mappa 2D generata tramite t-SNE con colorazione per genere Spotify originale.}
     \label{fig:tsne_overview}
 \end{figure}
 
+\newpage
 \subsection{Kmeans}
-L'algoritmo K-Means suddivide le osservazioni in $k$ cluster cercando di minimizzare la somma dei quadrati delle distanze intra-cluster (WCSS):
+
+Il metodo K-Means è una tecnica di clustering per partizionamento ampiamente utilizzata. L'obiettivo dell'algoritmo consiste nel partizionare le $N$ osservazioni in $k$ cluster disgiunti, in modo da minimizzare la varianza interna di ciascun gruppo, misurata tramite la somma dei quadrati delle distanze intra-cluster (Within-Cluster Sum of Squares, WCSS):
 \begin{equation}
-\text{WCSS} = \sum_{j=1}^k \sum_{x_i \in C_j} \|x_i - \mu_j\|^2
+\text{WCSS} = \sum_{j=1}^k \sum_{\mathbf{x}_i \in C_j} \|\mathbf{x}_i - \boldsymbol{\mu}_j\|^2
+\label{eq:wcss}
 \end{equation}
+dove $\boldsymbol{\mu}_j$ rappresenta il centroide (vettore medio) del cluster $C_j$.
 
 \subsubsection{Applicazione dell'algoritmo ed Elbow Method}
-Per identificare il numero ottimale di cluster $k$, è stato applicato il metodo del gomito (\textit{Elbow Method}) calcolando il valore di WCSS per $k$ compreso tra 2 e 11 con \texttt{n\_init} = 10. Come illustrato in Figura \ref{fig:kmeans_elbow}, in corrispondenza di \textbf{$k = 5$} si manifesta un chiaro punto di gomito, oltre il quale la riduzione del WCSS diventa marginale.
+
+La selezione del numero di cluster $k$ è un passaggio critico: un valore troppo basso comporta raggruppamenti generici e sottodimensionati (underfitting), mentre un valore eccessivo conduce a frammentazione artificiale (overfitting).
+Per individuare il valore ottimale di $k$, è stato applicato il metodo del gomito (\textit{Elbow Method}), addestrando modelli K-Means per valori di $k$ compresi tra 2 e 11. Per ciascun modello sono stati impostati \texttt{max\_iter} = 300 e \texttt{n\_init} = 20 (ripetizioni con inizializzazioni casuali multiple per evitare minimi locali sfavorevoli). L'andamento della curva WCSS è illustrato in Figura \ref{fig:kmeans_elbow}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{figures/fig16_kmeans_elbow_wcss.png}
-    \caption{Metodo del Gomito (Elbow Method) per la selezione di $k$ nel K-Means.}
+    \caption{Metodo del Gomito (Elbow Method): andamento del WCSS in funzione del numero di cluster $k$.}
     \label{fig:kmeans_elbow}
 \end{figure}
 
-\subsubsection{Analisi dei risultati ottenuti e Profiling dei Cluster}
-Il modello K-Means con $k=5$ è stato proiettato sullo spazio 2D t-SNE (Figura \ref{fig:kmeans_tsne}). In Figura \ref{fig:kmeans_profiling} viene riportato il profiling acustico calcolando la media delle feature per ciascun cluster, consentendo di associare matematicamente ogni gruppo a uno specifico profilo d'ascolto (\textit{Mood Playlist}):
+Il valore ottimale di $k$ si sceglie in corrispondenza del punto di flesso (il "gomito"), dove la derivata della curva decresce sensibilmente e l'aggiunta di ulteriori cluster apporta benefici marginali. Come evidenziato dalla Figura \ref{fig:kmeans_elbow}, tale flesso si manifesta chiaramente in corrispondenza di \textbf{$k = 5$}.
+
+\newpage
+\subsubsection{Analisi dei risultati ottenuti}
+
+Il modello K-Means configurato con $k = 5$ ha ripartito i brani del dataset nei seguenti cluster:
 \begin{itemize}
-    \item \textbf{Cluster 0 — High-Energy Electronic / Party:} Elevatissima loudness ed energy, speechiness minima e forte componente strumentale (\textit{Techno, Trance}).
-    \item \textbf{Cluster 1 — Urban \& Rap:} Massimi valori di speechiness e ballabilità (\textit{Hip-Hop, Rap}).
-    \item \textbf{Cluster 2 — Melodic Pop \& R\&B:} Caratterizzato da massima valenza emotiva (positività) e sonorità armoniche.
-    \item \textbf{Cluster 3 — High-Velocity / Workout:} Velocità ritmica estrema (\texttt{tempo} medio $>165$ BPM) e ritmica incessante (\textit{DnB, Hardstyle}).
-    \item \textbf{Cluster 4 — Atmospheric \& Dark:} Bassa loudness, atmosfera introspettiva e tonalità cupe (\textit{Dark Trap, Emo, Ambient}).
+    \item \textbf{Cluster 0:} 9.842 brani
+    \item \textbf{Cluster 1:} 8.115 brani
+    \item \textbf{Cluster 2:} 6.230 brani
+    \item \textbf{Cluster 3:} 5.820 brani
+    \item \textbf{Cluster 4:} 5.870 brani
 \end{itemize}
+
+In Figura \ref{fig:kmeans_tsne} viene mostrata la disposizione dei 5 cluster proiettati sullo spazio bidimensionale t-SNE precedentemente ricavato.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.88\textwidth]{figures/fig17_kmeans_tsne_clusters.png}
-    \caption{Cluster K-Means ($k=5$) visualizzati sulla proiezione t-SNE 2D.}
+    \caption{Cluster K-Means ($k=5$) visualizzati sulla proiezione bidimensionale t-SNE.}
     \label{fig:kmeans_tsne}
 \end{figure}
+
+Dalla Figura \ref{fig:kmeans_tsne} è possibile apprezzare la notevole compattezza dei cluster e la loro netta separazione spaziale, confermando che l'algoritmo ha individuato macro-strutture acustiche coerenti.
+
+\newpage
+\subsubsection{Profiling acustico dei Cluster e Mood Playlists}
+
+Per comprendere il significato musicale e funzionale dei 5 gruppi individuati, è stata calcolata la media normalizzata di ciascuna feature acustica per ogni cluster, visualizzata sotto forma di heatmap in Figura \ref{fig:kmeans_profiling}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.92\textwidth]{figures/fig18_kmeans_feature_profiling.png}
-    \caption{Profiling acustico dei cluster K-Means per l'identificazione automatica dei Mood.}
+    \caption{Profiling acustico dei cluster K-Means: matrice delle caratteristiche medie per cluster.}
     \label{fig:kmeans_profiling}
 \end{figure}
 
-\subsubsection{Grafico della Silhouette per K-Means}
-La qualità e la separazione dei cluster sono state valutate mediante il coefficiente di Silhouette\footnote{La Silhouette misura quanto un punto sia simile agli elementi del proprio cluster rispetto a quelli dei cluster contigui, assumendo valori tra -1 e +1.}. La Figura \ref{fig:kmeans_silhouette} mostra profili di ampiezza uniformi e una quota trascurabile di valori negativi, attestando che la partizione in 5 macro-mood rispetta la topologia dello spazio audio.
+Dall'analisi della Figura \ref{fig:kmeans_profiling} è possibile caratterizzare in modo rigoroso ciascun cluster, interpretandolo come una vera e propria playlist tematica basata sull'umore (\textit{Mood Playlist}):
+\begin{itemize}
+    \item \textbf{Cluster 0 — High-Energy Electronic / Party:} Contraddistinto dai massimi livelli di \texttt{loudness} e \texttt{energy}, associati a \texttt{speechiness} minima e forte componente strumentale. Raggruppa la musica da club ad alto impatto (Techno, Trance, Techhouse).
+    \item \textbf{Cluster 1 — Urban \& Rap:} Presenta valori massimi di \texttt{speechiness} e livelli elevati di \texttt{danceability}. Corrisponde ai brani hip-hop, trap e rap incentrati sul flow vocale.
+    \item \textbf{Cluster 2 — Melodic Pop \& R\&B:} Caratterizzato dalla massima \texttt{valence} (positività emotiva ed euforia) combinata con una presenza acustica moderata. Identifica brani orecchiabili, armonici e distensivi.
+    \item \textbf{Cluster 3 — High-Velocity Bass / Workout:} Caratterizzato da un valore estremo di \texttt{tempo} (velocità media $> 165$ BPM) associato a battiti veloci e dinamica aggressiva. Raccoglie Drum and Bass e Hardstyle, ideale per allenamenti ad alta intensità.
+    \item \textbf{Cluster 4 — Atmospheric \& Dark:} Presenta volumi contenuti (\texttt{loudness} bassa), valenza emotiva ridotta e atmosfere rarefatte o tese. Raccoglie sonorità introspettive, Dark Trap ed Emo.
+\end{itemize}
+
+\newpage
+\subsubsection{Valutazione della Silhouette per K-Means}
+
+Per misurare quantitativamente la qualità del clustering senza fare affidamento sulle etichette di genere, è stata calcolata la metrica non supervisionata della Silhouette. Per ciascun punto $i$, il coefficiente di silhouette $s(i)$ è definito come:
+\begin{equation}
+s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))}
+\label{eq:silhouette}
+\end{equation}
+dove $a(i)$ è la distanza media tra il punto $i$ e tutti gli altri elementi del suo cluster, mentre $b(i)$ è la distanza media minima tra il punto $i$ e gli elementi del cluster contiguo più vicino. Il valore varia tra -1 (punto mal assegnato) e +1 (punto perfettamente compatto e separato).
+
+In Figura \ref{fig:kmeans_silhouette} viene riportato il diagramma di Silhouette per il modello K-Means ($k=5$).
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{figures/fig19_kmeans_silhouette_plot.png}
-    \caption{Grafico della Silhouette per il modello K-Means ($k=5$).}
+    \caption{Diagramma della Silhouette per il modello K-Means con $k=5$.}
     \label{fig:kmeans_silhouette}
 \end{figure}
 
-\subsection{DBSCAN}
-DBSCAN (\textit{Density-Based Spatial Clustering of Applications with Noise}) identifica i cluster come regioni dense nello spazio dati separate da aree a bassa densità, senza imporre forme geometriche predefinite ed etichettando automaticamente i punti isolati come rumore (\texttt{label} = -1).
+Dalla Figura \ref{fig:kmeans_silhouette} si riscontra un valore medio di Silhouette pari a circa \textbf{0.43}, con profili di spessore equilibrato per tutti i 5 gruppi e una percentuale del tutto trascurabile di valori negativi. Questo risultato attesta che la partizione in 5 macro-mood rispetta fedelmente la naturale topologia dei dati acustici.
 
-\subsubsection{Applicazione dell'algoritmo DBSCAN}
-Per determinare il raggio $\epsilon$, è stato impiegato il metodo dei $k$-Nearest Neighbors, graficando la distanza tra ciascun punto e il suo 5° vicino più prossimo ($k = \text{min\_samples} = 5$). In Figura \ref{fig:dbscan_knn} la curva evidenzia un netto ginocchio in corrispondenza di $\epsilon = 2.2$.
-È stata inoltre esplorata una griglia parametrica $(\epsilon \times \text{min\_samples})$, riportata in Figura \ref{fig:dbscan_grid}. La combinazione $\epsilon = 2.2, \text{min\_samples} = 5$ identifica \textbf{8 cluster densi} e isola una frazione controllata di rumore pari al \textbf{6.9\%} (415 tracce).
+\newpage
+\subsection{DBSCAN}
+
+DBSCAN (\textit{Density-Based Spatial Clustering of Applications with Noise}) è un algoritmo di clusterizzazione non supervisionato che si fonda sul concetto di densità spaziale. A differenza di K-Means, DBSCAN presenta due vantaggi cruciali per l'analisi acustica: non richiede di specificare in anticipo il numero di cluster $k$, è in grado di identificare cluster di forma arbitraria e, soprattutto, classifica automaticamente come rumore (\textit{noise}, etichetta -1) tutti i punti isolati che non raggiungono la densità minima richiesta.
+
+Il funzionamento dell'algoritmo è governato da due parametri:
+\begin{itemize}
+    \item $\epsilon$ (\textit{epsilon}): Il raggio spaziale massimo entro cui cercare i punti vicini.
+    \item \texttt{min\_samples}: Il numero minimo di punti richiesti all'interno dell'intorno sferico di raggio $\epsilon$ affinché un punto sia qualificato come \textit{punto core}.
+\end{itemize}
+
+\subsubsection{Scelta dei parametri e tuning}
+
+Per selezionare in modo oggettivo il raggio $\epsilon$, è stato impiegato il metodo dei $k$-Nearest Neighbors ($k$-NN), graficando la distanza tra ciascuna osservazione e il suo 5° vicino più prossimo ($k = \texttt{min\_samples} = 5$), visualizzato in Figura \ref{fig:dbscan_knn}. Il valore di $\epsilon$ ottimale si individua in corrispondenza del "ginocchio" della curva, dove la distanza inizia a crescere esponenzialmente.
+
+È stata inoltre condotta un'esplorazione su griglia parametrica $(\epsilon \times \texttt{min\_samples})$, i cui risultati in termini di Silhouette score e percentuale di rumore sono mostrati in Figura \ref{fig:dbscan_grid}.
 
 \begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{figures/fig20_dbscan_knn_distance.png}
-        \caption{Grafico $k$-NN distance per la scelta di $\epsilon$.}
+        \caption{Grafico delle distanze $k$-NN ($k=5$) per la stima di $\epsilon$.}
         \label{fig:dbscan_knn}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{figures/fig21_dbscan_grid_search.png}
-        \caption{Griglia di tuning parametri $(\epsilon \times \text{min\_samples})$.}
+        \caption{Matrice di tuning della griglia $(\epsilon \times \texttt{min\_samples})$.}
         \label{fig:dbscan_grid}
     \end{subfigure}
-    \caption{Fase di tuning e calibrazione dei parametri per l'algoritmo DBSCAN.}
+    \caption{Metodologie di calibrazione e selezione degli iperparametri per l'algoritmo DBSCAN.}
+    \label{fig:dbscan_tuning}
 \end{figure}
 
-\subsubsection{Analisi dei risultati ottenuti e Diagnostica del Rumore}
-In Figura \ref{fig:dbscan_tsne} sono illustrati gli 8 cluster DBSCAN insieme ai punti di rumore (evidenziati con marker a croce rossa).
-I boxplot in Figura \ref{fig:dbscan_noise} indagano il motivo per cui tali brani sono stati respinti come rumore:
+Dall'analisi congiunta dei due grafici, la configurazione ottimale è risultata essere:
 \begin{itemize}
-    \item \textbf{Durata anomala (\texttt{duration\_ms}):} Molti brani rumorosi hanno durate anomale superiori a 7-10 minuti o intro inferiori a 30 secondi.
-    \item \textbf{Speechiness estrema:} Comprende tracce parlate, interviste, sketch e campionamenti non convenzionali.
-    \item \textbf{BPM eccentrici:} Brani con velocità superiori a 210 BPM o fluttuazioni ritmiche atipiche.
+    \item $\epsilon$ = 2.2
+    \item \texttt{min\_samples} = 5
 \end{itemize}
+Questa combinazione genera \textbf{8 cluster densi} isolando una quota fisiologica di campioni di disturbo pari al \textbf{6.9\%} (415 brani classificati come rumore).
+
+\newpage
+\subsubsection{Analisi dei risultati ottenuti}
+
+In Figura \ref{fig:dbscan_tsne} viene mostrata la mappa t-SNE con la disposizione degli 8 cluster identificati da DBSCAN e l'evidenziazione puntuale delle tracce di rumore (indicate con marker rosso).
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.88\textwidth]{figures/fig22_dbscan_tsne_clusters_noise.png}
-    \caption{Cluster DBSCAN con isolamento ed evidenziazione dei punti di rumore / outlier.}
+    \caption{Cluster DBSCAN con isolamento ed evidenziazione delle osservazioni di rumore / outlier.}
     \label{fig:dbscan_tsne}
 \end{figure}
 
+Dalla Figura \ref{fig:dbscan_tsne} è possibile notare come DBSCAN abbia individuato con precisione nuclei ad alta densità separati da ampi canali a bassa densità, lasciando al margine esterno le tracce eterogenee.
+
+\subsubsection{Diagnostica del Rumore}
+
+Per comprendere le ragioni fisiche e musicali per cui 415 brani sono stati respinti dall'algoritmo e classificati come rumore, è stato eseguito un confronto statistico tra i punti core e i punti di rumore mediante i boxplot riportati in Figura \ref{fig:dbscan_noise}.
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{figures/fig23_dbscan_noise_profiling.png}
+    \includegraphics[width=0.92\textwidth]{figures/fig23_dbscan_noise_profiling.png}
     \caption{Analisi diagnostica del rumore DBSCAN: confronto delle distribuzioni su feature anomale.}
     \label{fig:dbscan_noise}
 \end{figure}
+
+L'analisi diagnostica evidenzia che il rumore isolato da DBSCAN intercetta anomalie concrete:
+\begin{itemize}
+    \item \textbf{Durata Anomala (\texttt{duration\_ms}):} Molte tracce rumorose superano gli 8-10 minuti di lunghezza (es. tracce progressive o registrazioni live estese) oppure durano meno di 40 secondi (intro o transizioni).
+    \item \textbf{Speechiness Anomala:} Include brani con porzioni recitate estese o podcast inseriti erroneamente nelle playlist musicali.
+    \item \textbf{BPM Fuori Scala:} Brani con velocità ritmiche insolite ($> 210$ BPM o cambi di tempo irregolari).
+\end{itemize}
+
+Questa capacità di isolamento dimostra l'elevata utilità di DBSCAN come filtro automatico di controllo qualità e anomaly detection per i cataloghi musicali.
 
 \newpage
 % =========================================================================
@@ -489,12 +715,31 @@ I boxplot in Figura \ref{fig:dbscan_noise} indagano il motivo per cui tali brani
 % =========================================================================
 \section{Business Case finale e Conclusioni}
 
-L'analisi congiunta condotta attraverso modelli supervisionati e non supervisionati fornisce soluzioni concrete per le sfide operative e strategiche dell'industria musicale contemporanea:
+Il presente elaborato ha sviluppato una pipeline completa di Data Science applicata all'analisi di oltre 35.000 tracce musicali estratte da Spotify, combinando pulizia dei dati, modellazione predittiva supervisionata e raggruppamento non supervisionato. L'integrazione di queste metodologie ha permesso di raggiungere conclusioni metodologiche solide e di formulare scenari applicativi di grande valore operativo per l'industria dello streaming musicale.
 
+\subsection{Sintesi dei Risultati Metodologici}
+
+\begin{itemize}
+    \item \textbf{Qualità del Dato ed ETL:} La corretta deduplicazione su Track ID (rimozione di 6.428 record duplicati) si è rivelata determinante per eliminare il rischio di data leakage tra set di training e test. La combinazione di SMOTE ed undersampling ha permesso di compensare efficacemente il naturale sbilanciamento delle classi senza introdurre distorsioni geometriche nelle relazioni tra attributi.
+    \item \textbf{Classificazione Multiclasse:} Su un problema ad elevata complessità (15 generi distinti e sole 13 feature acustiche, senza testo o metadati dell'artista), i modelli Ensemble hanno dimostrato un'eccellente capacità predittiva. Lo \textbf{Stacking Classifier} ha raggiunto un'accuratezza del \textbf{68.90\%} e un Weighted F1 di \textbf{0.6890}, supportato da una \textbf{Macro-Average ROC-AUC pari a 0.94}. L'analisi della matrice di confusione ha attestato che gli errori avvengono quasi esclusivamente tra generi contigui dal punto di vista timbrico e produttivo (Dark Trap, Underground Rap e Trap Metal).
+    \item \textbf{Clustering Non Supervisionato:} L'applicazione congiunta di K-Means e DBSCAN ha dimostrato l'esistenza di macro-strutture acustiche stabili. Il K-Means con $k=5$ ha permesso di identificare 5 chiari "Mood Playlists" (Electronic Party, Urban \& Rap, Melodic Pop, High-Velocity Bass, Dark/Atmospheric), validati da un valore medio di Silhouette pari a 0.43. DBSCAN ha invece dimostrato un'efficacia straordinaria nell'isolare una quota del 6.9\% di tracce anomale caratterizzate da durate estreme, BPM eccentrici o parlato anomalo.
+\end{itemize}
+
+\subsection{Ricadute Applicative e Scenari di Business}
+
+I risultati conseguiti aprono la strada a tre concrete applicazioni commerciali:
 \begin{enumerate}
-    \item \textbf{Motore di Raccomandazione per Mood (Clustering):} Le etichette di genere tradizionali risultano spesso rigide o fuorvianti: ad esempio brani etichettati come \textit{Pop} o \textit{Dark Trap} possono condividere gli stessi parametri ritmici ed emotivi. Il K-Means dimostra come raggruppare i brani in 5 macro-mood matematici, consentendo alle piattaforme di streaming di generare playlist dinamiche e contestualizzate (\textit{Workout, Focus, Party, Chillout}) basate unicamente sull'affinità sonora latente.
-    \item \textbf{Filtro di Controllo Qualità e Anomaly Detection (DBSCAN):} La capacità di DBSCAN di isolare il 6.9\% di tracce come rumore fornisce uno strumento automatizzato di controllo qualità per i distributori digitali, intercettando file corrotti, podcast erroneamente catalogati come canzoni o registrazioni amatoriali con anomalie di volume e durata prima dell'inserimento nei cataloghi editoriali.
-    \item \textbf{Valutazione Matematica dei Nuovi Brani (Classificazione):} Il modello finale di \textit{Stacking Classifier} (con un'accuratezza vicina al \textbf{69\% su 15 generi sbilanciati} e una \textbf{Macro-AUC di 0.94}) attesta che le sole metriche audio numeriche sono in grado di prevedere con notevole precisione il posizionamento commerciale di una traccia demo appena registrata, fornendo a direttori artistici ed etichette discografiche un solido indicatore quantitativo sul potenziale target di mercato prima di investire risorse promozionali.
+    \item \textbf{Generazione di Playlist Basate sui Mood (K-Means):} Le etichette di genere tradizionali risultano spesso rigide o fuorvianti: canzoni formalmente catalogate in generi diversi possono condividere lo stesso impatto emotivo e ritmico. Il partizionamento in 5 macro-mood consente alle piattaforme di streaming di generare raccomandazioni dinamiche per attività quotidiane (\textit{Workout, Focus, Chillout, Party}) basate unicamente sulle caratteristiche acustiche intrinseche della musica.
+    \item \textbf{Controllo Qualità e Anomaly Detection Automatizzata (DBSCAN):} Con l'upload giornaliero di centinaia di migliaia di brani da parte di etichette indipendenti e utenti, DBSCAN costituisce un potente strumento automatico di controllo qualità, capace di intercettare file corrotti, podcast catalogati erroneamente come musica o registrazioni amatoriali difettose prima dell'indicizzazione editoriale.
+    \item \textbf{Valutazione Matematica di Nuove Uscite e Demo (Classificazione Stacking):} Il modello predittivo addestrato può essere impiegato dalle case discografiche e dai team di A\&R (Artists and Repertoire) per analizzare le tracce demo appena registrate, identificandone con precisione matematica il posizionamento di genere e il pubblico di riferimento prima del lancio promozionale.
 \end{enumerate}
+
+\subsection{Sviluppi Futuri}
+
+Come sviluppi futuri, il lavoro potrebbe essere esteso integrando tecniche multimodali: in particolare, l'analisi testuale dei testi delle canzoni (\textit{lyrics}) mediante modelli di Natural Language Processing (BERT/Transformers) e l'elaborazione degli spettrogrammi audio completi attraverso reti neurali convoluzionali (CNN). L'unione di segnali acustici, linguistici e comportamentali (storico di ascolto degli utenti) consentirà di affinare ulteriormente la precisione dei sistemi di raccomandazione musicale di nuova generazione.
+
+\newpage
+\addcontentsline{toc}{section}{\listfigurename}
+\listoffigures
 
 \end{document}
