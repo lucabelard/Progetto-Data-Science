@@ -84,22 +84,23 @@ Progetto-Data-Science/
 
 ---
 
-## 3. Risultati del Clustering Non Supervisionato
+## 3. Risultati del Clustering Non Supervisionato (Spazio PCA)
 
-* **PCA (Principal Component Analysis):** Le prime 6 componenti principali spiegano oltre il **70% della varianza cumulativa totale**.
-* **t-SNE 2D:** Riduzione non lineare con `perplexity=40` che mostra chiaramente la geometria delle strutture acustiche.
-* **K-Means Clustering:**
-  * **Scelta di $k$ (Elbow Method):** Punto di flesso della curva WCSS individuato a **$k = 5$**.
-  * **Profilo delle 5 "Mood Playlists":**
-    * *Cluster 0:* **Electronic & Party (High Energy, Loudness, Instrumental)**
-    * *Cluster 1:* **Urban & Street (High Speechiness, High Danceability)**
-    * *Cluster 2:* **Melodic Pop & R&B (High Valence, Acousticness media)**
-    * *Cluster 3:* **High-Velocity Bass (Tempo estremo > 165 BPM - DnB/Hardstyle)**
-    * *Cluster 4:* **Atmospheric & Melancholic (Low Loudness, Low Valence, Dark Mood)**
-* **DBSCAN Clustering:**
-  * Scelta di $\epsilon = 2.2$ tramite gomito del grafico **$k$-NN distance** ($k=5$).
-  * Rilevati **8 cluster densi** e **6.9% di tracce isolate come Rumore/Outlier (`label = -1`)**.
-  * L'analisi diagnostica degli outlier dimostra che si tratta di brani con caratteristiche estreme (durata > 7-10 minuti, spoken word/interviste senza musica o velocità oltre i 210 BPM).
+* **Selezione delle Feature Continue (8 variabili):** Esclusione delle 3 feature discrete/categoriche (`key`, `mode`, `time_signature`), della variabile collineare `loudness` ($r = 0.70$ con `energy`) e dell'indice di contesto `liveness`.
+* **PCA (Principal Component Analysis):** Le prime **4 Componenti Principali (`PC1`–`PC4`)** spiegano il **73.96% della varianza cumulativa totale** (`PC1`: 32.00%, `PC2`: 16.54%, `PC3`: 15.21%, `PC4`: 10.22%). Sia K-Means che DBSCAN vengono addestrati direttamente nello spazio PCA a 4 dimensioni.
+* **t-SNE 2D:** Riduzione non lineare con `perplexity=40` impiegata per la visualizzazione topologica bidimensionale affiancata alla proiezione lineare PCA (`PC1` vs `PC2`).
+* **K-Means Clustering ($k = 5$ su 4 PC):**
+  * **Scelta di $k$ (Elbow Method + Silhouette):** Flesso WCSS ($13.981,8$) e massimo locale del **Silhouette Score pari a `0.2829`** in corrispondenza di **$k = 5$**.
+  * **Profilo delle 5 "Mood Playlists" (Campione $N=6.000$ / Intero Catalogo $N=35.877$):**
+    * *Cluster 0 (1.710 / 10.583 brani, 29.50%):* **High-Intensity Bass & Workout** (Max Energy `0.86`, Max Loudness `-4.83 dB`, Tempo `152.4 BPM` — *Hardstyle, DnB, Trap*)
+    * *Cluster 1 (1.517 / 8.964 brani, 24.99%):* **Extended Club & Instrumental Electronic** (Max Instrumentalness `0.79`, Durata `390.8 s` — *Techno, Psytrance, Trance, Techhouse*)
+    * *Cluster 2 (549 / 3.189 brani, 8.89%):* **Acoustic, Chill & Atmospheric** (Max Acousticness `0.49`, Min Energy `0.45`, Loudness `-9.87 dB` — *Acoustic, RnB, Emo, Lo-Fi*)
+    * *Cluster 3 (1.250 / 7.354 brani, 20.50%):* **Groove, Melodic Urban & Dance-Pop** (Max Danceability `0.76`, Tempo `130.3 BPM`, Valence `0.49` — *Pop, RnB, Melodic Rap*)
+    * *Cluster 4 (974 / 5.787 brani, 16.13%):* **Fast-Flow Rap & High-Tempo Urban** (Max Tempo `179.1 BPM`, Max Speechiness `0.26`, Max Valence `0.55` — *Underground Rap, Hiphop, Dark Trap*)
+* **DBSCAN Clustering ($\epsilon = 0.60, 	ext{min\_samples} = 5$ su 4 PC):**
+  * Scelta di $\epsilon = 0.60$ tramite gomito del grafico **$k$-NN distance** ($k=5$) e doppia griglia di tuning $(\epsilon 	imes 	ext{min\_samples})$.
+  * Identificati **6 cluster** (1 nucleo denso principale di 5.509 brani + 5 micro-cluster periferici) e **462 tracce isolate come Rumore/Outlier (`7.70%`, `label = -1`)**.
+  * L'analisi diagnostica degli outlier conferma che si tratta di tracce con durata estrema (`duration_ms`), parlato anomalo (`speechiness` da podcast/skit) o combinazioni acustiche fuori scala (`acousticness`).
 
 ---
 
