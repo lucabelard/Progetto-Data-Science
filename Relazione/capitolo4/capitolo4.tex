@@ -1,5 +1,4 @@
-% =========================================================================
-% CAPITOLO 4: CLUSTERING (SPOTIFY)
+% CAPITOLO 4: CLUSTERING
 % =========================================================================
 \section{Spotify tracks analysis: Clustering}
 
@@ -17,165 +16,281 @@ Gli algoritmi esplorati e confrontati in questo elaborato appartengono alle due 
 
 \subsection{Fase di ETL per il clustering}
 
-Prima di procedere all'esecuzione degli algoritmi, i dati sono stati preparati attraverso una pipeline dedicata:
-\begin{enumerate}
-    \item \textbf{Rimozione del Target e Selezione Feature:} È stata eliminata la colonna categorica \texttt{genre}, trattenendo esclusivamente le 13 variabili numeriche continue e discrete.
-    \item \textbf{Standardizzazione Z-Score:} Poiché sia K-Means che DBSCAN si basano su calcoli di distanza geometrica euclidea, tutte le feature sono state normalizzate con \texttt{StandardScaler} per evitare che grandezze con ordini di grandezza elevati (come \texttt{duration\_ms} o \texttt{tempo}) dominassero artificialmente lo spazio vettoriale.
-\end{enumerate}
+\subsubsection{Operazioni preliminari e selezione delle feature}
 
-\subsubsection{Riduzione di dimensionalità (PCA e t-SNE)}
-
-Per mitigare la maledizione della dimensionalità e consentire l'ispezione visiva della topologia acustica, sono state applicate due tecniche complementari di riduzione dimensionale:
-
+Prima di applicare gli algoritmi di clustering, il dataset deduplicato ($N = 35.877$ brani) è stato sottoposto a un processo mirato di selezione e trasformazione delle variabili, indispensabile per garantire che la distanza euclidea rifletta reali affinità timbriche, ritmiche ed emotive:
 \begin{itemize}
-    \item \textbf{PCA (Principal Component Analysis):} Tecnica di proiezione lineare ortogonale. In Figura \ref{fig:pca_scree} viene riportato lo Scree Plot della varianza spiegata cumulativa. Le prime 6 componenti principali riescono a spiegare oltre il \textbf{70\% della varianza totale dei dati}, sintetizzando efficacemente le dimensioni di ritmo, timbro e dinamica.
-    \item \textbf{t-SNE (t-Distributed Stochastic Neighbor Embedding):} Algoritmo non lineare basato su distribuzioni di probabilità, ottimale per preservare le relazioni di vicinato locale a 2 dimensioni. In Figura \ref{fig:tsne_overview} viene mostrata la proiezione 2D t-SNE colorata in base alle 15 classi originali di genere.
+    \item \textbf{Eliminazione della variabile target \texttt{genre} e dei metadati identificativi:} La colonna commerciale \texttt{genre} e gli attributi di servizio (\texttt{id}, \texttt{uri}, ecc.) sono stati esclusi per assicurare un apprendimento rigorosamente non supervisionato.
+    \item \textbf{Selezione delle Feature Continue e Prevenzione delle Distorsioni Metriche:} A differenza degli alberi decisionali impiegati nella classificazione supervisionata (che operano tramite soglie ortogonali indipendenti dalla scala), gli algoritmi basati su distanza euclidea come K-Means e DBSCAN soffrono severamente in presenza di variabili discrete codificate come interi, variabili ridondanti o attributi contestuali. Partendo dalle 13 feature originarie, sono state quindi escluse 5 variabili:
+    \begin{enumerate}
+        \item Le 3 variabili discrete/categoriche di notazione musicale (\texttt{key}, \texttt{mode}, \texttt{time\_signature}), poiché la loro natura ciclica o binaria introduce salti artificiali nella geometria euclidea (ad esempio, la tonalità \texttt{key=0} [Do] e \texttt{key=11} [Si] sono adiacenti nel circolo cromatico ma risulterebbero agli antipodi metrici).
+        \item La variabile \texttt{loudness}, in quanto fortemente collineare con \texttt{energy} ($r = 0,70$, come evidenziato nella matrice di correlazione di Figura \ref{fig:matrice_corr_iniziale}): mantenerle entrambe duplicherebbe impropriamente il peso dell'intensità sonora nella determinazione dei centroidi.
+        \item La variabile \texttt{liveness}, poiché misura la probabilità che la traccia sia stata registrata dal vivo in presenza di pubblico (contesto di esecuzione) e non una proprietà musicale o emotiva intrinseca del brano.
+    \end{enumerate}
+    Il sottoinsieme finale per il clustering comprende pertanto le \textbf{8 feature acustiche continue fondamentali}: \texttt{danceability}, \texttt{energy}, \texttt{speechiness}, \texttt{acousticness}, \texttt{instrumentalness}, \texttt{valence}, \texttt{tempo} e \texttt{duration\_ms}.
+    \item \textbf{Standardizzazione Statistica Obbligatoria (Z-score) e Rischio di Dominanza della Varianza:} Prima di applicare la PCA e gli algoritmi basati su distanza euclidea, le 8 variabili selezionate presentano ordini di grandezza e varianze totalmente incomparabili: \texttt{duration\_ms} oscilla infatti nell'ordine delle centinaia di migliaia di millisecondi ($\sim 200.000\text{ ms}$, con varianza $\sigma^2 \approx 10^{10}$) e \texttt{tempo} nell'ordine delle centinaia ($\sim 140\text{ BPM}$, con $\sigma^2 \approx 900$), mentre gli indici psicoacustici come \texttt{danceability}, \texttt{energy} o \texttt{valence} sono confinati nell'intervallo $[0, 1]$ ($\sigma^2 \approx 0,02\text{--}0,08$). Poiché la PCA ricerca le direzioni che massimizzano la varianza globale, applicarla sui dati grezzi non standardizzati comporterebbe il collasso dell'analisi: la sola variabile \texttt{duration\_ms} assorbirebbe oltre il $99,99\%$ della varianza totale e la prima componente principale ($\text{PC}_1$) coinciderebbe banalmente con la durata del brano, schiacciando a zero il contributo di tutte le altre caratteristiche sonore. Per neutralizzare questa distorsione di scala, ciascuna delle $p=8$ feature è stata trasformata mediante \texttt{StandardScaler} secondo la formula:
+    \begin{equation}
+    \boxed{z_{i,j} = \frac{x_{i,j} - \mu_j}{\sigma_j} \quad \Longrightarrow \quad \mu(z_j) = 0, \quad \sigma^2(z_j) = 1 \qquad \forall j \in \{1, \dots, 8\}}
+    \label{eq:std_clustering}
+    \end{equation}
+    dove $x_{i,j}$ è il valore originale della $j$-esima feature per il brano $i$-esimo, mentre $\mu_j$ e $\sigma_j$ sono rispettivamente la media e la deviazione standard calcolate sull'intero catalogo deduplicato ($N = 35.877$). Grazie all'Equazione \ref{eq:std_clustering}, tutte e 8 le variabili partono con \textbf{peso informativo identico} (varianza unitaria $\sigma^2 = 1$, per una varianza complessiva dello spazio esattamente pari a $8$) e la PCA diagonalizza la \textbf{matrice di correlazione di Pearson} anziché la matrice di covarianza grezza.
 \end{itemize}
+
+\subsubsection{Riduzione di dimensionalità: PCA e t-SNE}
+
+Anche dopo la selezione delle 8 feature continue, operare direttamente nello spazio originario espone gli algoritmi di clustering ad una parziale dispersione metrica e al rumore residuo delle singole variabili. Per comprimere l'informazione utile in un sottospazio ortogonale privo di multicollinearità e per visualizzare la topologia dei dati, sono state adottate due tecniche complementari: la \textit{Principal Component Analysis} (PCA), impiegata come trasformazione effettiva dello spazio di input per il clustering, e il \textit{t-Distributed Stochastic Neighbor Embedding} (t-SNE), utilizzato per la visualizzazione bidimensionale non lineare.
+
+\paragraph{Principal Component Analysis (PCA) e Selezione delle Componenti:}
+La PCA è una trasformazione lineare ortogonale che proietta le 8 feature standardizzate su un nuovo sistema di coordinate (le Componenti Principali, $\text{PC}_1, \dots, \text{PC}_8$), ordinate in modo decrescente rispetto alla frazione di varianza globale spiegata. La Tabella \ref{tab:pca_variance} e lo Scree Plot in Figura \ref{fig:pca_scree} riportano il dettaglio della varianza spiegata singola e cumulativa per tutte le 8 componenti.
+
+\begin{table}[H]
+\centering
+\caption{Quota di varianza spiegata individuale e cumulativa per ciascuna Componente Principale (PCA sulle 8 feature acustiche selezionate).}
+\label{tab:pca_variance}
+\vspace{0.2cm}
+\resizebox{0.92\textwidth}{!}{%
+\begin{tabular}{lccc}
+\toprule
+\textbf{Componente Principale} & \textbf{Varianza Spiegata (\%)} & \textbf{Varianza Cumulativa (\%)} & \textbf{Stato Selezione} \\
+\midrule
+$\text{PC}_1$ & 32,00\% & 32,00\% & \textbf{Selezionata} \\
+$\text{PC}_2$ & 16,54\% & 48,54\% & \textbf{Selezionata} \\
+$\text{PC}_3$ & 15,21\% & 63,75\% & \textbf{Selezionata} \\
+$\text{PC}_4$ & 10,22\% & \textbf{73,96\%} & \textbf{Selezionata (Soglia $>70\%$)} \\
+\midrule
+$\text{PC}_5$ & 9,03\% & 83,00\% & Esclusa \\
+$\text{PC}_6$ & 8,04\% & 91,04\% & Esclusa \\
+$\text{PC}_7$ & 4,89\% & 95,92\% & Esclusa \\
+$\text{PC}_8$ & 4,08\% & 100,00\% & Esclusa \\
+\bottomrule
+\end{tabular}}
+\end{table}
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{capitolo4/img/fig14_pca_varianza_cumulativa.png}
-        \caption{Scree Plot PCA: varianza spiegata individuale e cumulativa.}
-        \label{fig:pca_scree}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{capitolo4/img/fig15_tsne_2d_overview.png}
-        \caption{Mappa t-SNE 2D complessiva delle tracce Spotify.}
-        \label{fig:tsne_overview}
-    \end{subfigure}
-    \caption{Tecniche di riduzione dimensionale applicate allo spazio acustico: PCA e t-SNE 2D.}
-    \label{fig:riduzione_dimensionalita}
+    \includegraphics[width=0.78\textwidth]{capitolo4/img/fig14_pca_varianza_cumulativa.png}
+    \caption{PCA sulle 8 feature acustiche: Scree Plot della varianza spiegata individuale e cumulativa con soglia obiettivo del 70\%.}
+    \label{fig:pca_scree}
+\end{figure}
+
+Adottando il criterio canonico della varianza cumulativa minima del 70\%, è stato scelto un numero di componenti pari a \textbf{$\text{n\_components} = 4$}, che consente di preservare il \textbf{73,96\% della varianza totale} dimezzando la dimensionalità dello spazio (da 8 a 4 variabili latenti ortogonali) e filtrando il 26,04\% di varianza residua legata a fluttuazioni locali o rumore. Sia il modello K-Means sia il modello DBSCAN sono stati quindi addestrati direttamente sulla matrice ridotta $\mathbf{X}_{\text{PCA}} \in \mathbb{R}^{N \times 4}$.
+
+Ciascuna Componente Principale $\text{PC}_k$ ($k \in \{1, 2, 3, 4\}$) costituisce una nuova "super-variabile" latente ortogonale, ottenuta come combinazione lineare delle 8 feature standardizzate $z_{i,j}$ pesate attraverso i rispettivi coefficienti (\textit{PCA Loadings} $w_{j,k}$):
+\begin{equation}
+\boxed{\text{PC}_{i,k} = \sum_{j=1}^{8} w_{j,k} \, z_{i,j} = w_{1,k}\, z_{i,\text{dance}} + w_{2,k}\, z_{i,\text{energy}} + \dots + w_{8,k}\, z_{i,\text{duration}}}
+\label{eq:pca_linear_comb}
+\end{equation}
+Per interpretare il significato fisico e musicale dei 4 assi latenti estratti, la Tabella \ref{tab:pca_loadings} riporta la matrice completa dei pesi $w_{j,k}$ che legano le 8 feature originarie alle prime 4 Componenti Principali.
+
+\begin{table}[H]
+\centering
+\caption{Matrice dei Loadings (pesi lineari) delle prime 4 Componenti Principali rispetto alle 8 feature acustiche standardizzate.}
+\label{tab:pca_loadings}
+\vspace{0.2cm}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Feature Acustica} & $\mathbf{PC_1}$ \textbf{(32,00\%)} & $\mathbf{PC_2}$ \textbf{(16,54\%)} & $\mathbf{PC_3}$ \textbf{(15,21\%)} & $\mathbf{PC_4}$ \textbf{(10,22\%)} \\
+\midrule
+\texttt{danceability}     & $-0,2179$ & $\mathbf{+0,6721}$ & $+0,2303$ & $+0,1679$ \\
+\texttt{energy}           & $\mathbf{+0,3767}$ & $-0,2699$ & $\mathbf{+0,5122}$ & $-0,1522$ \\
+\texttt{speechiness}      & $\mathbf{-0,3724}$ & $-0,0696$ & $+0,2895$ & $-0,0380$ \\
+\texttt{acousticness}     & $\mathbf{-0,3482}$ & $+0,0925$ & $\mathbf{-0,5224}$ & $+0,2265$ \\
+\texttt{instrumentalness} & $\mathbf{+0,4838}$ & $+0,2391$ & $-0,0819$ & $+0,3038$ \\
+\texttt{valence}          & $-0,2888$ & $+0,2422$ & $\mathbf{+0,5533}$ & $+0,1739$ \\
+\texttt{tempo}            & $-0,1770$ & $\mathbf{-0,5300}$ & $+0,1223$ & $\mathbf{+0,7626}$ \\
+\texttt{duration\_ms}     & $\mathbf{+0,4494}$ & $+0,2555$ & $+0,0092$ & $\mathbf{+0,4380}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Dall'ispezione dei coefficienti in Tabella \ref{tab:pca_loadings} emerge una chiara lettura semantica delle 4 dimensioni latenti:
+\begin{itemize}
+    \item $\mathbf{PC_1}$ \textbf{(32,00\% — Asse Strumentale/Elettronico Esteso vs. Vocale/Acustico Breve):} Presenta pesi positivi marcati su \texttt{instrumentalness} ($+0,4838$), \texttt{duration\_ms} ($+0,4494$) ed \texttt{energy} ($+0,3767$), contrapposti a pesi negativi su \texttt{speechiness} ($-0,3724$) e \texttt{acousticness} ($-0,3482$). Separa nettamente le lunghe tracce elettroniche da club prive di voce dalle canzoni brevi cantate o rappate.
+    \item $\mathbf{PC_2}$ \textbf{(16,54\% — Asse Groove Ballabile Cadenzato vs. Velocità Ritmica):} È dominata positivamente dalla \texttt{danceability} ($+0,6721$) e negativamente dal \texttt{tempo} ($-0,5300$) e dall'\texttt{energy} ($-0,2699$). Distingue i brani dal groove cadenzato e ballabile (115--130 BPM) dalle tracce ad altissima velocità di battito e natura frenetica.
+    \item $\mathbf{PC_3}$ \textbf{(15,21\% — Asse Euforia Elettrica vs. Intimità Acustica):} Combina contributi positivi elevati di \texttt{valence} ($+0,5533$) ed \texttt{energy} ($+0,5122$) con un forte contributo negativo di \texttt{acousticness} ($-0,5224$), discriminando i brani solari ed energici dalle ballate acustiche ed introspettive.
+    \item $\mathbf{PC_4}$ \textbf{(10,22\% — Asse Velocità di Esecuzione e Durata):} È governata prevalentemente dal \texttt{tempo} ($+0,7626$) e da \texttt{duration\_ms} ($+0,4380$), isolando le variazioni puramente metriche e di velocità in BPM.
+\end{itemize}
+
+\newpage
+\paragraph{t-SNE (t-Distributed Stochastic Neighbor Embedding):}
+Accanto alla riduzione lineare PCA (usata per il calcolo effettivo dei cluster), è stata impiegata la tecnica non lineare t-SNE esclusivamente a scopo di visualizzazione topologica bidimensionale su un campione casuale rappresentativo di $N = 6.000$ brani (\texttt{n\_components=2}, \texttt{perplexity=40}, \texttt{random\_state=42}). La Figura \ref{fig:tsne_overview} mostra la mappa t-SNE colorata retrospettivamente con i 15 generi ufficiali di Spotify.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.86\textwidth]{capitolo4/img/fig15_tsne_2d_overview.png}
+    \caption{Mappa 2D generata tramite t-SNE sulle feature acustiche, colorata retrospettivamente per genere Spotify originale.}
+    \label{fig:tsne_overview}
 \end{figure}
 
 \newpage
-\subsection{K-Means}
+\subsection{K-Means nello Spazio PCA}
 
-L'algoritmo K-Means partiziona lo spazio vettoriale in $k$ cluster distinti minimizzando la somma dei quadrati delle distanze intra-cluster (WCSS, \textit{Within-Cluster Sum of Squares}):
+Il metodo K-Means è un algoritmo di clustering per partizionamento che suddivide le $N$ osservazioni rappresentate nello spazio PCA a 4 dimensioni in $k$ cluster disgiunti $C_1, \dots, C_k$, minimizzando iterativamente la somma dei quadrati delle distanze euclidee intra-cluster (Within-Cluster Sum of Squares, WCSS):
 \begin{equation}
-\text{WCSS} = \sum_{j=1}^k \sum_{\mathbf{x} \in S_j} \|\mathbf{x} - \boldsymbol{\mu}_j\|^2
+\text{WCSS} = \sum_{j=1}^k \sum_{\mathbf{z}_i \in C_j} \|\mathbf{z}_i - \boldsymbol{\mu}_j\|^2
 \label{eq:wcss}
 \end{equation}
-dove $\boldsymbol{\mu}_j$ rappresenta il centroide baricentrico del cluster $S_j$.
+dove $\mathbf{z}_i \in \mathbb{R}^4$ è il vettore delle prime 4 componenti principali del brano $i$-esimo e $\boldsymbol{\mu}_j \in \mathbb{R}^4$ rappresenta il centroide del cluster $C_j$.
 
-\subsubsection{Scelta del parametro $k$ tramite Elbow Method}
+\subsubsection{Applicazione dell'algoritmo, Elbow Method e Coefficiente di Silhouette}
 
-Per selezionare in modo rigoroso il numero ideale di cluster $k$, è stato applicato il metodo del gomito (\textit{Elbow Method}), calcolando la WCSS per valori di $k$ compresi tra 2 e 11, mostrato in Figura \ref{fig:kmeans_elbow}.
+Per determinare in modo rigoroso il numero ottimale di cluster $k$ nello spazio PCA a 4 componenti, l'algoritmo K-Means (\texttt{n\_init=20}, \texttt{max\_iter=300}, \texttt{random\_state=42}) è stato valutato per $k \in \{2, 3, \dots, 10\}$ affiancando all'ispezione della curva d'inerzia WCSS (\textit{Elbow Method}) il calcolo del \textbf{Coefficiente di Silhouette medio}, come mostrato nel doppio grafico di Figura \ref{fig:kmeans_elbow}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{capitolo4/img/fig16_kmeans_elbow_wcss.png}
-    \caption{Metodo del Gomito (Elbow Method): andamento della WCSS al variare di $k$ da 2 a 11.}
+    \includegraphics[width=0.95\textwidth]{capitolo4/img/fig16_kmeans_elbow_wcss.png}
+    \caption{Selezione del parametro $k$ per K-Means nello spazio PCA (4 PC): curva WCSS (a sinistra) e Coefficiente di Silhouette medio (a destra).}
     \label{fig:kmeans_elbow}
 \end{figure}
 
-La curva evidenzia una flessione netta e un ginocchio ben delineato in corrispondenza di \textbf{$k = 5$}. Oltre questa soglia, i decrementi della WCSS diventano marginali e lineari; pertanto, $k = 5$ è stato adottato come configurazione ottimale di compromesso tra parsimonia del modello e separabilità geometrica.
+L'analisi congiunta dei due indicatori in Figura \ref{fig:kmeans_elbow} fornisce una giustificazione matematica univoca per la scelta di \textbf{$k = 5$}:
+\begin{enumerate}
+    \item Sulla curva WCSS (pannello sinistro), la pendenza subisce una netta decelerazione dopo $k = 5$ ($\text{WCSS} = 13.981,8$), punto oltre il quale l'aggiunta di ulteriori centroidi produce riduzioni marginali dell'inerzia intra-cluster.
+    \item Sulla curva della Silhouette media (pannello destro), dopo i valori registrati a $k=3$ ($0,2702$) e $k=4$ ($0,2819$), la compattezza raggiunge un \textbf{massimo locale strutturale esattamente in corrispondenza di $k = 5$ con $\text{Silhouette} = 0,2829$}, prima di subire un brusco calo a $k = 6$ ($\text{Silhouette} = 0,2395$) dovuto alla frammentazione artificiale dei gruppi principali.
+\end{enumerate}
 
-\subsubsection{Analisi dei Risultati e Profiling dei Cluster}
+\subsubsection{Analisi dei risultati ottenuti e proiezioni spaziali}
 
-In Figura \ref{fig:kmeans_clusters_tsne} viene mostrata la distribuzione spaziale dei 5 cluster K-Means proiettati sulle due dimensioni t-SNE, mentre in Figura \ref{fig:kmeans_profiling} viene presentata la heatmap con i valori medi standardizzati delle caratteristiche acustiche per ciascun gruppo.
+Il modello K-Means addestrato con $k = 5$ sulle 4 componenti principali ha generato una partizione bilanciata e ben strutturata sia sul campione di analisi ($N = 6.000$) sia sull'intero catalogo deduplicato ($N = 35.877$), come riepilogato nella Tabella \ref{tab:kmeans_counts}.
+
+\begin{table}[H]
+\centering
+\caption{Distribuzione numerica e percentuale dei brani nei 5 cluster K-Means (campione di analisi e intero catalogo deduplicato).}
+\label{tab:kmeans_counts}
+\vspace{0.2cm}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccc}
+\toprule
+\textbf{Cluster} & \textbf{Archetipo Musicale (Mood Playlist)} & \textbf{Campione ($N=6.000$)} & \textbf{Catalogo ($N=35.877$)} & \textbf{Quota (\%)} \\
+\midrule
+\textbf{Cluster 0} & High-Intensity Bass \& Workout        & 1.710 & 10.583 & 29,50\% \\
+\textbf{Cluster 1} & Extended Club \& Instrumental         & 1.517 & 8.964  & 24,99\% \\
+\textbf{Cluster 2} & Acoustic, Chill \& Atmospheric        & 549   & 3.189  & 8,89\%  \\
+\textbf{Cluster 3} & Groove, Melodic Urban \& Dance-Pop    & 1.250 & 7.354  & 20,50\% \\
+\textbf{Cluster 4} & Fast-Flow Rap \& High-Tempo Urban     & 974   & 5.787  & 16,13\% \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+La Figura \ref{fig:kmeans_tsne} illustra la disposizione geometrica dei 5 cluster affiancando la proiezione lineare nel piano delle prime due componenti principali ($\text{PC}_1$ vs $\text{PC}_2$, con indicazione esplicita dei 5 centroidi $\mathbf{X}$) e la proiezione non lineare sulla mappa t-SNE.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.88\textwidth]{capitolo4/img/fig17_kmeans_tsne_clusters.png}
-    \caption{Visualizzazione dei 5 cluster K-Means ($k=5$) sulla proiezione t-SNE 2D.}
-    \label{fig:kmeans_clusters_tsne}
+    \includegraphics[width=0.96\textwidth]{capitolo4/img/fig17_kmeans_tsne_clusters.png}
+    \caption{Partizionamento K-Means ($k=5$) visualizzato nel piano lineare PCA ($\text{PC}_1$ vs $\text{PC}_2$ con centroidi) e sulla mappa non lineare t-SNE 2D.}
+    \label{fig:kmeans_tsne}
 \end{figure}
 
+Dalla Figura \ref{fig:kmeans_tsne} si osserva come nel piano PCA i 5 centroidi presidino regioni ben distinte dello spazio delle componenti principali, e come tale partizione si traduca, sulla varietà non lineare t-SNE, in macro-regioni timbriche coerenti e prive di sovrapposizioni caotiche.
+
+\newpage
+\subsubsection{Profiling acustico dei Cluster e Mood Playlists}
+
+Per interpretare il significato musicale e funzionale dei 5 cluster e tradurli in \textit{Mood Playlists} azionabili, la Figura \ref{fig:kmeans_profiling} affianca la \textbf{Heatmap dei valori medi reali} (con colorazione normalizzata Min-Max per colonna) e il \textbf{Radar Chart polare} delle 8 feature di clustering.
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.92\textwidth]{capitolo4/img/fig18_kmeans_feature_profiling.png}
-    \caption{Profiling acustico dei cluster K-Means: matrice delle caratteristiche medie per cluster.}
+    \includegraphics[width=0.98\textwidth]{capitolo4/img/fig18_kmeans_feature_profiling.png}
+    \caption{Profiling acustico dei 5 cluster K-Means: Heatmap delle medie reali per feature (a sinistra) e Radar Chart comparativo delle impronte sonore (a destra).}
     \label{fig:kmeans_profiling}
 \end{figure}
 
-Dall'analisi della Figura \ref{fig:kmeans_profiling} è possibile caratterizzare in modo rigoroso ciascun cluster, interpretandolo come una vera e propria playlist tematica basata sull'umore (\textit{Mood Playlist}):
+Dall'esame congiunto dei valori medi in Figura \ref{fig:kmeans_profiling} e dell'incrocio retrospettivo con i generi originali, ciascun cluster rivela un'identità acustica e funzionale netta:
 \begin{itemize}
-    \item \textbf{Cluster 0 — High-Energy Electronic / Party:} Contraddistinto dai massimi livelli di \texttt{loudness} e \texttt{energy}, associati a \texttt{speechiness} minima e forte componente strumentale. Raggruppa la musica da club ad alto impatto (Techno, Trance, Techhouse).
-    \item \textbf{Cluster 1 — Urban \& Rap:} Presenta valori massimi di \texttt{speechiness} e livelli elevati di \texttt{danceability}. Corrisponde ai brani hip-hop, trap e rap incentrati sul flow vocale.
-    \item \textbf{Cluster 2 — Melodic Pop \& R\&B:} Caratterizzato dalla massima \texttt{valence} (positività emotiva ed euforia) combinata con una presenza acustica moderata. Identifica brani orecchiabili, armonici e distensivi.
-    \item \textbf{Cluster 3 — High-Velocity Bass / Workout:} Caratterizzato da un valore estremo di \texttt{tempo} (velocità media $> 165$ BPM) associato a battiti veloci e dinamica aggressiva. Raccoglie Drum and Bass e Hardstyle, ideale per allenamenti ad alta intensità.
-    \item \textbf{Cluster 4 — Atmospheric \& Dark:} Presenta volumi contenuti (\texttt{loudness} bassa), valenza emotiva ridotta e atmosfere rarefatte o tese. Raccoglie sonorità introspettive, Dark Trap ed Emo.
+    \item \textbf{Cluster 0 — High-Intensity Bass \& Workout ($1.710$ brani campione / $10.583$ catalogo):} È il cluster a massima potenza d'urto: registra i valori medi più elevati in assoluto di \texttt{energy} ($0,86$) e \texttt{loudness} ($-4,83\text{ dB}$), uniti a un \texttt{tempo} sostenuto ($152,40\text{ BPM}$), ma con la più bassa \texttt{danceability} ($0,48$) e una \texttt{valence} scura/aggressiva ($0,24$). Raccoglie in larga misura tracce \textit{Hardstyle}, \textit{Drum and Bass} e \textit{Trap/Trap Metal} ad alto impatto adrenalinico, perfette per playlist di allenamento intenso (\textit{Workout / Gym}).
+    \item \textbf{Cluster 1 — Extended Club \& Instrumental Electronic ($1.517$ brani campione / $8.964$ catalogo):} Si distingue in modo inequivocabile per l'altissima \texttt{instrumentalness} media ($0,79$, contro $0,02\text{--}0,23$ degli altri gruppi) e per la durata media estesa (\texttt{duration\_ms} $= 390.803\text{ ms}$, circa $6,5$ minuti), accompagnate da \texttt{energy} elevata ($0,84$), ottima \texttt{danceability} ($0,66$), \texttt{speechiness} minima ($0,06$) e battito regolare da club ($137,52\text{ BPM}$). Cattura i brani \textit{Techno}, \textit{Psytrance}, \textit{Trance} e \textit{Techhouse} pensati per il DJ mixing e per sessioni di \textit{Deep Focus / Clubbing}.
+    \item \textbf{Cluster 2 — Acoustic, Chill \& Atmospheric ($549$ brani campione / $3.189$ catalogo):} Rappresenta il polo intimo e decompressivo del catalogo: presenta il valore massimo di \texttt{acousticness} ($0,49$, oltre tre volte superiore a qualsiasi altro cluster) e i livelli minimi di \texttt{energy} ($0,45$) e volume (\texttt{loudness} $= -9,87\text{ dB}$), con durata contenuta ($196.127\text{ ms}$). Raggruppa produzioni acustiche, R\&B morbido, Emo e tracce \textit{Dark Trap / Lo-Fi} rarefatte, ideali per playlist \textit{Chillout, Late Night \& Relax}.
+    \item \textbf{Cluster 3 — Groove, Melodic Urban \& Dance-Pop ($1.250$ brani campione / $7.354$ catalogo):} È il cluster a più alta ballabilità dell'intero dataset (\texttt{danceability} $= 0,76$), caratterizzato da un \texttt{tempo} moderato e cadenzato ($130,31\text{ BPM}$), \texttt{valence} positiva ($0,49$), buona \texttt{energy} ($0,70$), presenza vocale ritmica (\texttt{speechiness} $= 0,18$) e quasi totale assenza strumentale ($0,06$). Aggrega in modo trasversale \textit{Pop}, \textit{R\&B}, \textit{Rap melodico} e \textit{Techhouse} radiofonica, costituendo l'archetipo perfetto per playlist \textit{Social Groove \& Aperitif}.
+    \item \textbf{Cluster 4 — Fast-Flow Rap \& High-Tempo Urban ($974$ brani campione / $5.787$ catalogo):} Isola i brani caratterizzati dalla massima velocità ritmica (\texttt{tempo} medio $= 179,12\text{ BPM}$), dalla massima densità di parlato/rima (\texttt{speechiness} $= 0,26$) e dalla più alta positività/dinamismo (\texttt{valence} $= 0,55$), con \texttt{danceability} elevata ($0,71$) e durata compatta ($197.699\text{ ms}$). È composto prevalentemente da \textit{Underground Rap}, \textit{Hiphop} e \textit{Dark Trap} in doppia metrica, ideale per playlist \textit{Street Flow \& High-BPM Urban}.
 \end{itemize}
 
 \newpage
 \subsubsection{Valutazione della Silhouette per K-Means}
 
-Per misurare quantitativamente la qualità del clustering senza fare affidamento sulle etichette di genere, è stata calcolata la metrica non supervisionata della Silhouette. Per ciascun punto $i$, il coefficiente di silhouette $s(i)$ è definito come:
+Per valutare la coesione interna e la separazione di ciascuno dei 5 gruppi individuati nello spazio PCA a 4 dimensioni, è stato calcolato il coefficiente di Silhouette puntuale $s(i)$ per ogni brano del campione secondo la formula:
 \begin{equation}
 s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))}
 \label{eq:silhouette}
 \end{equation}
-dove $a(i)$ è la distanza media tra il punto $i$ e tutti gli altri elementi del suo cluster, mentre $b(i)$ è la distanza media minima tra il punto $i$ e gli elementi del cluster contiguo più vicino.
-
-In Figura \ref{fig:kmeans_silhouette} viene riportato il diagramma di Silhouette per il modello K-Means ($k=5$).
+dove $a(i)$ è la distanza euclidea media tra il brano $i$ e gli altri brani del medesimo cluster nello spazio PCA 4D, mentre $b(i)$ è la distanza media minima rispetto ai brani del cluster contiguo più vicino. La Figura \ref{fig:kmeans_silhouette} mostra la distribuzione dei coefficienti di Silhouette per i 5 cluster.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{capitolo4/img/fig19_kmeans_silhouette_plot.png}
-    \caption{Diagramma della Silhouette per il modello K-Means con $k=5$.}
+    \includegraphics[width=0.78\textwidth]{capitolo4/img/fig19_kmeans_silhouette_plot.png}
+    \caption{Profilo dei coefficienti di Silhouette per ciascun cluster K-Means ($k=5$) calcolato nello spazio PCA a 4 componenti.}
     \label{fig:kmeans_silhouette}
 \end{figure}
 
-Dalla Figura \ref{fig:kmeans_silhouette} si riscontra un valore medio di Silhouette pari a circa \textbf{0.43}, con profili di spessore equilibrato per tutti i 5 gruppi e una percentuale del tutto trascurabile di valori negativi. Questo risultato attesta che la partizione in 5 macro-mood rispetta fedelmente la naturale topologia dei dati acustici.
+Dalla Figura \ref{fig:kmeans_silhouette} emerge un valore medio globale di Silhouette pari a \textbf{$0,2829$} (notevolmente superiore al valore di $0,1204$ che si otterrebbe applicando K-Means direttamente sulle 13 variabili non ridotte). Tutti e 5 i cluster superano ampiamente la soglia media con picchi superiori a $0,50$ (in particolare il Cluster 1 strumentale e i Cluster 3 e 4 urban/groove) e una frazione molto ridotta di valori negativi (punti di confine). Un valore di Silhouette intorno a $0,28\text{--}0,30$ è pienamente coerente con la natura fisica dei dati musicali: a differenza di dataset sintetici con isole disgiunte, gli attributi acustici formano una varietà continua in cui le transizioni tra stili avvengono gradualmente, e K-Means opera efficacemente una tassonomia geometrica convessa di tale continuum.
 
 \newpage
-\subsection{DBSCAN}
+\subsection{DBSCAN nello Spazio PCA}
 
-DBSCAN (\textit{Density-Based Spatial Clustering of Applications with Noise}) è un algoritmo di clusterizzazione non supervisionato che si fonda sul concetto di densità spaziale. A differenza di K-Means, DBSCAN non richiede di specificare in anticipo il numero di cluster $k$, è in grado di identificare cluster di forma arbitraria e classifica automaticamente come rumore (\textit{noise}, etichetta -1) tutti i punti isolati che non raggiungono la densità minima richiesta.
+DBSCAN (\textit{Density-Based Spatial Clustering of Applications with Noise}) è un algoritmo di clustering basato sulla densità locale dei punti nello spazio metrico. A differenza di K-Means (che forza ogni singolo brano, inclusi i brani anomali, ad appartenere a un centroide convesso), DBSCAN non richiede di fissare a priori il numero di cluster e gode della proprietà fondamentale di isolare le osservazioni situate in regioni a bassa densità, classificandole esplicitamente come \textbf{rumore o outlier} (etichetta $-1$).
 
-Il funzionamento dell'algoritmo è governato da due parametri:
+Il comportamento di DBSCAN nello spazio PCA a 4 dimensioni dipende da due iperparametri:
 \begin{itemize}
-    \item $\epsilon$ (\textit{epsilon}): Il raggio spaziale massimo entro cui cercare i punti vicini.
-    \item \texttt{min\_samples}: Il numero minimo di punti richiesti all'interno dell'intorno sferico di raggio $\epsilon$ affinché un punto sia qualificato come \textit{punto core}.
+    \item $\epsilon$ (\textit{epsilon}): il raggio dell'ipersfera quadridimensionale entro cui ricercare i vicini di ciascun brano;
+    \item \texttt{min\_samples}: il numero minimo di brani richiesti entro il raggio $\epsilon$ affinché un'osservazione sia qualificata come \textit{punto core}.
 \end{itemize}
 
-\subsubsection{Scelta dei parametri e tuning}
+\subsubsection{Scelta dei parametri e tuning nello spazio PCA}
 
-Per selezionare in modo oggettivo il raggio $\epsilon$, è stato impiegato il metodo dei $k$-Nearest Neighbors ($k$-NN), graficando la distanza tra ciascuna osservazione e il suo 5° vicino più prossimo ($k = \texttt{min\_samples} = 5$), visualizzato in Figura \ref{fig:dbscan_knn}. Il valore di $\epsilon$ ottimale si individua in corrispondenza del "ginocchio" della curva. È stata inoltre condotta un'esplorazione su griglia parametrica $(\epsilon \times \texttt{min\_samples})$, mostrata in Figura \ref{fig:dbscan_grid}.
+Per calibrare il raggio $\epsilon$ sulla scala metrica delle 4 Componenti Principali, è stato applicato il metodo delle distanze $k$-Nearest Neighbors ($k$-NN) con $k = \texttt{min\_samples} = 5$ (Figura \ref{fig:dbscan_knn}), affiancato da una ricerca su griglia bidimensionale $(\epsilon \in \{0,45; 0,50; 0,60; 0,70\} \times \texttt{min\_samples} \in \{4, 5, 6, 8\})$ volta a monitorare simultaneamente il numero di cluster generati e il Silhouette Score dei punti non rumorosi (Figura \ref{fig:dbscan_grid}).
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{capitolo4/img/fig20_dbscan_knn_distance.png}
-        \caption{Grafico delle distanze $k$-NN ($k=5$) per la stima di $\epsilon$.}
-        \label{fig:dbscan_knn}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{capitolo4/img/fig21_dbscan_grid_search.png}
-        \caption{Matrice di tuning della griglia $(\epsilon \times \texttt{min\_samples})$.}
-        \label{fig:dbscan_grid}
-    \end{subfigure}
-    \caption{Metodologie di calibrazione e selezione degli iperparametri per l'algoritmo DBSCAN.}
-    \label{fig:dbscan_tuning}
+    \includegraphics[width=0.76\textwidth]{capitolo4/img/fig20_dbscan_knn_distance.png}
+    \caption{Curva ordinata delle distanze dal 5° vicino più prossimo ($k$-NN) nello spazio PCA a 4 componenti, con ginocchio ottimale in $\epsilon = 0,60$.}
+    \label{fig:dbscan_knn}
 \end{figure}
 
-La configurazione ottimale è risultata essere: $\epsilon = 2.2$ e \texttt{min\_samples} = 5. Questa combinazione genera \textbf{8 cluster densi} isolando una quota fisiologica di campioni di disturbo pari al \textbf{6.9\%} (415 brani classificati come rumore).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{capitolo4/img/fig21_dbscan_grid_search.png}
+    \caption{Griglia di tuning iperparametrica DBSCAN nello spazio PCA 4D: Numero di cluster identificati (a sinistra) e Silhouette Score dei punti assegnati (a destra).}
+    \label{fig:dbscan_grid}
+\end{figure}
 
-\subsubsection{Analisi dei risultati ottenuti e Diagnostica del Rumore}
+L'ispezione della curva $k$-NN (Figura \ref{fig:dbscan_knn}) evidenzia che le distanze dal 5° vicino si mantengono contenute sotto $0,55$ per oltre il 90\% del campione, per poi impennarsi bruscamente (il "gomito" della curva) intorno alla soglia \textbf{$\epsilon = 0,60$}. Dalla griglia di Figura \ref{fig:dbscan_grid} si osserva che:
+\begin{itemize}
+    \item Valori di raggio troppo piccoli ($\epsilon = 0,45$) causano una sovra-frammentazione della coda della distribuzione ($20\text{--}27$ micro-cluster) ed espellono oltre il 20\% del catalogo come rumore.
+    \item In corrispondenza del punto di gomito \textbf{$\epsilon = 0,60, \texttt{min\_samples} = 5$}, l'algoritmo raggiunge un equilibrio ottimale identificando \textbf{6 cluster} e isolando esattamente \textbf{462 tracce anomale}, pari al \textbf{7,70\% del campione} (con Silhouette sui punti non-rumore pari a $0,120$, che sale fino a $0,332$ restringendo la densità a $\texttt{min\_samples} = 8$, dove sopravvivono 3 cluster e il rumore sale all'11,05\%).
+\end{itemize}
 
-In Figura \ref{fig:dbscan_tsne} viene mostrata la mappa t-SNE con la disposizione degli 8 cluster identificati da DBSCAN e l'evidenziazione puntuale delle tracce di rumore (marker rosso). In Figura \ref{fig:dbscan_noise} viene invece riportato il confronto delle distribuzioni tra punti core e punti di rumore mediante boxplot.
+\newpage
+\subsubsection{Analisi dei risultati ottenuti e interpretazione topologica}
+
+La Figura \ref{fig:dbscan_tsne} mostra il risultato della clusterizzazione DBSCAN ($\epsilon = 0,60, \texttt{min\_samples} = 5$) proiettato sia sul piano lineare delle prime due Componenti Principali ($\text{PC}_1$ vs $\text{PC}_2$) sia sulla mappa non lineare t-SNE, evidenziando con croci rosse i 462 brani classificati come rumore ($\text{label} = -1$).
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.88\textwidth]{capitolo4/img/fig22_dbscan_tsne_clusters_noise.png}
-    \caption{Cluster DBSCAN con isolamento ed evidenziazione delle osservazioni di rumore / outlier.}
+    \includegraphics[width=0.96\textwidth]{capitolo4/img/fig22_dbscan_tsne_clusters_noise.png}
+    \caption{Clusterizzazione DBSCAN ($\epsilon=0,60, \texttt{min\_samples}=5$) nello spazio PCA 2D (a sinistra) e t-SNE 2D (a destra), con evidenziazione delle 462 tracce outlier.}
     \label{fig:dbscan_tsne}
 \end{figure}
 
+Un'analisi oggettiva della Figura \ref{fig:dbscan_tsne} mette in luce un fenomeno topologico classico dei grandi cataloghi multimediali continui:
+\begin{itemize}
+    \item Poiché le caratteristiche acustiche dei brani mainstream ed elettronici non presentano "vuoti" netti tra un mood e l'altro ma sfumano con continuità, DBSCAN connette la nube centrale ad alta densità in un \textbf{unico macro-cluster principale (Cluster 0, composto da $5.509$ brani)}, affiancata da \textbf{5 micro-cluster periferici} ad altissima specificità locale ($29$ brani complessivi situati su isole timbriche di confine).
+    \item Al contempo, l'algoritmo scorpora con precisione chirurgica la "corona" esterna a bassa densità (\textbf{$462$ brani, pari al $7,70\%$}), costituita dalle tracce che violano la continuità metrica del catalogo.
+\end{itemize}
+Questo risultato dimostra la perfetta \textbf{complementarità operativa tra i due algoritmi}: mentre K-Means è lo strumento ideale per partizionare il continuum denso centrale in 5 \textit{Mood Playlists} equilibrate mediante iperpiani di Voronoi, DBSCAN eccelle come motore non supervisionato di \textbf{Anomaly Detection e Controllo Qualità} per intercettare i brani strutturalmente fuori standard prima che inquinino le playlist automatiche.
+
+\subsubsection{Diagnostica del Rumore}
+
+Per verificare le cause fisiche e musicali che hanno portato DBSCAN a respingere i 462 brani classificati come rumore ($\text{label} = -1$), la Figura \ref{fig:dbscan_noise} mette a confronto le distribuzioni statistiche dei punti di cluster e degli outlier sulle tre variabili maggiormente discriminanti (\texttt{duration\_ms}, \texttt{speechiness} e \texttt{acousticness}).
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.92\textwidth]{capitolo4/img/fig23_dbscan_noise_profiling.png}
-    \caption{Analisi diagnostica del rumore DBSCAN: confronto delle distribuzioni su feature anomale.}
+    \includegraphics[width=0.94\textwidth]{capitolo4/img/fig23_dbscan_noise_profiling.png}
+    \caption{Analisi diagnostica del rumore DBSCAN: confronto tramite boxplot tra punti di cluster e tracce outlier ($n=462$).}
     \label{fig:dbscan_noise}
 \end{figure}
 
-L'analisi diagnostica evidenzia che il rumore isolato da DBSCAN intercetta anomalie concrete:
+Il confronto dei boxplot in Figura \ref{fig:dbscan_noise} conferma che i 462 punti di rumore non sono errori casuali, bensì vere anomalie acustiche:
 \begin{itemize}
-    \item \textbf{Durata Anomala (\texttt{duration\_ms}):} Molte tracce rumorose superano gli 8-10 minuti di lunghezza oppure durano meno di 40 secondi.
-    \item \textbf{Speechiness Anomala:} Include brani con porzioni recitate estese o podcast inseriti erroneamente nelle playlist musicali.
-    \item \textbf{BPM Fuori Scala:} Brani con velocità ritmiche insolite ($> 210$ BPM o cambi di tempo irregolari).
+    \item \textbf{Durata Estrema (\texttt{duration\_ms}):} Le tracce outlier presentano una mediana e una coda superiore nettamente più elevate rispetto al catalogo standard, includendo DJ-set ininterrotti, suite progressive oltre gli 8--12 minuti o, all'opposto, brevi \textit{skit} introduttivi sotto i 45 secondi.
+    \item \textbf{Speechiness Fuori Scala:} Il box degli outlier mostra una dispersione molto più ampia verso valori elevati di parlato ($> 0,40\text{--}0,80$), intercettando tracce parlate, interludi discorsivi o frammenti di podcast finiti nelle playlist musicali.
+    \item \textbf{Combinazioni Acustiche Atipiche (\texttt{acousticness}):} Molti outlier presentano valori estremi di acusticità combinati con velocità o durate inconsuete per il proprio genere di appartenenza, confermando la validità di DBSCAN come filtro automatico di integrità del catalogo.
 \end{itemize}
-
