@@ -1,0 +1,12 @@
+{
+  "slope_pre2017_bn_per_year": 1.55,
+  "slope_post2017_bn_per_year": 5.86,
+  "pct_change_mean_top5": 0.656,
+  "pct_change_std_top5": 2.076,
+  "pct_change_skew_top5": -3.77,
+  "pct_change_kurt_top5": 39.35,
+  "corr_val_rolling12m_spend": 0.905,
+  "corr_val_serie_a_top5": 0.989,
+  "max_monthly_spend_top5_m": 4457.95,
+  "max_monthly_spend_month": "2025-07"
+}
