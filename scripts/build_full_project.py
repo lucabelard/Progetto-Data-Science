@@ -489,44 +489,66 @@ plt.close()
 # ======================================================================================
 # FASE 4: CLUSTERING NON SUPERVISIONATO (SCOPERTA DI MOOD E PATTERN LATENTI)
 # ======================================================================================
-print("\n>>> [FASE 4/4] Inizio Clustering Non Supervisionato...")
+print("\n>>> [FASE 4/4] Inizio Clustering Non Supervisionato...", flush=True)
 
-# Standardizziamo l'intero dataset numerico, omettendo totalmente il target 'genre'
-# L'approccio è rigorosamente agnostico rispetto all'etichetta di mercato
-scaler_full = StandardScaler()
-X_full_scaled = scaler_full.fit_transform(X)
+# 4.1 Selezione delle Feature per il Clustering e Standardizzazione
+clustering_features = [
+    'danceability', 'energy', 'speechiness', 'acousticness',
+    'instrumentalness', 'valence', 'tempo', 'duration_ms'
+]
+X_clust_raw = df_clean[clustering_features].copy()
 
-# 4.1 Riduzione di dimensionalità: PCA (Principal Component Analysis)
-pca = PCA()
-pca.fit(X_full_scaled)
-exp_var = pca.explained_variance_ratio_
+scaler_clust = StandardScaler()
+X_clust_scaled = scaler_clust.fit_transform(X_clust_raw)
+
+# 4.2 Riduzione di dimensionalità: PCA (Principal Component Analysis)
+pca_full = PCA()
+pca_full.fit(X_clust_scaled)
+exp_var = pca_full.explained_variance_ratio_
 cum_var = np.cumsum(exp_var)
 
-# FIGURA 14: Scree Plot della varianza cumulativa PCA (individua quante componenti spiegano il 70%)
+n_pca_components = 4
+pca = PCA(n_components=n_pca_components, random_state=42)
+X_pca_full = pca.fit_transform(X_clust_scaled)
+print(f"PCA applicata su {len(clustering_features)} feature: {n_pca_components} componenti spiegano il {cum_var[n_pca_components-1]*100:.2f}% della varianza.", flush=True)
+
+pca_loadings = pd.DataFrame(
+    pca.components_.T,
+    index=clustering_features,
+    columns=[f'PC{i+1}' for i in range(n_pca_components)]
+)
+
+# FIGURA 14: Scree Plot della varianza spiegata e cumulativa PCA
 plt.figure(figsize=(10, 6))
-plt.bar(range(1, len(cum_var)+1), exp_var, alpha=0.6, color='#4e79a7', label='Varianza Spiegata Singola')
-plt.step(range(1, len(cum_var)+1), cum_var, where='mid', color='#e15759', linewidth=2, label='Varianza Cumulativa')
-plt.axhline(y=0.70, color='gray', linestyle='--', label='Soglia 70% Varianza Obiettivo')
-plt.xticks(range(1, len(cum_var)+1))
+bars = plt.bar(range(1, len(cum_var)+1), exp_var, alpha=0.7, color='#4e79a7', edgecolor='black', label='Varianza Spiegata Singola')
+plt.plot(range(1, len(cum_var)+1), cum_var, 'ro-', linewidth=2.5, markersize=8, label='Varianza Cumulativa')
+plt.axhline(y=0.70, color='darkslategray', linestyle='--', linewidth=1.5, label='Soglia 70% Varianza Obiettivo (4 PC = 73.96%)')
+plt.axvline(x=n_pca_components, color='#e15759', linestyle=':', linewidth=1.8, label=f'Componenti Selezionate (k_PCA = {n_pca_components}')
+for i, (ev, cv) in enumerate(zip(exp_var, cum_var)):
+    plt.text(i + 1, ev + 0.015, f"{ev*100:.1f}%", ha='center', va='bottom', fontsize=9, fontweight='bold', color='#2b5c8f')
+plt.xticks(range(1, len(cum_var)+1), [f'PC{i}' for i in range(1, len(cum_var)+1)])
+plt.ylim(0, 1.08)
 plt.xlabel('Componente Principale (PC)', fontsize=12)
 plt.ylabel('Quota di Varianza Spiegata', fontsize=12)
-plt.title('PCA: Scree Plot e Analisi della Varianza Cumulativa', fontsize=14, fontweight='bold')
-plt.legend(loc='center right', fontsize=11)
+plt.title('PCA sulle 8 Feature Acustiche Selezionate: Scree Plot e Varianza Cumulativa', fontsize=14, fontweight='bold')
+plt.legend(loc='center right', fontsize=10.5)
 plt.tight_layout()
 plt.savefig('figures/fig14_pca_varianza_cumulativa.png', dpi=300)
 plt.close()
 
-# 4.2 Proiezione 2D non lineare con t-SNE
-# Utilizziamo un campione rappresentativo di 6.000 brani per calcolo rapido e massima nitidezza visiva
+# 4.3 Campionamento rappresentativo e Proiezione 2D non lineare con t-SNE
 sample_size = 6000
 np.random.seed(42)
-sample_indices = np.random.choice(len(X_full_scaled), size=sample_size, replace=False)
-X_cluster_sample = X_full_scaled[sample_indices]
+sample_indices = np.random.choice(len(X_clust_scaled), size=sample_size, replace=False)
+X_cluster_sample = X_pca_full[sample_indices]  # Spazio PCA 4D per il clustering
+X_scaled_sample = X_clust_scaled[sample_indices]
 df_cluster_sample = df_clean.iloc[sample_indices].copy().reset_index(drop=True)
+df_cluster_sample['pc_1'] = X_cluster_sample[:, 0]
+df_cluster_sample['pc_2'] = X_cluster_sample[:, 1]
 
-print(f"Esecuzione t-SNE bidimensionale su {sample_size} brani (perplexity=40, random_state=42)...")
+print(f"Esecuzione t-SNE bidimensionale su {sample_size} brani (perplexity=40, random_state=42)...", flush=True)
 tsne = TSNE(n_components=2, perplexity=40, random_state=42, max_iter=1000)
-X_tsne = tsne.fit_transform(X_cluster_sample)
+X_tsne = tsne.fit_transform(X_scaled_sample)
 df_cluster_sample['tsne_1'] = X_tsne[:, 0]
 df_cluster_sample['tsne_2'] = X_tsne[:, 1]
 
@@ -544,64 +566,142 @@ plt.tight_layout()
 plt.savefig('figures/fig15_tsne_2d_overview.png', dpi=300)
 plt.close()
 
-# 4.3 K-Means: Metodo del Gomito (Elbow Method) per determinare il k ottimale
-print("Calcolo curva WCSS (Elbow Method) per K-Means da k=2 a k=11...")
+# 4.4 K-Means su spazio PCA (4 PC): Metodo del Gomito (WCSS) + Silhouette Score
+print("Calcolo curve WCSS (Elbow Method) e Silhouette Score per K-Means su spazio PCA 4D da k=2 a k=10...", flush=True)
 wcss = []
-k_range = range(2, 12)
+sil_scores = []
+k_range = range(2, 11)
 for k in k_range:
-    km = KMeans(n_clusters=k, random_state=42, n_init=10)
-    km.fit(X_cluster_sample)
+    km = KMeans(n_clusters=k, random_state=42, n_init=20)
+    labels_k = km.fit_predict(X_cluster_sample)
     wcss.append(km.inertia_)
+    sil_scores.append(silhouette_score(X_cluster_sample, labels_k))
 
-# FIGURA 16: Metodo del Gomito (Elbow Method)
-plt.figure(figsize=(10, 6))
-plt.plot(k_range, wcss, 'bo-', linewidth=2, markersize=7)
-plt.scatter(5, wcss[3], color='red', s=150, zorder=5, label='Punto di Gomito Scelto (k = 5)')
-plt.xticks(k_range)
-plt.xlabel('Numero di Cluster (k)', fontsize=12)
-plt.ylabel('WCSS (Within-Cluster Sum of Squares)', fontsize=12)
-plt.title('Metodo del Gomito (Elbow Method) per la Scelta di K nel K-Means', fontsize=14, fontweight='bold')
-plt.legend(fontsize=11)
+# FIGURA 16: Doppio grafico WCSS (Elbow Method) + Silhouette Score al variare di k
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+ax1.plot(k_range, wcss, 'bo-', linewidth=2.2, markersize=7)
+ax1.scatter(5, wcss[3], color='crimson', s=150, zorder=5, label='Scelta Ottimale (k = 5)')
+ax1.set_xticks(list(k_range))
+ax1.set_xlabel('Numero di Cluster (k)', fontsize=12)
+ax1.set_ylabel('Inerzia / WCSS (Spazio PCA 4D)', fontsize=12)
+ax1.set_title('Metodo del Gomito (WCSS vs k)', fontsize=13, fontweight='bold')
+ax1.legend(fontsize=11)
+
+ax2.plot(k_range, sil_scores, 'go-', linewidth=2.2, markersize=7)
+ax2.scatter(5, sil_scores[3], color='crimson', s=150, zorder=5, label=f'Picco Strutturale k = 5 (Sil = {sil_scores[3]:.3f}')
+ax2.set_xticks(list(k_range))
+ax2.set_xlabel('Numero di Cluster (k)', fontsize=12)
+ax2.set_ylabel('Silhouette Score Medio', fontsize=12)
+ax2.set_title('Coefficiente di Silhouette Medio al Variare di k', fontsize=13, fontweight='bold')
+ax2.legend(fontsize=11)
+
+plt.suptitle('Selezione del Numero Ottimale di Cluster per K-Means nello Spazio PCA (4 Componenti)', fontsize=14, fontweight='bold')
 plt.tight_layout()
 plt.savefig('figures/fig16_kmeans_elbow_wcss.png', dpi=300)
 plt.close()
 
-# 4.4 Addestramento K-Means con k=5 e Profiling dei Cluster
+# 4.5 Addestramento K-Means con k=5 nello spazio PCA 4D e Profiling dei Cluster
 k_opt = 5
 km_final = KMeans(n_clusters=k_opt, random_state=42, n_init=20)
 df_cluster_sample['kmeans_cluster'] = km_final.fit_predict(X_cluster_sample)
 sil_kmeans = silhouette_score(X_cluster_sample, df_cluster_sample['kmeans_cluster'])
-print(f"K-Means (k={k_opt}) completato | Silhouette Score medio: {sil_kmeans:.4f}")
+df_clean['kmeans_cluster'] = km_final.predict(X_pca_full)
+print(f"K-Means (k={k_opt} su 4 PC) completato | Silhouette Score medio: {sil_kmeans:.4f}", flush=True)
 
-# FIGURA 17: Visualizzazione dei cluster K-Means su spazio t-SNE 2D
-plt.figure(figsize=(12, 8))
+cluster_names_short = {
+    0: "C0: High-Intensity Bass & Workout",
+    1: "C1: Extended Club & Instrumental",
+    2: "C2: Acoustic, Chill & Atmospheric",
+    3: "C3: Groove, Melodic Urban & Pop",
+    4: "C4: Fast-Flow Rap & High-BPM"
+}
+
+# FIGURA 17: Doppio grafico Cluster K-Means (Proiezione PCA 2D con Centroidi + Mappa t-SNE 2D)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+sns.scatterplot(
+    data=df_cluster_sample, x='pc_1', y='pc_2', hue='kmeans_cluster',
+    palette='tab10', alpha=0.65, s=25, edgecolor=None, ax=ax1
+)
+centroids_pca = km_final.cluster_centers_
+ax1.scatter(
+    centroids_pca[:, 0], centroids_pca[:, 1], c='black', marker='X', s=220,
+    edgecolor='white', linewidth=1.5, zorder=10, label='Centroidi'
+)
+ax1.set_title('Proiezione Lineare PCA 2D (PC1 vs PC2) con Centroidi', fontsize=13, fontweight='bold')
+ax1.set_xlabel(f'PC1 ({exp_var[0]*100:.1f}% varianza)', fontsize=11)
+ax1.set_ylabel(f'PC2 ({exp_var[1]*100:.1f}% varianza)', fontsize=11)
+ax1.legend(title='Cluster ID', fontsize=9.5)
+
 sns.scatterplot(
     data=df_cluster_sample, x='tsne_1', y='tsne_2', hue='kmeans_cluster',
-    palette='tab10', alpha=0.7, s=30, edgecolor=None
+    palette='tab10', alpha=0.7, s=25, edgecolor=None, ax=ax2
 )
-plt.title(f'Cluster K-Means (k={k_opt}) Proiettati nello Spazio 2D t-SNE', fontsize=14, fontweight='bold')
-plt.xlabel('t-SNE Dimensione 1', fontsize=12)
-plt.ylabel('t-SNE Dimensione 2', fontsize=12)
-plt.legend(title='Cluster ID', fontsize=10)
+ax2.set_title('Proiezione Non Lineare t-SNE 2D', fontsize=13, fontweight='bold')
+ax2.set_xlabel('t-SNE Dimensione 1', fontsize=11)
+ax2.set_ylabel('t-SNE Dimensione 2', fontsize=11)
+ax2.legend(title='Cluster ID', fontsize=9.5)
+
+plt.suptitle(f'Partizionamento K-Means (k={k_opt}, Silhouette={sil_kmeans:.3f} nello Spazio PCA e t-SNE', fontsize=14, fontweight='bold')
 plt.tight_layout()
 plt.savefig('figures/fig17_kmeans_tsne_clusters.png', dpi=300)
 plt.close()
 
-# FIGURA 18: Profiling delle Feature Medie per Cluster (Creazione automatica "Mood Playlists")
-# Calcoliamo la media delle feature audio continue per ciascun cluster e normalizziamo per confronto
+# FIGURA 18: Profiling delle Feature Medie per Cluster (Heatmap + Radar Chart delle "Mood Playlists")
 cluster_means = df_cluster_sample.groupby('kmeans_cluster')[continuous_features].mean()
 cluster_means_norm = (cluster_means - cluster_means.min()) / (cluster_means.max() - cluster_means.min() + 1e-6)
 
-plt.figure(figsize=(14, 7))
-sns.heatmap(cluster_means_norm, annot=cluster_means.round(2), fmt='', cmap='coolwarm', cbar_kws={'label': 'Intensità Relativa (0-1)'})
-plt.title('Profiling Acustico dei Cluster K-Means (Identificazione delle Mood Playlists)', fontsize=14, fontweight='bold', pad=15)
-plt.xlabel('Caratteristiche Sonore', fontsize=12)
-plt.ylabel('Cluster K-Means', fontsize=12)
-plt.tight_layout()
-plt.savefig('figures/fig18_kmeans_feature_profiling.png', dpi=300)
+annot_df = pd.DataFrame(index=cluster_means.index, columns=cluster_means.columns, dtype=object)
+for col in cluster_means.columns:
+    for idx in cluster_means.index:
+        val = cluster_means.loc[idx, col]
+        if col == 'duration_ms':
+            annot_df.loc[idx, col] = f"{val/1000:.0f}k"
+        elif col == 'tempo':
+            annot_df.loc[idx, col] = f"{val:.1f}"
+        else:
+            annot_df.loc[idx, col] = f"{val:.2f}"
+
+fig = plt.figure(figsize=(18, 8))
+gs = fig.add_gridspec(1, 2, width_ratios=[1.4, 1], wspace=0.28)
+ax_heat = fig.add_subplot(gs[0])
+ax_radar = fig.add_subplot(gs[1], polar=True)
+
+yticklabels_heat = [cluster_names_short[i] for i in cluster_means.index]
+sns.heatmap(
+    cluster_means_norm, annot=annot_df, fmt='', cmap='coolwarm',
+    annot_kws={'size': 9.5, 'weight': 'bold'},
+    yticklabels=yticklabels_heat, cbar_kws={'label': 'Intensità Relativa Min-Max (0-1)'}, ax=ax_heat
+)
+ax_heat.set_title('Valori Medi Reali (duration in ms) e Intensità Relativa', fontsize=12.5, fontweight='bold', pad=14)
+ax_heat.set_xlabel('Caratteristiche Sonore', fontsize=11)
+ax_heat.set_ylabel('')
+ax_heat.tick_params(axis='x', rotation=30)
+
+radar_feats = clustering_features
+angles = np.linspace(0, 2 * np.pi, len(radar_feats), endpoint=False).tolist()
+angles += angles[:1]
+colors_tab10 = [plt.cm.tab10(i / 10.0) for i in range(k_opt)]
+
+for i in range(k_opt):
+    vals = cluster_means_norm.loc[i, radar_feats].values.flatten().tolist()
+    vals += vals[:1]
+    ax_radar.plot(angles, vals, linewidth=2, label=cluster_names_short[i], color=colors_tab10[i])
+    ax_radar.fill(angles, vals, color=colors_tab10[i], alpha=0.12)
+
+ax_radar.set_theta_offset(np.pi / 2)
+ax_radar.set_theta_direction(-1)
+ax_radar.set_xticks(angles[:-1])
+ax_radar.set_xticklabels(radar_feats, fontsize=9.5, fontweight='bold')
+ax_radar.set_yticks([0.25, 0.5, 0.75, 1.0])
+ax_radar.set_yticklabels(['0.25', '0.50', '0.75', '1.00'], fontsize=8, color='gray')
+ax_radar.set_title('Impronta Acustica Comparata (Radar Chart)', fontsize=12.5, fontweight='bold', pad=22)
+ax_radar.legend(loc='upper right', bbox_to_anchor=(1.34, 1.10), fontsize=8.5)
+
+plt.suptitle('Profiling Acustico dei Cluster K-Means (Identificazione delle 5 Mood Playlists)', fontsize=15, fontweight='bold', y=0.98)
+plt.savefig('figures/fig18_kmeans_feature_profiling.png', dpi=300, bbox_inches='tight')
 plt.close()
 
-# FIGURA 19: Grafico della Silhouette per K-Means (compattezza e separazione dei singoli cluster)
+# FIGURA 19: Grafico della Silhouette per K-Means nello spazio PCA 4D
 sil_values_km = silhouette_samples(X_cluster_sample, df_cluster_sample['kmeans_cluster'])
 plt.figure(figsize=(10, 7))
 y_lower = 10
@@ -610,97 +710,134 @@ for i in range(k_opt):
     ith_cluster_sil.sort()
     size_cluster_i = ith_cluster_sil.shape[0]
     y_upper = y_lower + size_cluster_i
-    color = plt.cm.tab10(float(i) / k_opt)
-    plt.fill_betweenx(np.arange(y_lower, y_upper), 0, ith_cluster_sil, facecolor=color, edgecolor=color, alpha=0.7)
-    plt.text(-0.05, y_lower + 0.5 * size_cluster_i, f"Cluster {i}", fontsize=10, fontweight='bold')
+    color = plt.cm.tab10(i / 10.0)
+    plt.fill_betweenx(np.arange(y_lower, y_upper), 0, ith_cluster_sil, facecolor=color, edgecolor=color, alpha=0.75)
+    plt.text(-0.08, y_lower + 0.5 * size_cluster_i, f"{cluster_names_short[i]} (n={size_cluster_i}", fontsize=9.5, fontweight='bold')
     y_lower = y_upper + 10
 
-plt.axvline(x=sil_kmeans, color="red", linestyle="--", label=f"Silhouette Media = {sil_kmeans:.2f}")
-plt.title('Grafico dei Coefficienti di Silhouette per Cluster (K-Means k = 5)', fontsize=14, fontweight='bold')
+plt.axvline(x=sil_kmeans, color="red", linestyle="--", linewidth=2, label=f"Silhouette Media = {sil_kmeans:.3f}")
+plt.title('Profilo dei Coefficienti di Silhouette per Cluster (K-Means k = 5 su 4 PC)', fontsize=14, fontweight='bold')
 plt.xlabel('Coefficiente di Silhouette', fontsize=12)
-plt.ylabel('Cluster', fontsize=12)
+plt.ylabel('Cluster e Dimensione Campionaria', fontsize=12)
+plt.xlim(-0.22, 0.65)
 plt.yticks([])
 plt.legend(loc='upper right', fontsize=11)
 plt.tight_layout()
 plt.savefig('figures/fig19_kmeans_silhouette_plot.png', dpi=300)
 plt.close()
 
-# 4.5 DBSCAN: Clustering Basato sulla Densità
-print("\nApplicazione dell'algoritmo DBSCAN e ricerca del gomito per Epsilon...")
+# 4.6 DBSCAN: Clustering Basato sulla Densità nello Spazio PCA 4D
+print("\nApplicazione dell'algoritmo DBSCAN nello spazio PCA 4D e ricerca del gomito per Epsilon...", flush=True)
 
-# Determiniamo analiticamente Epsilon tramite il metodo Nearest-Neighbors con k=min_samples
 k_min_samples = 5
 nbrs = NearestNeighbors(n_neighbors=k_min_samples).fit(X_cluster_sample)
 distances, indices = nbrs.kneighbors(X_cluster_sample)
 sorted_distances = np.sort(distances[:, k_min_samples-1])
 
-# FIGURA 20: Grafico delle distanze k-NN per la scelta di Epsilon
+dbscan_eps_opt = 0.60
+# FIGURA 20: Grafico delle distanze k-NN nello spazio PCA 4D per la scelta di Epsilon
 plt.figure(figsize=(10, 6))
-plt.plot(sorted_distances, color='#2b5c8f', linewidth=2)
-plt.axhline(y=2.2, color='red', linestyle='--', label=r'Gomito Ottimale ($\epsilon = 2.2$)')
-plt.title(f'Metodo Nearest-Neighbors per Scelta Parametro $\\epsilon$ (k={k_min_samples})', fontsize=14, fontweight='bold')
-plt.xlabel('Campioni Ordinati per Distanza Crescente', fontsize=12)
-plt.ylabel(f'Distanza dal {k_min_samples}° Vicino', fontsize=12)
+plt.plot(sorted_distances, color='#2b5c8f', linewidth=2.2, label=f'k-NN Distance (k = {k_min_samples}')
+plt.axhline(y=dbscan_eps_opt, color='crimson', linestyle='--', linewidth=2, label=rf'Soglia di Gomito Scelta ($\epsilon = {dbscan_eps_opt}$)')
+plt.title(f'Metodo k-Nearest Neighbors nello Spazio PCA (4 PC) per la Scelta di $\\epsilon$ (k={k_min_samples}', fontsize=13.5, fontweight='bold')
+plt.xlabel('Brani del Campione Ordinati per Distanza Crescente', fontsize=12)
+plt.ylabel(f'Distanza Euclidea dal {k_min_samples}° Vicino (Spazio PCA 4D)', fontsize=12)
 plt.legend(fontsize=11)
 plt.tight_layout()
 plt.savefig('figures/fig20_dbscan_knn_distance.png', dpi=300)
 plt.close()
 
-# FIGURA 21: Griglia di Tuning per DBSCAN (Epsilon vs min_samples)
-eps_candidates = [1.8, 2.0, 2.2, 2.5]
+# FIGURA 21: Griglia di Tuning per DBSCAN (Numero di Cluster + Silhouette Score)
+eps_candidates = [0.45, 0.50, 0.60, 0.70]
 min_samples_candidates = [4, 5, 6, 8]
-dbscan_grid_results = []
+dbscan_grid_clusters = []
+dbscan_grid_sil = []
 for e in eps_candidates:
     row_n_clusters = []
+    row_sil = []
     for ms in min_samples_candidates:
         db_temp = DBSCAN(eps=e, min_samples=ms).fit(X_cluster_sample)
-        n_c = len(set(db_temp.labels_)) - (1 if -1 in db_temp.labels_ else 0)
+        lbls = db_temp.labels_
+        n_c = len(set(lbls)) - (1 if -1 in lbls else 0)
         row_n_clusters.append(n_c)
-    dbscan_grid_results.append(row_n_clusters)
+        mask_valid = lbls != -1
+        if n_c >= 2 and mask_valid.sum() > n_c:
+            row_sil.append(silhouette_score(X_cluster_sample[mask_valid], lbls[mask_valid]))
+        else:
+            row_sil.append(0.0)
+    dbscan_grid_clusters.append(row_n_clusters)
+    dbscan_grid_sil.append(row_sil)
 
-plt.figure(figsize=(9, 6))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
 sns.heatmap(
-    pd.DataFrame(dbscan_grid_results, index=eps_candidates, columns=min_samples_candidates),
-    annot=True, fmt='d', cmap='Blues', cbar_kws={'label': 'Numero di Cluster Identificati'}
+    pd.DataFrame(dbscan_grid_clusters, index=eps_candidates, columns=min_samples_candidates),
+    annot=True, fmt='d', cmap='Blues', cbar_kws={'label': 'Numero di Cluster Identificati'}, ax=ax1
 )
-plt.title(r'DBSCAN Tuning: Numero di Cluster al Variare di $\epsilon$ e min_samples', fontsize=13, fontweight='bold', pad=15)
-plt.xlabel('min_samples', fontsize=11)
-plt.ylabel(r'$\epsilon$ (Raggio di Ricerca)', fontsize=11)
+ax1.set_title(r'Numero di Cluster Identificati ($\epsilon$ vs min_samples)', fontsize=12.5, fontweight='bold', pad=12)
+ax1.set_xlabel('min_samples', fontsize=11)
+ax1.set_ylabel(r'$\epsilon$ (Raggio nello Spazio PCA 4D)', fontsize=11)
+
+sns.heatmap(
+    pd.DataFrame(dbscan_grid_sil, index=eps_candidates, columns=min_samples_candidates),
+    annot=True, fmt='.3f', cmap='YlGnBu', cbar_kws={'label': 'Silhouette Score (Escluso Rumore)'}, ax=ax2
+)
+ax2.set_title(r'Silhouette Score dei Cluster Densi ($\epsilon$ vs min_samples)', fontsize=12.5, fontweight='bold', pad=12)
+ax2.set_xlabel('min_samples', fontsize=11)
+ax2.set_ylabel(r'$\epsilon$ (Raggio nello Spazio PCA 4D)', fontsize=11)
+
+plt.suptitle('Griglia di Tuning Iperparametrica DBSCAN nello Spazio PCA a 4 Componenti', fontsize=14, fontweight='bold')
 plt.tight_layout()
 plt.savefig('figures/fig21_dbscan_grid_search.png', dpi=300)
 plt.close()
 
-# 4.6 Esecuzione DBSCAN con parametri ottimali (eps=2.2, min_samples=5)
-db_opt = DBSCAN(eps=2.2, min_samples=5)
+# 4.7 Esecuzione DBSCAN con parametri ottimali (eps=0.60, min_samples=5) nello spazio PCA 4D
+db_opt = DBSCAN(eps=dbscan_eps_opt, min_samples=k_min_samples)
 df_cluster_sample['dbscan_cluster'] = db_opt.fit_predict(X_cluster_sample)
-n_db_clusters = len(set(df_cluster_sample['dbscan_cluster'])) - (1 if -1 in df_cluster_sample['dbscan_cluster'] else 0)
-n_db_noise = (df_cluster_sample['dbscan_cluster'] == -1).sum()
-print(f"DBSCAN Ottimale: {n_db_clusters} cluster densi, {n_db_noise} punti di rumore/outlier ({n_db_noise/sample_size*100:.1f}%)")
+n_db_clusters = len(set(df_cluster_sample['dbscan_cluster'].tolist())) - (1 if -1 in set(df_cluster_sample['dbscan_cluster'].tolist()) else 0)
+n_db_noise = int((df_cluster_sample['dbscan_cluster'] == -1).sum())
+mask_non_noise = df_cluster_sample['dbscan_cluster'] != -1
+sil_dbscan = float(silhouette_score(X_cluster_sample[mask_non_noise], df_cluster_sample.loc[mask_non_noise, 'dbscan_cluster']))
+print(f"DBSCAN Ottimale (eps={dbscan_eps_opt}, min_samples={k_min_samples}: {n_db_clusters} cluster densi, {n_db_noise} outlier ({n_db_noise/sample_size*100:.2f}%), Sil non-noise={sil_dbscan:.4f}", flush=True)
 
-# FIGURA 22: Cluster DBSCAN su t-SNE con evidenziazione chiara del rumore (outlier in rosso)
-plt.figure(figsize=(12, 8))
+# FIGURA 22: Cluster DBSCAN su PCA 2D e t-SNE 2D con evidenziazione chiara del rumore (outlier in rosso)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
 non_noise = df_cluster_sample[df_cluster_sample['dbscan_cluster'] != -1]
 noise = df_cluster_sample[df_cluster_sample['dbscan_cluster'] == -1]
 
 sns.scatterplot(
+    data=non_noise, x='pc_1', y='pc_2', hue='dbscan_cluster',
+    palette='tab10', alpha=0.65, s=25, edgecolor=None, legend='full', ax=ax1
+)
+ax1.scatter(
+    noise['pc_1'], noise['pc_2'], c='crimson', marker='x', s=35,
+    label=f'Outlier / Rumore (n={n_db_noise}, {n_db_noise/sample_size*100:.1f}%)', alpha=0.85
+)
+ax1.set_title('Proiezione Lineare PCA 2D (PC1 vs PC2)', fontsize=13, fontweight='bold')
+ax1.set_xlabel('PC1 (32.0% varianza)', fontsize=11)
+ax1.set_ylabel('PC2 (16.5% varianza)', fontsize=11)
+ax1.legend(loc='upper right', fontsize=8.5)
+
+sns.scatterplot(
     data=non_noise, x='tsne_1', y='tsne_2', hue='dbscan_cluster',
-    palette='tab10', alpha=0.7, s=30, edgecolor=None, legend='full'
+    palette='tab10', alpha=0.65, s=25, edgecolor=None, legend='full', ax=ax2
 )
-plt.scatter(
-    noise['tsne_1'], noise['tsne_2'], c='crimson', marker='x', s=45,
-    label=f'Punti Rumorosi / Outlier (n={n_db_noise})', alpha=0.85
+ax2.scatter(
+    noise['tsne_1'], noise['tsne_2'], c='crimson', marker='x', s=35,
+    label=f'Outlier / Rumore (n={n_db_noise}, {n_db_noise/sample_size*100:.1f}%)', alpha=0.85
 )
-plt.title(r'Clusterizzazione DBSCAN ($\epsilon=2.2, min\_samples=5$) con Outlier Evidenziati', fontsize=14, fontweight='bold')
-plt.xlabel('t-SNE Dimensione 1', fontsize=12)
-plt.ylabel('t-SNE Dimensione 2', fontsize=12)
-plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', fontsize=10)
+ax2.set_title('Proiezione Non Lineare t-SNE 2D', fontsize=13, fontweight='bold')
+ax2.set_xlabel('t-SNE Dimensione 1', fontsize=11)
+ax2.set_ylabel('t-SNE Dimensione 2', fontsize=11)
+ax2.legend(loc='upper right', fontsize=8.5)
+
+plt.suptitle(rf'Clusterizzazione DBSCAN nello Spazio PCA ($\epsilon={dbscan_eps_opt}, min\_samples={k_min_samples}$): Nucleo Denso e Outlier Acustici', fontsize=14, fontweight='bold')
 plt.tight_layout()
 plt.savefig('figures/fig22_dbscan_tsne_clusters_noise.png', dpi=300)
 plt.close()
 
 # FIGURA 23: Analisi diagnostica del rumore DBSCAN (Perché sono considerati outlier?)
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 5))
-df_cluster_sample['is_noise'] = (df_cluster_sample['dbscan_cluster'] == -1).map({True: 'Rumore / Outlier', False: 'Punti di Cluster'})
+df_cluster_sample['is_noise'] = (df_cluster_sample['dbscan_cluster'] == -1).map({True: 'Rumore / Outlier (-1)', False: 'Punti di Cluster'}
 
 sns.boxplot(data=df_cluster_sample, x='is_noise', y='duration_ms', ax=ax1, hue='is_noise', palette='Set1', legend=False)
 ax1.set_title('Durata Brano (ms, scala logaritmica)', fontweight='bold')
@@ -711,10 +848,10 @@ sns.boxplot(data=df_cluster_sample, x='is_noise', y='speechiness', ax=ax2, hue='
 ax2.set_title('Speechiness (Presenza Parlato)', fontweight='bold')
 ax2.set_xlabel('')
 
-sns.boxplot(data=df_cluster_sample, x='is_noise', y='tempo', ax=ax3, hue='is_noise', palette='Set1', legend=False)
-ax3.set_title('Tempo (BPM)', fontweight='bold')
+sns.boxplot(data=df_cluster_sample, x='is_noise', y='acousticness', ax=ax3, hue='is_noise', palette='Set1', legend=False)
+ax3.set_title('Acousticness (Natura Acustica)', fontweight='bold')
 ax3.set_xlabel('')
-plt.suptitle('Analisi Diagnostica del Rumore DBSCAN: Caratteristiche Acustiche degli Outlier', fontsize=15, fontweight='bold')
+plt.suptitle('Analisi Diagnostica del Rumore DBSCAN: Caratteristiche Acustiche delle 462 Tracce Outlier', fontsize=14.5, fontweight='bold')
 plt.tight_layout()
 plt.savefig('figures/fig23_dbscan_noise_profiling.png', dpi=300)
 plt.close()
@@ -732,16 +869,24 @@ summary_stats = {
     'voting_f1': round(f1_voting, 4),
     'stacking_acc': round(acc_stacking, 4),
     'stacking_f1': round(f1_stacking, 4),
+    'pca_features': clustering_features,
+    'pca_n_components': n_pca_components,
+    'pca_explained_variance': [round(float(x), 4) for x in exp_var],
+    'pca_cumulative_variance': [round(float(x), 4) for x in cum_var],
+    'pca_loadings': pca_loadings.round(4).to_dict(),
     'kmeans_k': k_opt,
-    'kmeans_sil': round(sil_kmeans, 4),
-    'dbscan_eps': 2.2,
-    'dbscan_min_samples': 5,
+    'kmeans_sil': round(float(sil_kmeans), 4),
+    'kmeans_sample_counts': {int(k): int(v) for k, v in df_cluster_sample['kmeans_cluster'].value_counts().sort_index().items()},
+    'kmeans_full_counts': {int(k): int(v) for k, v in df_clean['kmeans_cluster'].value_counts().sort_index().items()},
+    'dbscan_eps': dbscan_eps_opt,
+    'dbscan_min_samples': k_min_samples,
     'dbscan_clusters': n_db_clusters,
     'dbscan_noise': int(n_db_noise),
-    'dbscan_noise_pct': round(n_db_noise/sample_size*100, 2)
+    'dbscan_noise_pct': round(n_db_noise/sample_size*100, 2),
+    'dbscan_sil_non_noise': round(sil_dbscan, 4)
 }
 
 with open('data/project_summary.json', 'w') as f:
     json.dump(summary_stats, f, indent=2)
 
-print("\n>>> PIPELINE COMPLETATA CON SUCCESSO! Tutte le 23 figure e le metriche sono state generate e salvate.")
+print("All figures fig14-fig23 and data/project_summary.json updated successfully!", flush=True)

@@ -12,16 +12,46 @@ accademico di riferimento (LaTeX).
 
 import os
 import json
-import nbformat as nbf
+import base64
+import re
 
-nb = nbf.v4.new_notebook()
+nb = {"nbformat": 4, "nbformat_minor": 5, "metadata": {}, "cells": []}
 cells = []
 
+def _to_lines(s):
+    lines = s.splitlines(keepends=True)
+    return lines if lines else [""]
+
 def md(text):
-    return nbf.v4.new_markdown_cell(text.strip())
+    return {
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": _to_lines(text.strip())
+    }
 
 def code(text):
-    return nbf.v4.new_code_cell(text.strip())
+    source_code = text.strip()
+    outputs = []
+    img_matches = re.findall(r"Image\(filename=['\"]([^'\"]+)['\"]\)", source_code)
+    for img_path in img_matches:
+        if os.path.exists(img_path):
+            with open(img_path, "rb") as img_f:
+                b64_data = base64.b64encode(img_f.read()).decode('utf-8')
+            outputs.append({
+                "output_type": "display_data",
+                "data": {
+                    "image/png": b64_data,
+                    "text/plain": [f"<IPython.core.display.Image object: {img_path}>"]
+                },
+                "metadata": {}
+            })
+    return {
+        "cell_type": "code",
+        "execution_count": 1,
+        "metadata": {},
+        "outputs": outputs,
+        "source": _to_lines(source_code)
+    }
 
 # ======================================================================================
 # FRONTESPIZIO ACCADEMICO
@@ -416,13 +446,43 @@ cells.append(md(r"""
 Questo capitolo illustra l'applicazione di tecniche di clusterizzazione con lo scopo di raggruppare i brani musicali in un insieme di gruppi con caratteristiche sonore omogenee. L'analisi è condotta in modalità **totalmente non supervisionata**, rimuovendo il target commerciale `genre` e gli identificativi.
 
 ## 4.1 Fase di ETL per il clustering
-### 4.1.1 Operazioni preliminari sul dataset
-Le feature del dataset sono state private di `id` e `genre` per evitare la *curse of dimensionality* e rendere i cluster dipendenti unicamente dalle similarità acustiche. Le 13 feature rimanenti sono state standardizzate con `StandardScaler`.
+### 4.1.1 Operazioni preliminari e selezione delle feature
+Prima di applicare gli algoritmi basati su distanza euclidea (K-Means e DBSCAN), il dataset deduplicato ($N = 35.877$) è stato sottoposto a una selezione mirata delle feature per prevenire distorsioni metriche:
+* **Esclusione di `genre` e `id`:** per garantire un approccio puramente non supervisionato.
+* **Esclusione delle 3 variabili discrete/categoriche (`key`, `mode`, `time_signature`):** la loro codifica intera/binaria introduce discontinuità artificiali nello spazio euclideo.
+* **Esclusione di `loudness` e `liveness`:** `loudness` viene rimossa per l'elevata multicollinearità con `energy` ($r = 0.70$, che duplicherebbe il peso del volume nei centroidi), mentre `liveness` descrive il contesto di registrazione (pubblico dal vivo) e non la struttura musicale del brano.
+* **Standardizzazione (`StandardScaler`):** applicata sulle **8 feature acustiche continue selezionate** (`danceability`, `energy`, `speechiness`, `acousticness`, `instrumentalness`, `valence`, `tempo`, `duration_ms`).
 
-### 4.1.2 Riduzione di dimensionalità
-Per permettere la visualizzazione e mitigare la dimensionalità dello spazio dati:
-* **PCA (Principal Component Analysis):** Lo Scree Plot in **Figura 14** mostra che 6 componenti principali sono sufficienti per raccogliere oltre il **70% della varianza cumulativa totale**.
-* **t-SNE:** È stata impiegata per ridurre i dati complessi a 2 dimensioni conservando le relazioni locali (`perplexity` = 40, `random_state` = 42). In **Figura 15** viene presentata la mappa 2D t-SNE con i generi originali.
+### 4.1.2 Riduzione di dimensionalità: PCA e t-SNE
+* **PCA (Principal Component Analysis):** applicata sulle 8 feature standardizzate come riduzione dimensionale effettiva prima del clustering. Come mostrato in **Tabella 3** e nello Scree Plot di **Figura 14**, le prime **4 Componenti Principali (`PC1`–`PC4`)** catturano il **73.96% della varianza cumulativa totale** (superando la soglia canonica del 70%). Sia K-Means che DBSCAN operano quindi direttamente nello spazio ridotto a 4 dimensioni (`X_pca`).
+
+#### Table 3: Quota di varianza spiegata individuale e cumulativa (PCA sulle 8 feature selezionate).
+
+| Componente Principale | Varianza Spiegata (%) | Varianza Cumulativa (%) | Stato Selezione |
+| :--- | :---: | :---: | :---: |
+| **PC1** | 32.00% | 32.00% | **Selezionata** |
+| **PC2** | 16.54% | 48.54% | **Selezionata** |
+| **PC3** | 15.21% | 63.75% | **Selezionata** |
+| **PC4** | 10.22% | **73.96%** | **Selezionata (>70%)** |
+| PC5 | 9.03% | 83.00% | Esclusa |
+| PC6 | 8.04% | 91.04% | Esclusa |
+| PC7 | 4.89% | 95.92% | Esclusa |
+| PC8 | 4.08% | 100.00% | Esclusa |
+
+#### Table 4: Matrice dei Loadings PCA (`PC1`–`PC4`) sulle 8 feature acustiche.
+
+| Feature Acustica | PC1 (32.00%) | PC2 (16.54%) | PC3 (15.21%) | PC4 (10.22%) |
+| :--- | :---: | :---: | :---: | :---: |
+| `danceability` | -0.2179 | **+0.6721** | +0.2303 | +0.1679 |
+| `energy` | **+0.3767** | -0.2699 | **+0.5122** | -0.1522 |
+| `speechiness` | **-0.3724** | -0.0696 | +0.2895 | -0.0380 |
+| `acousticness` | **-0.3482** | +0.0925 | **-0.5224** | +0.2265 |
+| `instrumentalness` | **+0.4838** | +0.2391 | -0.0819 | +0.3038 |
+| `valence` | -0.2888 | +0.2422 | **+0.5533** | +0.1739 |
+| `tempo` | -0.1770 | **-0.5300** | +0.1223 | **+0.7626** |
+| `duration_ms` | **+0.4494** | +0.2555 | +0.0092 | **+0.4380** |
+
+* **t-SNE:** impiegata esclusivamente a scopo di visualizzazione topologica non lineare in 2D (`n_components=2`, `perplexity=40`, `random_state=42` su un campione rappresentativo di $N=6.000$ brani, **Figura 15**).
 """))
 
 cells.append(code(r"""
@@ -432,30 +492,30 @@ display(Image(filename='figures/fig15_tsne_2d_overview.png'))
 """))
 
 cells.append(md(r"""
-## 4.2 Kmeans
+## 4.2 K-Means nello Spazio PCA (4 Componenti)
 
-Il metodo K-Means minimizza la distanza intra-cluster calcolando la varianza interna WCSS (*Within-Cluster Sum of Squares*):
+Il metodo K-Means minimizza la distanza intra-cluster calcolando la varianza interna WCSS (*Within-Cluster Sum of Squares*) nello spazio delle prime 4 componenti principali:
 \begin{equation}
-\text{WCSS} = \sum_{j=1}^k \sum_{x_i \in C_j} \|x_i - \mu_j\|^2 \tag{3}
+\text{WCSS} = \sum_{j=1}^k \sum_{\mathbf{z}_i \in C_j} \|\mathbf{z}_i - \boldsymbol{\mu}_j\|^2 \tag{3}
 \end{equation}
 
-### 4.2.1 Applicazione dell'algoritmo K-means
-Il valore ottimale di $k$ è stato selezionato tramite il metodo del gomito (*Elbow Method*), testando $k$ da 2 a 11. Come si evince dalla **Figura 16**, in corrispondenza di **$k = 5$** si manifesta il punto di flesso che bilancia compattezza e semplicità del modello.
+### 4.2.1 Applicazione dell'algoritmo, Elbow Method e Silhouette Score
+Il valore ottimale di $k$ è stato selezionato valutando congiuntamente la curva **WCSS (Elbow Method)** e il **Coefficiente di Silhouette medio** per $k \in [2, 10]$ (**Figura 16**). In corrispondenza di **$k = 5$** si osserva sia il gomito della curva WCSS ($13.981,8$), sia un **massimo locale del Silhouette Score pari a `0.2829`**, prima del netto calo a $k=6$ (`0.2395`).
 
-### 4.2.2 Analisi dei risultati ottenuti
-Applicando K-Means con $k=5$ e proiettando le assegnazioni nello spazio t-SNE (**Figura 17**), si ottengono 5 cluster compatti. In **Figura 18** viene riportato il profiling delle feature medie, consentendo di identificare matematicamente 5 *"Mood Playlists"*:
-* **Cluster 0:** *High-Energy Electronic / Party* (Massima energia, loudness elevata, forte componente strumentale).
-* **Cluster 1:** *Urban & Rap* (Massima presenza di parole parlate / speechiness, ritmo cadenzato).
-* **Cluster 2:** *Melodic Pop & R&B* (Massima valence / positività e ritmica ballabile).
-* **Cluster 3:** *High-Velocity / Workout* (Velocità ritmica estrema >165 BPM - Drum and Bass / Hardstyle).
-* **Cluster 4:** *Atmospheric & Dark* (Volume attenuato, tonalità introspettive e sonorità cupe).
+### 4.2.2 Analisi dei risultati ottenuti e Profiling delle 5 "Mood Playlists"
+Applicando K-Means con $k=5$ nello spazio PCA 4D e proiettando i cluster sia nel piano lineare PCA (`PC1` vs `PC2` con centroidi) sia sulla mappa t-SNE (**Figura 17**), si ottengono 5 archetipi ben definiti. La **Figura 18** affianca la **Heatmap delle medie reali** e il **Radar Chart** delle impronte acustiche:
+* **Cluster 0 — *High-Intensity Bass & Workout* (1.710 brani campione / 10.583 catalogo, 29.50%):** Massima `energy` (`0.86`) e `loudness` (`-4.83 dB`), `tempo` elevato (`152.40 BPM`), bassa `danceability` (`0.48`) e `valence` (`0.24`). Dominato da *Hardstyle, Drum and Bass e Trap*.
+* **Cluster 1 — *Extended Club & Instrumental Electronic* (1.517 brani campione / 8.964 catalogo, 24.99%):** Altissima `instrumentalness` (`0.79`) e durata estesa (`390.803 ms`, ~6.5 min), alta `energy` (`0.84`) e `danceability` (`0.66`), `speechiness` minima (`0.06`). Dominato da *Techno, Psytrance, Trance e Techhouse*.
+* **Cluster 2 — *Acoustic, Chill & Atmospheric* (549 brani campione / 3.189 catalogo, 8.89%):** Massima `acousticness` (`0.49`) e minimi assoluti di `energy` (`0.45`) e `loudness` (`-9.87 dB`). Raccoglie brani acustici, *RnB, Emo e Dark Trap/Lo-Fi* atmosferica.
+* **Cluster 3 — *Groove, Melodic Urban & Dance-Pop* (1.250 brani campione / 7.354 catalogo, 20.50%):** Massima `danceability` (`0.76`), `tempo` cadenzato (`130.31 BPM`), `valence` positiva (`0.49`) e parlato moderato (`0.18`). Raccoglie *Pop, R&B, Rap melodico e Techhouse* radiofonica.
+* **Cluster 4 — *Fast-Flow Rap & High-Tempo Urban* (974 brani campione / 5.787 catalogo, 16.13%):** Massimo `tempo` (`179.12 BPM`), massima `speechiness` (`0.26`) e massima `valence` (`0.55`). Composto da *Underground Rap, Hiphop e Dark Trap* ad alta velocità.
 
 ### 4.2.3 Grafico della Silhouette
-La qualità del partizionamento è attestata dal grafico della Silhouette (**Figura 19**), che mostra uno spessore uniforme e valori ampiamente positivi per tutti i cluster.
+La qualità del partizionamento nello spazio PCA 4D è attestata dal diagramma di Silhouette (**Figura 19**), con valore medio **`0.2829`** e picchi superiori a `0.50` per tutti i 5 cluster.
 """))
 
 cells.append(code(r"""
-# Visualizzazione Figure 16, 17, 18, 19 (K-Means)
+# Visualizzazione Figure 16, 17, 18, 19 (K-Means nello Spazio PCA)
 display(Image(filename='figures/fig16_kmeans_elbow_wcss.png'))
 display(Image(filename='figures/fig17_kmeans_tsne_clusters.png'))
 display(Image(filename='figures/fig18_kmeans_feature_profiling.png'))
@@ -463,22 +523,20 @@ display(Image(filename='figures/fig19_kmeans_silhouette_plot.png'))
 """))
 
 cells.append(md(r"""
-## 4.3 DBSCAN
+## 4.3 DBSCAN nello Spazio PCA (4 Componenti)
 
-DBSCAN (*Density-Based Spatial Clustering of Applications with Noise*) raggruppa punti in base alla densità locale ed è ideale per identificare forme arbitrarie e rilevare automaticamente il rumore (`label = -1`).
+DBSCAN (*Density-Based Spatial Clustering of Applications with Noise*) raggruppa i punti in base alla densità locale nello spazio PCA a 4 dimensioni ed è ideale per isolare automaticamente le osservazioni anomale come rumore (`label = -1`).
 
-### 4.3.1 Applicazione dell'algoritmo DBSCAN
-Per determinare i parametri $\epsilon$ e `min_samples`:
-* È stato utilizzato il metodo Nearest-Neighbors con $k = 5$, graficando le distanze ordinate (**Figura 20**). Il punto di gomito si colloca a **$\epsilon = 2.2$**.
-* È stata analizzata la griglia parametrica $(\epsilon \times \text{min\_samples})$ in **Figura 21**. Con $\epsilon = 2.2, \text{min\_samples} = 5$ si ottengono **8 cluster densi** e un tasso di rumore controllato pari al **6.9%** (415 campioni).
+### 4.3.1 Scelta dei parametri e tuning ($\epsilon = 0.60, \text{min\_samples} = 5$)
+* Dal grafico delle distanze ordinate 5-NN nello spazio PCA 4D (**Figura 20**), il punto di ginocchio si colloca a **$\epsilon = 0.60$**.
+* La doppia matrice di tuning $(\epsilon \times \text{min\_samples})$ in **Figura 21** mostra il numero di cluster e il Silhouette Score dei punti non-rumore: con $\epsilon = 0.60, \text{min\_samples} = 5$ si identificano **6 cluster** (un macro-cluster centrale ad alta densità di 5.509 brani + 5 micro-cluster periferici) isolando **462 tracce outlier (7.70% del campione)**.
 
 ### 4.3.2 Analisi dei risultati ottenuti e Diagnostica del Rumore
-In **Figura 22** è mostrata la distribuzione spaziale dei cluster DBSCAN con i punti di rumore evidenziati. 
-I boxplot in **Figura 23** forniscono la spiegazione diagnostica degli outlier: i punti di rumore corrispondono a canzoni con durate estreme (oltre 7-10 minuti o inferiori a 30 secondi), brani non musicali con speechiness anomala (podcast, sketch) o tracce a ritmi fuori scala (>210 BPM).
+In **Figura 22** è mostrata la distribuzione spaziale DBSCAN su PCA 2D e t-SNE 2D con le 462 tracce di rumore evidenziate in rosso. I boxplot in **Figura 23** confermano che gli outlier isolati da DBSCAN corrispondono a tracce con durate estreme (`duration_ms`), parlato anomalo (`speechiness` da podcast/interludi) o valori atipici di `acousticness`.
 """))
 
 cells.append(code(r"""
-# Visualizzazione Figure 20, 21, 22, 23 (DBSCAN e Diagnostica Outlier)
+# Visualizzazione Figure 20, 21, 22, 23 (DBSCAN e Diagnostica Outlier nello Spazio PCA)
 display(Image(filename='figures/fig20_dbscan_knn_distance.png'))
 display(Image(filename='figures/fig21_dbscan_grid_search.png'))
 display(Image(filename='figures/fig22_dbscan_tsne_clusters_noise.png'))
@@ -515,6 +573,6 @@ nb['metadata'] = {
 
 target_path = 'Spotify_Audio_Analysis_Classification_Clustering.ipynb'
 with open(target_path, 'w', encoding='utf-8') as f:
-    nbf.write(nb, f)
+    json.dump(nb, f, indent=1, ensure_ascii=False)
 
 print(f"Jupyter Notebook salvato con successo in '{target_path}' con {len(cells)} celle in perfetto stile LaTeX!")
