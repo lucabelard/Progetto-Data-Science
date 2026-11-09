@@ -19,9 +19,9 @@ Per la costruzione della serie storica del valore patrimoniale delle rose e dei 
 \centering
 \caption{Riepilogo delle tabelle relazionali del dataset di Transfermarkt utilizzate nella pipeline.}
 \label{tab:tabelle_transfermarkt}
-\begin{tabular}{llrl}
+\begin{tabularx}{\textwidth}{ll>{\raggedleft\arraybackslash}rX}
 \toprule
-\textbf{File sorgente} & \textbf{Chiavi principali} & \textbf{Record grezzi} & \textbf{Ruolo nella ricostruzione temporale} \\
+\textbf{File sorgente} & \textbf{Chiavi principali} & \textbf{Record} & \textbf{Ruolo nella ricostruzione temporale} \\
 \midrule
 \texttt{player\_valuations.csv} & \texttt{player\_id}, \texttt{date} & 656.301 & Storico delle valutazioni di mercato in euro \\
 \texttt{transfers.csv} & \texttt{player\_id}, \texttt{transfer\_date} & 175.165 & Spostamenti tra club e volume spese (\texttt{transfer\_fee}) \\
@@ -29,7 +29,7 @@ Per la costruzione della serie storica del valore patrimoniale delle rose e dei 
 \texttt{clubs.csv} & \texttt{club\_id} & 796 & Anagrafica dei club e lega di appartenenza \\
 \texttt{competitions.csv} & \texttt{competition\_id} & 65 & Codifica dei cinque maggiori campionati europei \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 L'integrazione con la tabella \texttt{appearances.csv}, che conta 1.894.350 registrazioni di presenze individuali in gara, e con i dizionari anagrafici \texttt{clubs.csv} e \texttt{competitions.csv} consente di associare ogni società calcistica alla rispettiva lega nazionale mediante il codice identificativo \texttt{domestic\_competition\_id}. In particolare, il perimetro dello studio seleziona i cinque massimi campionati europei: la Serie A italiana (\texttt{IT1}), la Premier League inglese (\texttt{GB1}), LaLiga spagnola (\texttt{ES1}), la Bundesliga tedesca (\texttt{L1}) e la Ligue 1 francese (\texttt{FR1}).
@@ -93,9 +93,9 @@ La scelta di fissare l'orizzonte temporale definitivo tra giugno 2011 (\texttt{2
 \centering
 \caption{Struttura delle variabili principali contenute nel dataset mensile elaborato \texttt{market\_monthly.csv}.}
 \label{tab:schema_market_monthly}
-\begin{tabular}{lll}
+\begin{tabularx}{\textwidth}{llX}
 \toprule
-\textbf{Variabile} & \textbf{Unita / Tipo} & \textbf{Descrizione} \\
+\textbf{Variabile} & \textbf{Unità / Tipo} & \textbf{Descrizione} \\
 \midrule
 \texttt{year\_month}, \texttt{date} & Data mensile & Indice temporale regolare ($\Delta t = 1$ mese, 180 osservazioni) \\
 \texttt{top5\_market\_value\_bn} & Float (Mld EUR) & Valore di mercato aggregato delle rose dei Top-5 campionati \\
@@ -113,7 +113,7 @@ La scelta di fissare l'orizzonte temporale definitivo tra giugno 2011 (\texttt{2
 \texttt{shock\_neymar\_post2017} & Binaria [0/1] & Indicatore del regime post-agosto 2017 (shock inflattivo) \\
 \texttt{shock\_covid\_2020} & Binaria [0/1] & Indicatore della finestra pandemica e del taglio di aprile 2020 \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 I controlli di integrità eseguiti al termine della pipeline ed esportati nel file di certificazione \texttt{etl\_summary.json} attestano la totale assenza di valori nulli o mesi mancanti (\texttt{missing\_months = 0} su 180 osservazioni) e confermano che la serie principale \texttt{top5\_market\_value\_bn} presenta variazioni non nulle in 179 transizioni mensili consecutive su 179 (\texttt{zero\_change\_months = 0}), soddisfacendo pienamente sia il requisito di equispaziatura temporale sia quello di variabilità dinamica continua. Nella Tabella \ref{tab:schema_market_monthly} vengono infine riassunte le principali variabili salvate all'interno del dataset definitivo \texttt{market\_monthly.csv}, che costituisce la base di partenza per l'analisi esplorativa e la modellazione dei capitoli seguenti.

@@ -451,7 +451,10 @@ Prima di applicare gli algoritmi basati su distanza euclidea (K-Means e DBSCAN),
 * **Esclusione di `genre` e `id`:** per garantire un approccio puramente non supervisionato.
 * **Esclusione delle 3 variabili discrete/categoriche (`key`, `mode`, `time_signature`):** la loro codifica intera/binaria introduce discontinuità artificiali nello spazio euclideo.
 * **Esclusione di `loudness` e `liveness`:** `loudness` viene rimossa per l'elevata multicollinearità con `energy` ($r = 0.70$, che duplicherebbe il peso del volume nei centroidi), mentre `liveness` descrive il contesto di registrazione (pubblico dal vivo) e non la struttura musicale del brano.
-* **Standardizzazione (`StandardScaler`):** applicata sulle **8 feature acustiche continue selezionate** (`danceability`, `energy`, `speechiness`, `acousticness`, `instrumentalness`, `valence`, `tempo`, `duration_ms`).
+* **Standardizzazione Obbligatoria (`StandardScaler`) e Rischio di Dominanza della Varianza:** Poiché `duration_ms` ($\sim 200.000\text{ ms}$, $\sigma^2 \approx 10^{10}$) e `tempo` ($\sim 140\text{ BPM}$, $\sigma^2 \approx 900$) presentano varianze enormemente superiori agli indici in $[0, 1]$, applicare la PCA sui dati grezzi farebbe assorbire a `duration_ms` il $99.99\%$ della `PC1`. Ogni feature $j \in \{1,\dots,8\}$ viene quindi portata a media $\mu_j = 0$ e varianza unitaria $\sigma_j^2 = 1$ (varianza totale dello spazio $= 8$):
+\begin{equation}
+\boxed{z_{i,j} = \frac{x_{i,j} - \mu_j}{\sigma_j} \quad \Longrightarrow \quad \mu(z_j) = 0, \quad \sigma^2(z_j) = 1}
+\end{equation}
 
 ### 4.1.2 Riduzione di dimensionalità: PCA e t-SNE
 * **PCA (Principal Component Analysis):** applicata sulle 8 feature standardizzate come riduzione dimensionale effettiva prima del clustering. Come mostrato in **Tabella 3** e nello Scree Plot di **Figura 14**, le prime **4 Componenti Principali (`PC1`–`PC4`)** catturano il **73.96% della varianza cumulativa totale** (superando la soglia canonica del 70%). Sia K-Means che DBSCAN operano quindi direttamente nello spazio ridotto a 4 dimensioni (`X_pca`).

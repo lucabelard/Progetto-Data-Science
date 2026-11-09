@@ -9,7 +9,7 @@ __pycache__/
 *$py.class
 .ipynb_checkpoints/
 
-# File ausiliari di compilazione LaTeX
+# File ausiliari di compilazione LaTeX e PDF generati
 *.aux
 *.log
 *.out
@@ -19,3 +19,5 @@ __pycache__/
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+*.pdf
+
