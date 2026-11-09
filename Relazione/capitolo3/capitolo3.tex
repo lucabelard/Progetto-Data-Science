@@ -182,3 +182,147 @@ Dalla Figura \ref{fig:feature_importance} si evince chiaramente quali siano i fa
     \item Al contrario, \texttt{key}, \texttt{mode} e \texttt{time\_signature} presentano un'importanza marginale, a riprova del fatto che la tonalità o la modalità maggiore/minore non vincolano in modo univoco il genere musicale di appartenenza.
 \end{itemize}
 
+\newpage
+% =========================================================================
+% SEZIONE 3.4: EVOLUZIONE DEL MODELLO - CLASSIFICAZIONE GERARCHICA
+% =========================================================================
+\subsection{Evoluzione del Modello: Classificazione Gerarchica e Modelli Specialisti}
+
+\noindent\textit{Nota metodologica sui riferimenti visivi: Si precisa preliminarmente che tutti i grafici e gli elaborati diagnostici presentati e discussi all'interno della presente sezione sono consultabili e archiviati nella cartella \texttt{figures\_contu} del repository di progetto.}
+
+\vspace{0.3cm}
+L'analisi critica condotta nelle sezioni precedenti ha posto in luce un'evidenza empirica di fondamentale rilievo: sebbene l'architettura di Ensemble Learning (Voting e Stacking Classifier) abbia permesso di raggiungere un'accuratezza ragguardevole del \textbf{68.90\%} sui 15 generi musicali di partenza (a fronte di una baseline probabilistica casuale del $6.67\%$), l'esame approfondito della matrice di confusione (Figura \ref{fig:confusion_matrix}) rivela che gli errori di classificazione non sono distribuiti in maniera casuale né uniforme nello spazio ipersferico delle classi. Al contrario, la quasi totalità dei falsi positivi e dei falsi negativi si manifesta sistematicamente all'interno di cluster di sottogeneri caratterizzati da un'evidente parentela stilistica e produttiva, quali le costanti intersezioni tra \textit{Rap}, \textit{Underground Rap}, \textit{Dark Trap} e \textit{Trap Metal}, oppure le sovrapposizioni tra i sottogeneri del clubbing elettronico.
+
+Tale riscontro dimostra che l'approccio ``piatto'' (\textit{flat multiclass classification}) soffre di un limite concettuale: costringere un singolo modello a tracciare contemporaneamente superfici decisionali che separino macro-universi sonori radicalmente eterogenei (ad esempio un brano Drum and Bass da una traccia Pop) e, al contempo, micro-differenze sottili tra sottogeneri stilisticamente contigui genera una complessa interferenza di confine (\textit{boundary confusion}). 
+
+Per superare tale problematica e disarticolare la complessità dello spazio decisionale, è stata introdotta un'architettura di \textbf{classificazione gerarchica a due stadi} (\textit{two-stage hierarchical cascade}):
+\begin{enumerate}
+    \item \textbf{Livello 1 (Macro-Generi):} Un classificatore supervisionato d'insieme deputato all'identificazione della macro-famiglia acustica di appartenenza;
+    \item \textbf{Livello 2 (Modelli Specialisti Intra-Famiglia):} Un pool di modelli specialistici indipendenti, ciascuno istanziato ed ottimizzato esclusivamente all'interno del perimetro della singola macro-famiglia, preposto alla discriminazione fine dei relativi sottogeneri.
+\end{enumerate}
+
+\subsubsection{Livello 1: Classificazione delle Macro-Famiglie}
+
+Al fine di aggregare categorie acusticamente affini, i 15 generi originali sono stati ricondotti a 4 ampie e coerenti Macro-Famiglie musicali:
+\begin{itemize}
+    \item \textbf{Urban/Rap:} comprendente \textit{Dark Trap}, \textit{Hiphop}, \textit{Rap}, \textit{RnB}, \textit{Trap Metal}, \textit{Underground Rap} e \textit{trap};
+    \item \textbf{Electronic/Club:} comprendente \textit{psytrance}, \textit{techhouse}, \textit{techno} e \textit{trance};
+    \item \textbf{Bass/Hard:} comprendente le produzioni ad alta pressione ritmica \textit{dnb} e \textit{hardstyle};
+    \item \textbf{Pop/Alternative:} comprendente i filoni vocali e melodici \textit{Emo} e \textit{Pop}.
+\end{itemize}
+
+Su tale configurazione a 4 classi è stato riaddestrato il modello d'insieme (Voting Classifier a Soft Voting). I risultati ottenuti certificano un salto prestazionale straordinario: l'accuratezza globale sul Test Set passa dal precedente 68.90\% a un ragguardevole \textbf{89.4\%}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.78\textwidth]{figures_contu/fig08_confusion_matrix_macro.png}
+    \caption{Matrice di confusione normalizzata del Voting Classifier sulle 4 Macro-Famiglie (archivio \texttt{figures\_contu/fig08\_confusion\_matrix\_macro.png}).}
+    \label{fig:confusion_matrix_macro}
+\end{figure}
+
+L'analisi della Figura \ref{fig:confusion_matrix_macro} evidenzia una concentrazione di probabilità quasi perfetta lungo la diagonale principale:
+\begin{itemize}
+    \item La famiglia \textbf{Electronic/Club} raggiunge un'accuratezza del \textbf{97\%}, manifestando una separazione praticamente totale rispetto a tutti gli altri stili;
+    \item La famiglia \textbf{Bass/Hard} registra una precisione del \textbf{96\%}, a testimonianza di come i profili estremi di tempo e densità acustica isolino il cluster da qualunque interferenza;
+    \item La famiglia \textbf{Urban/Rap} si attesta all'\textbf{84\%} di recall corretta, con una dispersione trascurabile confinata verso Pop/Alternative ($8\%$) e Bass/Hard ($5\%$);
+    \item La famiglia \textbf{Pop/Alternative} si attesta all'\textbf{81\%}, evidenziando una fisiologica confluenza del $15\%$ verso l'Urban/Rap, motivata dalla presenza di canzoni Pop contemporanee con cadenze vocali e basi ritmiche marcatamente mutuate dall'RnB e dalla musica urbana.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.78\textwidth]{figures_contu/fig10_roc_curves_macro.png}
+    \caption{Curve ROC One-vs-Rest per le 4 Macro-Famiglie, con un AUC medio globale pari a 0.98 (archivio \texttt{figures\_contu/fig10\_roc_curves_macro.png}).}
+    \label{fig:roc_macro}
+\end{figure}
+
+L'eccellenza discriminante al Livello 1 è pienamente corroborata dall'analisi delle curve ROC riportate in Figura \ref{fig:roc_macro}: il valore di \textbf{Macro-Average ROC-AUC raggiunge l'eccezionale quota di 0.98}. Nello specifico, la curva della famiglia \textit{Electronic/Club} converge a un AUC perfetto di \textbf{1.00}, seguita da \textit{Bass/Hard} con \textbf{0.99}, \textit{Urban/Rap} con \textbf{0.98} e \textit{Pop/Alternative} con \textbf{0.96}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures_contu/fig13_feature_importance_macro.png}
+    \caption{Importanza relativa delle feature per lo scenario a Macro-Generi calcolata da Random Forest e XGBoost (archivio \texttt{figures\_contu/fig13\_feature_importance_macro.png}).}
+    \label{fig:feature_importance_macro}
+\end{figure}
+
+La ragione fisica e matematica di tale drastico incremento di performance è esplicitata dal grafico di Feature Importance di Figura \ref{fig:feature_importance_macro}. Mentre nello scenario atomico a 15 generi il modello era costretto a ricorrere quasi unicamente al fattore ritmico, a livello macro la partizione dello spazio decisionale si basa su divergenze acustiche polarizzanti e nette:
+\begin{enumerate}
+    \item \texttt{instrumentalness}: rappresenta in assoluto la feature cardine (contribuendo per circa il $24\%$ nel modello XGBoost e il $17\%$ in Random Forest), consentendo di discriminare istantaneamente il mondo clubbing e strumentale dalle categorie vocal-oriented;
+    \item \texttt{tempo}: si conferma primario (oltre il $22\%$ per Random Forest e il $19\%$ per XGBoost), separando con nettezza le dinamiche iper-cinetiche del Bass/Hard dalle velocità cadenzate delle altre produzioni;
+    \item \texttt{speechiness}: con un contributo vicino al $13\%$ in XGBoost, definisce la linea di faglia strutturale tra la metrica parlata e ritmicamente densa dell'Urban/Rap e i testi melodici o rarefatti delle altre famiglie;
+    \item \texttt{duration\_ms}: concorre in modo rilevante all'isolamento delle strutture a traccia estesa tipiche dei brani da discoteca rispetto ai formati concisi dell'ascolto radiofonico e streaming.
+\end{enumerate}
+
+\newpage
+\subsubsection{Livello 2: Modelli Specialisti Intra-Famiglia}
+
+Verificata l'accuratezza dell'89.4\% nell'instradamento al macro-genere corretto, il secondo stadio della pipeline prevede l'attivazione di \textbf{4 modelli XGBoost specialisti}, ciascuno addestrato ed ottimizzato in modo dedicato all'interno dei soli campioni appartenenti a una singola macro-famiglia. L'obiettivo primario di tali modelli consiste nel verificare se, isolando il rumore generato dalle altre famiglie musicali, l'algoritmo sia in grado di cogliere pattern sottili utili a discriminare i sottogeneri interni.
+
+Le matrici di confusione normalizzate prodotte dai quattro specialisti sul Test Set sono illustrate congiuntamente in Figura \ref{fig:specialist_confusion_matrices}.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_contu/fig_specialist_cm_Bass_Hard.png}
+        \caption{Specialista Bass/Hard (100\% di accuratezza).}
+        \label{fig:sp_bass_hard}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_contu/fig_specialist_cm_Electronic_Club.png}
+        \caption{Specialista Electronic/Club (accuratezza $\ge 90\%$).}
+        \label{fig:sp_electronic}
+    \end{subfigure}
+    \\[0.4cm]
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_contu/fig_specialist_cm_Pop_Alternative.png}
+        \caption{Specialista Pop/Alternative (Emo vs Pop).}
+        \label{fig:sp_pop_alt}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures_contu/fig_specialist_cm_Urban_Rap.png}
+        \caption{Specialista Urban/Rap (evidente overlap acustico).}
+        \label{fig:sp_urban_rap}
+    \end{subfigure}
+    \caption{Matrici di confusione dei 4 classificatori specialisti XGBoost di Livello 2 addestrati sulle singole macro-famiglie (file della suite \texttt{figures\_contu}).}
+    \label{fig:specialist_confusion_matrices}
+\end{figure}
+
+Dall'analisi comparativa dei quattro modelli emergono comportamenti profondamente divergenti a seconda della natura intrinseca del genere musicale:
+\begin{itemize}
+    \item \textbf{Specialista Bass/Hard (Figura \ref{fig:sp_bass_hard}):} Raggiunge un risultato teoricamente e operativamente impeccabile, registrando il \textbf{100\% esatto di accuratezza} su entrambi i sottogeneri (\textit{dnb} = 1.00, \textit{hardstyle} = 1.00) con zero campioni confusi. La netta divergenza tra la ritmica breakbeat a 174 BPM della Drum and Bass e la cassa quadrupla a 150 BPM con saturazione armonica dell'Hardstyle permette allo specialista una separazione perfetta nello spazio delle caratteristiche audio.
+    \item \textbf{Specialista Electronic/Club (Figura \ref{fig:sp_electronic}):} Evidenzia una capacità discriminante eccellente, attestandosi costantemente su percentuali attorno o superiori al 90\% di classificazione corretta: \textit{psytrance} al \textbf{93\%}, \textit{techhouse} al \textbf{90\%}, \textit{trance} al \textbf{90\%} e \textit{techno} all'\textbf{87\%}. Le uniche lievi confusioni si manifestano tra \textit{techno} e \textit{techhouse} ($6\%$ e $9\%$), dovute alla comune impostazione 4/4 a battute contigue ($\approx 125-130$ BPM).
+    \item \textbf{Specialista Pop/Alternative (Figura \ref{fig:sp_pop_alt}):} Mostra una separazione asimmetrica: mentre la classe \textit{Emo} viene isolata con una solida accuratezza dell'\textbf{89\%}, ben il \textbf{33\% delle tracce etichettate come Pop viene erroneamente attribuito all'Emo} (con il Pop corretto ad appena il 67\%). Tale fenomeno riflette la marcata convergenza stilistica del pop moderno con chitarre acustiche e distorte ed atmosfere malinconiche tipiche del filone emo/alternative.
+    \item \textbf{Specialista Urban/Rap (Figura \ref{fig:sp_urban_rap}):} In netto contrasto con i successi degli altri specialisti, all'interno del comparto urbano l'accuratezza subisce un vero e proprio tracollo:
+    \begin{itemize}
+        \item \textit{Underground Rap} viene riconosciuto correttamente soltanto nel \textbf{41\%} dei casi, disperdendosi in maniera generalizzata verso Rap ($15\%$), Hiphop ($16\%$), Dark Trap ($10\%$) e Trap Metal ($9\%$);
+        \item \textit{Rap} registra un'accuratezza di appena il \textbf{53\%}, con il $24\%$ delle proprie osservazioni scambiate per Underground Rap e il $10\%$ per RnB;
+        \item \textit{Hiphop} viene predetto con successo solo nel \textbf{51\%} dei casi, mostrando una dispersione critica verso RnB ($20\%$) e Underground Rap ($12\%$);
+        \item \textit{Trap Metal} ($55\%$) e \textit{Dark Trap} ($57\%$) evidenziano confusioni incrociate biunivoche con il resto del bacino rap;
+        \item L'unica eccezione rilevante è costituita dalla classe \textit{trap} (con un'accuratezza del \textbf{93\%}), la cui tipica ritmica cadenzata con sub-bassi 808 scivolati e triplette di hi-hat a frequenza caratteristica ne preserva la riconoscibilità rispetto al rap classico.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Conclusione Diagnostica e Considerazioni sulla Natura delle Etichette}
+
+La sperimentazione gerarchica condotta conduce a una conclusione diagnostica di fondamentale valore metodologico ed epistemologico per l'intero lavoro di tesi:
+\begin{quote}
+\textit{L'approccio a cascata a due stadi dimostra inconfutabilmente che l'apparato algoritmico e le tecniche di Machine Learning impiegate sono estremamente validi ed efficaci.}
+\end{quote}
+
+Nel momento in cui nel segnale acustico sono presenti differenze timbriche, spettrali e ritmiche oggettive, i modelli di classificazione raggiungono vette di accuratezza prossime o uguali alla perfezione (l'89.4\% a livello macro, con punte del 97\% nell'Electronic e il 100\% nel Bass/Hard).
+
+Alla luce di questa constatazione, il drastico crollo delle performance riscontrato nello specialista \textit{Urban/Rap} non può e non deve essere interpretato come un limite matematico dei modelli predittivi, né come una carenza nel processo di tuning degli iperparametri o nella formulazione del training set. Al contrario, tale esito costituisce la \textbf{formale dimostrazione empirica che i sottogeneri del macro-universo Urban/Rap condividono la medesima, identica impronta e firma acustica}.
+
+Dal punto di vista dell'elaborazione del segnale e dell'estrazione delle caratteristiche sonore (BPM, danceability, energy, loudness, tempo e valence), una traccia classificata da Spotify come \textit{Rap}, \textit{Hiphop} o \textit{Underground Rap} non possiede alcuna differenziazione fisico-armonica misurabile. Le etichette attribuite dalla piattaforma per questa specifica famiglia non riflettono caratteristiche acustiche oggettive, bensì possiedono una valenza prettamente \textbf{culturale, sociologica, contestuale e di marketing editoriale}:
+\begin{itemize}
+    \item La qualifica di \textit{Underground} rispetto a \textit{Rap} commerciale è determinata dal canale di distribuzione indipendente, dalla notorietà dell'artista e dal target del pubblico, non dal timbro della base musicale;
+    \item La demarcazione tematica tra \textit{Dark Trap}, \textit{Trap Metal} o \textit{Hiphop} convenzionale risiede prevalentemente nel contenuto semantico dei testi, nel messaggio sociopolitico e nella crudezza verbale delle rime.
+\end{itemize}
+
+Poiché il dataset impiegato è circoscritto alle sole feature ingegneristiche fornite dalle Web API di Spotify e prescinde totalmente dall'analisi del testo (\textit{Natural Language Processing} sulle liriche), il modello si scontra con una frontiera di Bayes intrinsecamente invalicabile: \textbf{non è possibile separare matematicamente ciò che a livello sonoro risulta perfettamente identico}. Tale constatazione sigilla il capitolo con una chiara linea di demarcazione tra ciò che è estraibile dal puro segnale acustico e ciò che appartiene indissolubilmente alla sfera semantico-culturale della musica moderna.
+
