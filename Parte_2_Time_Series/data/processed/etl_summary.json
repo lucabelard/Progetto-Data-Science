@@ -1,0 +1,30 @@
+{
+  "raw_counts": {
+    "player_valuations": 656301,
+    "transfers": 175165,
+    "appearances": 1894350,
+    "clubs": 796,
+    "competitions": 65
+  },
+  "time_horizon": {
+    "start_month": "2011-06",
+    "end_month": "2026-05",
+    "total_months": 180,
+    "missing_months": 0,
+    "missing_values_in_master": 0
+  },
+  "quality_checks": {
+    "zero_change_months_top5": "0 / 179",
+    "zero_change_months_serie_a_dynamic": "3 / 179",
+    "zero_change_months_serie_a_naive_static": "1 / 179",
+    "top5_value_start_2012_bn": 11.12,
+    "top5_value_end_2026_bn": 34.44,
+    "top5_value_max_bn": 34.44,
+    "top5_covid_drop_apr2020_pct": -18.17,
+    "serie_a_value_start_2012_bn": 2.3,
+    "serie_a_value_end_2026_bn": 5.4,
+    "serie_a_covid_drop_apr2020_pct": -18.34,
+    "total_transfer_spend_2012_2026_bn": 65.82,
+    "total_transfers_top5_2012_2026": 31000
+  }
+}

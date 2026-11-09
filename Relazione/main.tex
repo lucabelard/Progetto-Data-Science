@@ -1,0 +1,146 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[italian]{babel}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{listings}
+
+\onehalfspacing
+
+\geometry{
+  a4paper,
+  top=2.5cm,
+  bottom=2.5cm,
+  left=2.5cm,
+  right=2.5cm
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=blue,
+    citecolor=blue,
+}
+
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{teal},
+    stringstyle=\color{purple},
+    captionpos=b
+}
+
+\renewcommand{\lstlistingname}{Listato}
+
+% Stile visivo per separare chiaramente le due parti tematiche
+\newcommand{\partseparator}[2]{
+    \newpage
+    \vspace*{\fill}
+    \begin{center}
+        \rule{0.85\linewidth}{1.2pt}\\[0.6cm]
+        {\Huge \textbf{#1}}\\[0.4cm]
+        {\Large \textit{#2}}\\[0.6cm]
+        \rule{0.85\linewidth}{1.2pt}
+    \end{center}
+    \vspace*{\fill}
+    \newpage
+}
+
+\begin{document}
+
+% =========================================================================
+% FRONTESPIZIO UNICO DEL PROGETTO
+% =========================================================================
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+    {\Large \textbf{Università Politecnica delle Marche}}\\[0.3cm]
+    {\large \textbf{Facoltà di Ingegneria}}\\[0.2cm]
+    {\large Dipartimento di Ingegneria dell'Informazione}\\[0.2cm]
+    {\small Corso di Laurea Magistrale in Ingegneria Informatica e dell'Automazione}\\[1.5cm]
+    
+    \rule{\linewidth}{0.8pt}\\[0.4cm]
+    {\LARGE \textbf{Progetto di Data Science}}\\[0.3cm]
+    {\large \textbf{Parte I: Audio Feature Analysis, Classificazione e Clustering su Dati Spotify}}\\[0.2cm]
+    {\large \textbf{Parte II: Analisi delle Serie Storiche sul Mercato Calcistico Europeo (Transfermarkt)}}\\[0.4cm]
+    \rule{\linewidth}{0.8pt}\\[2.2cm]
+    
+    \begin{minipage}{0.48\textwidth}
+        \textbf{Docenti:}\\[0.2cm]
+        Prof. Ursino Domenico\\
+        Dott. Buratti Christopher
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \begin{flushright}
+            \textbf{Componenti del gruppo:}\\[0.2cm]
+            Altieri Andrea\\
+            Belardinelli Luca\\
+            Flaiani Andrea
+        \end{flushright}
+    \end{minipage}
+    
+    \vfill
+    {\large Anno Accademico 2024-2025}
+    \vspace*{0.5cm}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+% =========================================================================
+% PARTE I: CLASSIFICAZIONE E CLUSTERING (SPOTIFY)
+% =========================================================================
+\partseparator{PARTE I}{Classificazione Supervisionata e Clustering Non Supervisionato su Dati Spotify}
+
+\input{capitolo1/capitolo1.tex}
+\newpage
+\input{capitolo2/capitolo2.tex}
+\newpage
+\input{capitolo3/capitolo3.tex}
+\newpage
+\input{capitolo4/capitolo4.tex}
+\newpage
+\input{capitolo5/capitolo5.tex}
+
+% =========================================================================
+% PARTE II: TIME SERIES ANALYSIS (TRANSFERMARKT)
+% =========================================================================
+\partseparator{PARTE II}{Analisi delle Serie Storiche sul Mercato Calcistico Europeo (Transfermarkt)}
+
+\input{capitolo6/capitolo6.tex}
+\newpage
+\input{capitolo7/capitolo7.tex}
+\newpage
+\input{capitolo8/capitolo8.tex}
+\newpage
+\input{capitolo9/capitolo9.tex}
+
+\newpage
+\addcontentsline{toc}{section}{\listfigurename}
+\listoffigures
+
+\newpage
+\addcontentsline{toc}{section}{\listtablename}
+\listoftables
+
+\end{document}
+

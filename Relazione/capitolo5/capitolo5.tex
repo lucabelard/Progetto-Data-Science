@@ -1,0 +1,28 @@
+% =========================================================================
+% CAPITOLO 5: BUSINESS CASE E CONCLUSIONI (SPOTIFY)
+% =========================================================================
+\section{Business Case finale e Conclusioni della Parte I}
+
+La prima parte del presente elaborato ha sviluppato una pipeline completa di Data Science applicata all'analisi di oltre 35.000 tracce musicali estratte da Spotify, combinando pulizia dei dati, modellazione predittiva supervisionata e raggruppamento non supervisionato. L'integrazione di queste metodologie ha permesso di raggiungere conclusioni metodologiche solide e di formulare scenari applicativi di grande valore operativo per l'industria dello streaming musicale.
+
+\subsection{Sintesi dei Risultati Metodologici}
+
+\begin{itemize}
+    \item \textbf{Qualità del Dato ed ETL:} La corretta deduplicazione su Track ID (rimozione di 6.428 record duplicati) si è rivelata determinante per eliminare il rischio di data leakage tra set di training e test. La combinazione di SMOTE ed undersampling ha permesso di compensare efficacemente il naturale sbilanciamento delle classi senza introdurre distorsioni geometriche nelle relazioni tra attributi.
+    \item \textbf{Classificazione Multiclasse:} Su un problema ad elevata complessità (15 generi distinti e sole 13 feature acustiche, senza testo o metadati dell'artista), i modelli Ensemble hanno dimostrato un'eccellente capacità predittiva. Lo \textbf{Stacking Classifier} ha raggiunto un'accuratezza del \textbf{68.90\%} e un Weighted F1 di \textbf{0.6890}, supportato da una \textbf{Macro-Average ROC-AUC pari a 0.94}. L'analisi della matrice di confusione ha attestato che gli errori avvengono quasi esclusivamente tra generi contigui dal punto di vista timbrico e produttivo (Dark Trap, Underground Rap e Trap Metal).
+    \item \textbf{Clustering Non Supervisionato:} L'applicazione congiunta di K-Means e DBSCAN ha dimostrato l'esistenza di macro-strutture acustiche stabili. Il K-Means con $k=5$ ha permesso di identificare 5 chiari "Mood Playlists" (Electronic Party, Urban \& Rap, Melodic Pop, High-Velocity Bass, Dark/Atmospheric), validati da un valore medio di Silhouette pari a 0.43. DBSCAN ha invece dimostrato un'efficacia straordinaria nell'isolare una quota del 6.9\% di tracce anomale caratterizzate da durate estreme, BPM eccentrici o parlato anomalo.
+\end{itemize}
+
+\subsection{Ricadute Applicative e Scenari di Business}
+
+I risultati conseguiti aprono la strada a tre concrete applicazioni commerciali:
+\begin{enumerate}
+    \item \textbf{Generazione di Playlist Basate sui Mood (K-Means):} Le etichette di genere tradizionali risultano spesso rigide o fuorvianti: canzoni formalmente catalogate in generi diversi possono condividere lo stesso impatto emotivo e ritmico. Il partizionamento in 5 macro-mood consente alle piattaforme di streaming di generare raccomandazioni dinamiche per attività quotidiane (\textit{Workout, Focus, Chillout, Party}) basate unicamente sulle caratteristiche acustiche intrinseche della musica.
+    \item \textbf{Controllo Qualità e Anomaly Detection Automatizzata (DBSCAN):} Con l'upload giornaliero di centinaia di migliaia di brani da parte di etichette indipendenti e utenti, DBSCAN costituisce un potente strumento automatico di controllo qualità, capace di intercettare file corrotti, podcast catalogati erroneamente come musica o registrazioni amatoriali difettose prima dell'indicizzazione editoriale.
+    \item \textbf{Valutazione Matematica di Nuove Uscite e Demo (Classificazione Stacking):} Il modello predittivo addestrato può essere impiegato dalle case discografiche e dai team di A\&R (Artists and Repertoire) per analizzare le tracce demo appena registrate, identificandone con precisione matematica il posizionamento di genere e il pubblico di riferimento prima del lancio promozionale.
+\end{enumerate}
+
+\subsection{Sviluppi Futuri}
+
+Come sviluppi futuri per l'analisi acustica, il lavoro potrebbe essere esteso integrando tecniche multimodali: in particolare, l'analisi testuale dei testi delle canzoni (\textit{lyrics}) mediante modelli di Natural Language Processing (BERT/Transformers) e l'elaborazione degli spettrogrammi audio completi attraverso reti neurali convoluzionali (CNN). L'unione di segnali acustici, linguistici e comportamentali (storico di ascolto degli utenti) consentirà di affinare ulteriormente la precisione dei sistemi di raccomandazione musicale di nuova generazione.
+

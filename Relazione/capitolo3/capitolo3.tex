@@ -1,0 +1,184 @@
+% =========================================================================
+% CAPITOLO 3: CLASSIFICAZIONE (SPOTIFY)
+% =========================================================================
+\section{Spotify tracks analysis: Classificazione}
+
+La classificazione supervisionata è stata condotta con l'obiettivo di sviluppare modelli predittivi in grado di determinare il genere musicale di ciascun brano a partire dalle sue caratteristiche audio. Il processo ha compreso una rigorosa fase di preprocessing e bilanciamento dei dati, la definizione di scenari sperimentali, l'addestramento e l'ottimizzazione degli iperparametri di molteplici algoritmi di apprendimento e, infine, l'integrazione di tecniche avanzate di \textit{Ensemble Learning}.
+
+\subsection{Preprocessing del Dataset}
+
+Per consentire una corretta valutazione empirica, il dataset ripulito di 35.877 brani è stato inizialmente suddiviso in Training Set (80\%, pari a 28.701 campioni) e Test Set (20\%, pari a 7.176 campioni), impiegando una procedura di campionamento stratificato per preservare le proporzioni originali delle classi.
+
+Al fine di evitare qualunque forma di \textit{data leakage}, la standardizzazione delle feature è stata eseguita tramite \texttt{StandardScaler}, calcolando media e deviazione standard unicamente sui dati di addestramento:
+\begin{equation}
+z = \frac{x - \mu_{\text{train}}}{\sigma_{\text{train}}}
+\label{eq:standardizzazione}
+\end{equation}
+I parametri $\mu_{\text{train}}$ e $\sigma_{\text{train}}$ ottenuti sono stati successivamente utilizzati per trasformare il test set senza ricalcolo.
+
+\subsubsection{Oversampling con SMOTE e Undersampling}
+
+Come evidenziato nel capitolo precedente, la distribuzione dei generi nel dataset originale risulta fortemente disomogenea. Per risolvere questo problema, è stata adottata una strategia ibrida di ricampionamento applicata \textbf{esclusivamente al dataset di training}:
+\begin{itemize}
+    \item \textbf{Oversampling con SMOTE (Synthetic Minority Over-sampling Technique):} Per le classi minoritarie (in particolare \textit{Pop}, \textit{Rap}, \textit{Emo}, \textit{RnB} e \textit{Trap Metal}), è stata impiegata la tecnica SMOTE. A differenza della semplice duplicazione casuale dei record (che favorisce l'overfitting), SMOTE seleziona i $k$-nearest neighbors di ciascun campione della classe minoritaria e genera nuove osservazioni sintetiche interpolando linearmente nello spazio continuo delle feature.
+    \item \textbf{Undersampling Controllato:} Per le classi fortemente maggioritarie (come \textit{Underground Rap} e \textit{Dark Trap}), è stato eseguito un undersampling casuale per ridurne l'eccesso numerico ed evitare che dominassero la discesa del gradiente durante l'apprendimento.
+\end{itemize}
+
+\subsubsection{Dataset Finale}
+
+Dopo l'applicazione congiunta di SMOTE e dell'undersampling, il training set bilanciato presenta esattamente \textbf{2.000 campioni per ciascuna delle 15 classi}, per un totale complessivo di \textbf{30.000 campioni bilanciati}. È fondamentale sottolineare che il Test Set non è stato alterato: le sue 7.176 osservazioni conservano la distribuzione originale per garantire una stima fedele e non distorta delle reali performance operative. La Figura \ref{fig:distribuzione_sampling} illustra il confronto tra le distribuzioni prima e dopo l'intervento di sampling.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{capitolo3/img/fig05_distribuzione_sampling.png}
+    \caption{Bilanciamento del Training Set: confronto della distribuzione delle classi pre vs post SMOTE e Undersampling.}
+    \label{fig:distribuzione_sampling}
+\end{figure}
+
+Per verificare che la generazione di campioni sintetici non abbia introdotto correlazioni spurie alterando la struttura latente del segnale audio, è stata ricalcolata la matrice di correlazione di Pearson sui 30.000 campioni del training set post-sampling, mostrata in Figura \ref{fig:matrice_corr_post_sampling}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.78\textwidth]{capitolo3/img/fig06_matrice_correlazione_post_sampling.png}
+    \caption{Matrice di correlazione di Pearson verificata sul Training Set post-bilanciamento.}
+    \label{fig:matrice_corr_post_sampling}
+\end{figure}
+
+Il confronto puntuale tra la Figura \ref{fig:matrice_corr_iniziale} e la Figura \ref{fig:matrice_corr_post_sampling} conferma la perfetta coerenza geometrica: i coefficienti tra le grandezze acustiche mostrano variazioni del tutto trascurabili ($\Delta r < 0.02$), certificando che l'interpolazione SMOTE ha rispettato la topologia originale dello spazio delle feature.
+
+\newpage
+\subsection{Processo di Classificazione}
+
+La sperimentazione ha previsto il confronto sistematico di una vasta gamma di algoritmi di Machine Learning, spaziando da modelli lineari di riferimento fino ad alberi decisionali non lineari e metodi di potenziamento del gradiente.
+
+\subsubsection{Confronto Modelli di Machine Learning}
+
+Inizialmente sono stati addestrati 8 classificatori con configurazione di base:
+\begin{enumerate}
+    \item \textbf{Logistic Regression (Baseline Lineare):} Modello lineare con regolarizzazione L2.
+    \item \textbf{Decision Tree (CART):} Albero singolo con criterio di partizione basato sull'indice di Gini.
+    \item \textbf{Random Forest:} Insieme di 100 alberi decisionali decorrelati tramite bagging e feature sampling.
+    \item \textbf{Gradient Boosting:} Boosting sequenziale di alberi di regressione che minimizza la funzione di perdita logaritmica.
+    \item \textbf{XGBoost (Extreme Gradient Boosting):} Implementazione ottimizzata e regolarizzata di gradient boosting.
+    \item \textbf{K-Nearest Neighbors (KNN):} Classificatore basato su distanza euclidea nello spazio standardizzato.
+    \item \textbf{Gaussian Naive Bayes:} Modello probabilistico bayesiano generativo basato sull'ipotesi di indipendenza condizionale.
+    \item \textbf{AdaBoost:} Algoritmo di boosting adattivo basato su decision stump deboli.
+\end{enumerate}
+
+La Figura \ref{fig:confronto_baseline} riassume l'accuratezza ottenuta dagli 8 modelli sul test set.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{capitolo3/img/fig07_confronto_modelli_baseline.png}
+    \caption{Confronto dell'accuratezza sul Test Set tra gli 8 modelli di Machine Learning testati.}
+    \label{fig:confronto_baseline}
+\end{figure}
+
+Dalla Figura \ref{fig:confronto_baseline} emerge chiaramente la superiorità dei modelli ad albero ensemble non lineari: \textbf{XGBoost (67.45\%)}, \textbf{Random Forest (67.34\%)} e \textbf{Gradient Boosting (66.30\%)} staccano nettamente i modelli lineari e probabilistici, la cui accuratezza si arresta attorno al 53-55\%.
+
+\subsubsection{Tuning degli Iperparametri}
+
+I modelli più promettenti sono stati sottoposti a un processo di ottimizzazione sistematica degli iperparametri mediante \texttt{GridSearchCV} con 5-fold Stratified Cross-Validation:
+\begin{itemize}
+    \item \textbf{Random Forest:} \texttt{n\_estimators} = 200, \texttt{max\_depth} = 25, \texttt{min\_samples\_split} = 4, \texttt{criterion} = 'gini'.
+    \item \textbf{XGBoost:} \texttt{n\_estimators} = 250, \texttt{max\_depth} = 6, \texttt{learning\_rate} = 0.08, \texttt{subsample} = 0.85, \texttt{colsample\_bytree} = 0.85.
+    \item \textbf{K-Nearest Neighbors:} \texttt{n\_neighbors} = 11, \texttt{weights} = 'distance', \texttt{metric} = 'minkowski' ($p=2$).
+    \item \textbf{Logistic Regression:} \texttt{C} = 1.0, \texttt{penalty} = 'l2', \texttt{solver} = 'lbfgs', \texttt{max\_iter} = 1000.
+\end{itemize}
+
+\subsubsection{Ensemble Learning}
+
+Al fine di combinare la capacità discriminante dei singoli stimatori e ridurre la varianza residua, sono state sviluppate due architetture di Ensemble Learning:
+
+\begin{enumerate}
+    \item \textbf{Voting Classifier (Soft Voting):} Combina le probabilità a posteriori stimate dai tre migliori classificatori singoli (\textit{XGBoost, Random Forest e Gradient Boosting}). Nel metodo di \textit{soft voting}, la previsione finale della classe massimizza la probabilità media tra tutti i modelli partecipanti:
+    \begin{equation}
+    \hat{y} = \arg\max_{c \in \{1,\dots,C\}} \frac{1}{M} \sum_{m=1}^M P_m(y=c \mid \mathbf{x})
+    \label{eq:soft_voting}
+    \end{equation}
+    dove $M=3$ e $C=15$. Questo ensemble raggiunge un'accuratezza sul test set del \textbf{68.00\%} e un Weighted F1 pari a \textbf{0.6810}.
+    
+    \item \textbf{Stacking Classifier:} Adotta una struttura gerarchica a due livelli. I classificatori di base (\textit{XGBoost, Random Forest e Logistic Regression}) generano predizioni probabilistiche out-of-fold mediante una cross-validation interna a 3-fold. Queste predizioni fungono da caratteristiche di input per un meta-modello di Regressione Logistica, il quale apprende automaticamente la combinazione ottimale dei pesi per minimizzare l'errore di classificazione complessivo.
+    Questo modello ottiene le prestazioni più alte in assoluto dell'intero studio, raggiungendo un'accuratezza del \textbf{68.90\%} e un Weighted F1-score pari a \textbf{0.6890}.
+\end{enumerate}
+
+\newpage
+\subsection{Diagnostica e Commento ai Risultati}
+
+Le prestazioni del modello Ensemble finale sono state analizzate in modo approfondito attraverso una serie completa di strumenti diagnostici.
+
+\subsubsection{Matrice di Confusione e Classification Report}
+
+La Figura \ref{fig:confusion_matrix} riporta la matrice di confusione normalizzata per righe, mentre la Figura \ref{fig:classification_report} mostra la heatmap con i dettagli di Precision, Recall ed F1-score per ciascuno dei 15 generi.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{capitolo3/img/fig08_confusion_matrix_best_model.png}
+    \caption{Matrice di confusione normalizzata ottenuta dal modello Ensemble finale sul Test Set.}
+    \label{fig:confusion_matrix}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{capitolo3/img/fig09_classification_report_heatmap.png}
+    \caption{Heatmap del Classification Report: valori di Precision, Recall ed F1-Score per ciascun genere.}
+    \label{fig:classification_report}
+\end{figure}
+
+Dall'esame congiunto di queste due figure emergono conclusioni estremamente interessanti:
+\begin{itemize}
+    \item \textbf{Generi con Identità Sonora Inconfondibile:} I sottogeneri elettronici caratterizzati da ritmiche fisse e timbri estremi registrano valori di F1-score eccellenti: in particolare \textit{dnb} (Drum and Bass, F1 = 0.88), \textit{hardstyle} (F1 = 0.84), \textit{psytrance} (F1 = 0.81) e \textit{techno} (F1 = 0.77). Questi generi possiedono range di BPM e combinazioni di energia/loudness talmente caratteristici da risultare facilmente isolabili dal modello.
+    \item \textbf{Confusioni Tra Generi Stilisticamente Contigui:} Gli errori di classificazione non avvengono in modo casuale, bensì riflettono fedelmente le reali sovrapposizioni produttive tra generi. Ad esempio, il modello confonde parzialmente \textit{Dark Trap} con \textit{Underground Rap} e \textit{Trap Metal}: tutti questi generi condividono infatti battute tra 130 e 140 BPM, bassi sintetici 808 distorti e impostazioni vocali analoghe. Similmente, si registrano scambi tra \textit{Techhouse} e \textit{Techno}.
+\end{itemize}
+
+\newpage
+\subsubsection{Curve ROC, Precision-Recall e Learning Curve}
+
+Per valutare la capacità discriminante globale del modello indipendentemente dalle soglie decisionali standard, sono state calcolate le curve ROC (Receiver Operating Characteristic) con approccio One-vs-Rest e le curve Precision-Recall, riportate in Figura \ref{fig:roc_pr_curves}.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{capitolo3/img/fig10_roc_curves_multiclass.png}
+        \caption{Curve ROC Multiclasse One-vs-Rest (Macro AUC = 0.94).}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{capitolo3/img/fig11_precision_recall_curves.png}
+        \caption{Curve Precision-Recall Multiclasse.}
+    \end{subfigure}
+    \caption{Valutazione delle performance: Curve ROC One-vs-Rest e Curve Precision-Recall.}
+    \label{fig:roc_pr_curves}
+\end{figure}
+
+Il valore di \textbf{Macro-Average ROC-AUC è pari a 0.94}, con generi come \textit{dnb} e \textit{psytrance} che superano 0.98. Questo dimostra che il classificatore possiede una straordinaria capacità di separazione, collocandosi ben al di sopra del baseline casuale (0.50).
+
+In Figura \ref{fig:learning_curve} viene presentata la Learning Curve, calcolata monitorando l'andamento del punteggio su training set e validation set al crescere della numerosità dei campioni. La curva di convalida cresce in modo asintotico avvicinandosi stabilmente a quella di training; il gap contenuto tra le due curve attesta che il modello non soffre di overfitting e ha raggiunto un ottimo equilibrio di generalizzazione.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.78\textwidth]{capitolo3/img/fig12_learning_curve.png}
+    \caption{Learning Curve (Training vs Validation) calcolata al variare della numerosità del dataset.}
+    \label{fig:learning_curve}
+\end{figure}
+
+\newpage
+\subsubsection{Feature Importance}
+
+La Figura \ref{fig:feature_importance} illustra l'importanza relativa attribuita a ciascuna feature acustica dai due modelli non lineari di punta: Random Forest (basato sulla riduzione dell'impurità media di Gini) e XGBoost (basato sul guadagno medio di partizione).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{capitolo3/img/fig13_feature_importance.png}
+    \caption{Feature Importance: confronto dei contributi percentuali tra Random Forest e XGBoost.}
+    \label{fig:feature_importance}
+\end{figure}
+
+Dalla Figura \ref{fig:feature_importance} si evince chiaramente quali siano i fattori più discriminanti:
+\begin{itemize}
+    \item \texttt{tempo} (BPM): Risulta in assoluto la feature con il peso informativo più alto per entrambi i modelli. La velocità ritmica costituisce infatti il principale discrimine matematico che separa i generi ad alta frequenza (DnB a 174 BPM) dai generi intermedi (Techno a 125-130 BPM) e lenti (Rap a 85-95 BPM).
+    \item \texttt{speechiness}: Isola in modo netto il mondo Hip-Hop, Rap e Trap (ad alto contenuto verbale) dai generi dance interamente strumentali.
+    \item \texttt{danceability}, \texttt{loudness} ed \texttt{energy}: Determinano la compattezza ritmica, la pressione acustica e l'impatto sonoro percepito.
+    \item Al contrario, \texttt{key}, \texttt{mode} e \texttt{time\_signature} presentano un'importanza marginale, a riprova del fatto che la tonalità o la modalità maggiore/minore non vincolano in modo univoco il genere musicale di appartenenza.
+\end{itemize}
+

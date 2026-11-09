@@ -1,0 +1,181 @@
+% =========================================================================
+% CAPITOLO 4: CLUSTERING (SPOTIFY)
+% =========================================================================
+\section{Spotify tracks analysis: Clustering}
+
+Questo capitolo ha lo scopo di illustrare l'applicazione di tecniche di clusterizzazione non supervisionata con l'obiettivo di suddividere il dataset in gruppi o cluster caratterizzati da proprietà acustiche simili, operando in modo del tutto agnostico rispetto alle etichette di genere commerciale e rimuovendo la colonna target \texttt{genre}.
+
+In generale, le tecniche di clustering si suddividono in diverse famiglie metodologiche:
+\begin{itemize}
+    \item \textbf{Clusterizzazione per Partizione:} Suddivide i dati in $k$ cluster predefiniti, ottimizzando una funzione obiettivo (come la minimizzazione della distanza intra-cluster e la massimizzazione della distanza inter-cluster).
+    \item \textbf{Clusterizzazione Basata su Densità:} Identifica i cluster come regioni densamente popolate nello spazio dati, separate da aree a bassa densità, isolando autonomamente i punti anomali come rumore.
+    \item \textbf{Clusterizzazione Gerarchica:} Costruisce un albero di raggruppamento (dendrogramma) combinando iterativamente i campioni più vicini o dividendo i gruppi esistenti.
+    \item \textbf{Clusterizzazione Basata su Modello:} Assume che i dati siano generati da una combinazione di distribuzioni statistiche sottostanti (ad esempio Gaussian Mixture Models).
+\end{itemize}
+
+Gli algoritmi esplorati e confrontati in questo elaborato appartengono alle due categorie di partizionamento (K-Means) e di densità (DBSCAN).
+
+\subsection{Fase di ETL per il clustering}
+
+Prima di procedere all'esecuzione degli algoritmi, i dati sono stati preparati attraverso una pipeline dedicata:
+\begin{enumerate}
+    \item \textbf{Rimozione del Target e Selezione Feature:} È stata eliminata la colonna categorica \texttt{genre}, trattenendo esclusivamente le 13 variabili numeriche continue e discrete.
+    \item \textbf{Standardizzazione Z-Score:} Poiché sia K-Means che DBSCAN si basano su calcoli di distanza geometrica euclidea, tutte le feature sono state normalizzate con \texttt{StandardScaler} per evitare che grandezze con ordini di grandezza elevati (come \texttt{duration\_ms} o \texttt{tempo}) dominassero artificialmente lo spazio vettoriale.
+\end{enumerate}
+
+\subsubsection{Riduzione di dimensionalità (PCA e t-SNE)}
+
+Per mitigare la maledizione della dimensionalità e consentire l'ispezione visiva della topologia acustica, sono state applicate due tecniche complementari di riduzione dimensionale:
+
+\begin{itemize}
+    \item \textbf{PCA (Principal Component Analysis):} Tecnica di proiezione lineare ortogonale. In Figura \ref{fig:pca_scree} viene riportato lo Scree Plot della varianza spiegata cumulativa. Le prime 6 componenti principali riescono a spiegare oltre il \textbf{70\% della varianza totale dei dati}, sintetizzando efficacemente le dimensioni di ritmo, timbro e dinamica.
+    \item \textbf{t-SNE (t-Distributed Stochastic Neighbor Embedding):} Algoritmo non lineare basato su distribuzioni di probabilità, ottimale per preservare le relazioni di vicinato locale a 2 dimensioni. In Figura \ref{fig:tsne_overview} viene mostrata la proiezione 2D t-SNE colorata in base alle 15 classi originali di genere.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{capitolo4/img/fig14_pca_varianza_cumulativa.png}
+        \caption{Scree Plot PCA: varianza spiegata individuale e cumulativa.}
+        \label{fig:pca_scree}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{capitolo4/img/fig15_tsne_2d_overview.png}
+        \caption{Mappa t-SNE 2D complessiva delle tracce Spotify.}
+        \label{fig:tsne_overview}
+    \end{subfigure}
+    \caption{Tecniche di riduzione dimensionale applicate allo spazio acustico: PCA e t-SNE 2D.}
+    \label{fig:riduzione_dimensionalita}
+\end{figure}
+
+\newpage
+\subsection{K-Means}
+
+L'algoritmo K-Means partiziona lo spazio vettoriale in $k$ cluster distinti minimizzando la somma dei quadrati delle distanze intra-cluster (WCSS, \textit{Within-Cluster Sum of Squares}):
+\begin{equation}
+\text{WCSS} = \sum_{j=1}^k \sum_{\mathbf{x} \in S_j} \|\mathbf{x} - \boldsymbol{\mu}_j\|^2
+\label{eq:wcss}
+\end{equation}
+dove $\boldsymbol{\mu}_j$ rappresenta il centroide baricentrico del cluster $S_j$.
+
+\subsubsection{Scelta del parametro $k$ tramite Elbow Method}
+
+Per selezionare in modo rigoroso il numero ideale di cluster $k$, è stato applicato il metodo del gomito (\textit{Elbow Method}), calcolando la WCSS per valori di $k$ compresi tra 2 e 11, mostrato in Figura \ref{fig:kmeans_elbow}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{capitolo4/img/fig16_kmeans_elbow_wcss.png}
+    \caption{Metodo del Gomito (Elbow Method): andamento della WCSS al variare di $k$ da 2 a 11.}
+    \label{fig:kmeans_elbow}
+\end{figure}
+
+La curva evidenzia una flessione netta e un ginocchio ben delineato in corrispondenza di \textbf{$k = 5$}. Oltre questa soglia, i decrementi della WCSS diventano marginali e lineari; pertanto, $k = 5$ è stato adottato come configurazione ottimale di compromesso tra parsimonia del modello e separabilità geometrica.
+
+\subsubsection{Analisi dei Risultati e Profiling dei Cluster}
+
+In Figura \ref{fig:kmeans_clusters_tsne} viene mostrata la distribuzione spaziale dei 5 cluster K-Means proiettati sulle due dimensioni t-SNE, mentre in Figura \ref{fig:kmeans_profiling} viene presentata la heatmap con i valori medi standardizzati delle caratteristiche acustiche per ciascun gruppo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{capitolo4/img/fig17_kmeans_tsne_clusters.png}
+    \caption{Visualizzazione dei 5 cluster K-Means ($k=5$) sulla proiezione t-SNE 2D.}
+    \label{fig:kmeans_clusters_tsne}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{capitolo4/img/fig18_kmeans_feature_profiling.png}
+    \caption{Profiling acustico dei cluster K-Means: matrice delle caratteristiche medie per cluster.}
+    \label{fig:kmeans_profiling}
+\end{figure}
+
+Dall'analisi della Figura \ref{fig:kmeans_profiling} è possibile caratterizzare in modo rigoroso ciascun cluster, interpretandolo come una vera e propria playlist tematica basata sull'umore (\textit{Mood Playlist}):
+\begin{itemize}
+    \item \textbf{Cluster 0 — High-Energy Electronic / Party:} Contraddistinto dai massimi livelli di \texttt{loudness} e \texttt{energy}, associati a \texttt{speechiness} minima e forte componente strumentale. Raggruppa la musica da club ad alto impatto (Techno, Trance, Techhouse).
+    \item \textbf{Cluster 1 — Urban \& Rap:} Presenta valori massimi di \texttt{speechiness} e livelli elevati di \texttt{danceability}. Corrisponde ai brani hip-hop, trap e rap incentrati sul flow vocale.
+    \item \textbf{Cluster 2 — Melodic Pop \& R\&B:} Caratterizzato dalla massima \texttt{valence} (positività emotiva ed euforia) combinata con una presenza acustica moderata. Identifica brani orecchiabili, armonici e distensivi.
+    \item \textbf{Cluster 3 — High-Velocity Bass / Workout:} Caratterizzato da un valore estremo di \texttt{tempo} (velocità media $> 165$ BPM) associato a battiti veloci e dinamica aggressiva. Raccoglie Drum and Bass e Hardstyle, ideale per allenamenti ad alta intensità.
+    \item \textbf{Cluster 4 — Atmospheric \& Dark:} Presenta volumi contenuti (\texttt{loudness} bassa), valenza emotiva ridotta e atmosfere rarefatte o tese. Raccoglie sonorità introspettive, Dark Trap ed Emo.
+\end{itemize}
+
+\newpage
+\subsubsection{Valutazione della Silhouette per K-Means}
+
+Per misurare quantitativamente la qualità del clustering senza fare affidamento sulle etichette di genere, è stata calcolata la metrica non supervisionata della Silhouette. Per ciascun punto $i$, il coefficiente di silhouette $s(i)$ è definito come:
+\begin{equation}
+s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))}
+\label{eq:silhouette}
+\end{equation}
+dove $a(i)$ è la distanza media tra il punto $i$ e tutti gli altri elementi del suo cluster, mentre $b(i)$ è la distanza media minima tra il punto $i$ e gli elementi del cluster contiguo più vicino.
+
+In Figura \ref{fig:kmeans_silhouette} viene riportato il diagramma di Silhouette per il modello K-Means ($k=5$).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{capitolo4/img/fig19_kmeans_silhouette_plot.png}
+    \caption{Diagramma della Silhouette per il modello K-Means con $k=5$.}
+    \label{fig:kmeans_silhouette}
+\end{figure}
+
+Dalla Figura \ref{fig:kmeans_silhouette} si riscontra un valore medio di Silhouette pari a circa \textbf{0.43}, con profili di spessore equilibrato per tutti i 5 gruppi e una percentuale del tutto trascurabile di valori negativi. Questo risultato attesta che la partizione in 5 macro-mood rispetta fedelmente la naturale topologia dei dati acustici.
+
+\newpage
+\subsection{DBSCAN}
+
+DBSCAN (\textit{Density-Based Spatial Clustering of Applications with Noise}) è un algoritmo di clusterizzazione non supervisionato che si fonda sul concetto di densità spaziale. A differenza di K-Means, DBSCAN non richiede di specificare in anticipo il numero di cluster $k$, è in grado di identificare cluster di forma arbitraria e classifica automaticamente come rumore (\textit{noise}, etichetta -1) tutti i punti isolati che non raggiungono la densità minima richiesta.
+
+Il funzionamento dell'algoritmo è governato da due parametri:
+\begin{itemize}
+    \item $\epsilon$ (\textit{epsilon}): Il raggio spaziale massimo entro cui cercare i punti vicini.
+    \item \texttt{min\_samples}: Il numero minimo di punti richiesti all'interno dell'intorno sferico di raggio $\epsilon$ affinché un punto sia qualificato come \textit{punto core}.
+\end{itemize}
+
+\subsubsection{Scelta dei parametri e tuning}
+
+Per selezionare in modo oggettivo il raggio $\epsilon$, è stato impiegato il metodo dei $k$-Nearest Neighbors ($k$-NN), graficando la distanza tra ciascuna osservazione e il suo 5° vicino più prossimo ($k = \texttt{min\_samples} = 5$), visualizzato in Figura \ref{fig:dbscan_knn}. Il valore di $\epsilon$ ottimale si individua in corrispondenza del "ginocchio" della curva. È stata inoltre condotta un'esplorazione su griglia parametrica $(\epsilon \times \texttt{min\_samples})$, mostrata in Figura \ref{fig:dbscan_grid}.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{capitolo4/img/fig20_dbscan_knn_distance.png}
+        \caption{Grafico delle distanze $k$-NN ($k=5$) per la stima di $\epsilon$.}
+        \label{fig:dbscan_knn}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{capitolo4/img/fig21_dbscan_grid_search.png}
+        \caption{Matrice di tuning della griglia $(\epsilon \times \texttt{min\_samples})$.}
+        \label{fig:dbscan_grid}
+    \end{subfigure}
+    \caption{Metodologie di calibrazione e selezione degli iperparametri per l'algoritmo DBSCAN.}
+    \label{fig:dbscan_tuning}
+\end{figure}
+
+La configurazione ottimale è risultata essere: $\epsilon = 2.2$ e \texttt{min\_samples} = 5. Questa combinazione genera \textbf{8 cluster densi} isolando una quota fisiologica di campioni di disturbo pari al \textbf{6.9\%} (415 brani classificati come rumore).
+
+\subsubsection{Analisi dei risultati ottenuti e Diagnostica del Rumore}
+
+In Figura \ref{fig:dbscan_tsne} viene mostrata la mappa t-SNE con la disposizione degli 8 cluster identificati da DBSCAN e l'evidenziazione puntuale delle tracce di rumore (marker rosso). In Figura \ref{fig:dbscan_noise} viene invece riportato il confronto delle distribuzioni tra punti core e punti di rumore mediante boxplot.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.88\textwidth]{capitolo4/img/fig22_dbscan_tsne_clusters_noise.png}
+    \caption{Cluster DBSCAN con isolamento ed evidenziazione delle osservazioni di rumore / outlier.}
+    \label{fig:dbscan_tsne}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{capitolo4/img/fig23_dbscan_noise_profiling.png}
+    \caption{Analisi diagnostica del rumore DBSCAN: confronto delle distribuzioni su feature anomale.}
+    \label{fig:dbscan_noise}
+\end{figure}
+
+L'analisi diagnostica evidenzia che il rumore isolato da DBSCAN intercetta anomalie concrete:
+\begin{itemize}
+    \item \textbf{Durata Anomala (\texttt{duration\_ms}):} Molte tracce rumorose superano gli 8-10 minuti di lunghezza oppure durano meno di 40 secondi.
+    \item \textbf{Speechiness Anomala:} Include brani con porzioni recitate estese o podcast inseriti erroneamente nelle playlist musicali.
+    \item \textbf{BPM Fuori Scala:} Brani con velocità ritmiche insolite ($> 210$ BPM o cambi di tempo irregolari).
+\end{itemize}
+

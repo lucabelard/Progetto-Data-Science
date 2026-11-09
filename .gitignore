@@ -1,5 +1,6 @@
 # Dati grezzi pesanti scaricati da Kaggle (superano i 100 MB limite di GitHub)
 data/football/raw/
+Parte_2_Time_Series/data/raw/
 *.zip
 
 # File temporanei Python
@@ -8,3 +9,13 @@ __pycache__/
 *$py.class
 .ipynb_checkpoints/
 
+# File ausiliari di compilazione LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
