@@ -62,19 +62,21 @@
 \@writefile{toc}{\contentsline {section}{\numberline {4}Spotify tracks analysis: Clustering}{26}{section.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Fase di ETL per il clustering}{26}{subsection.4.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}Operazioni preliminari e selezione delle feature}{26}{subsubsection.4.1.1}\protected@file@percent }
+\newlabel{eq:std_clustering}{{3}{27}{Operazioni preliminari e selezione delle feature}{equation.3}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}Riduzione di dimensionalità: PCA e t-SNE}{28}{subsubsection.4.1.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Principal Component Analysis (PCA) e Selezione delle Componenti:}{28}{subsubsection.4.1.2}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Quota di varianza spiegata individuale e cumulativa per ciascuna Componente Principale (PCA sulle 8 feature acustiche selezionate).}}{28}{table.caption.15}\protected@file@percent }
 \newlabel{tab:pca_variance}{{3}{28}{Quota di varianza spiegata individuale e cumulativa per ciascuna Componente Principale (PCA sulle 8 feature acustiche selezionate)}{table.caption.15}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces PCA sulle 8 feature acustiche: Scree Plot della varianza spiegata individuale e cumulativa con soglia obiettivo del 70\%.}}{28}{figure.caption.16}\protected@file@percent }
-\newlabel{fig:pca_scree}{{13}{28}{PCA sulle 8 feature acustiche: Scree Plot della varianza spiegata individuale e cumulativa con soglia obiettivo del 70\%}{figure.caption.16}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Matrice dei Loadings (pesi lineari) delle prime 4 Componenti Principali rispetto alle 8 feature acustiche standardizzate.}}{29}{table.caption.17}\protected@file@percent }
-\newlabel{tab:pca_loadings}{{4}{29}{Matrice dei Loadings (pesi lineari) delle prime 4 Componenti Principali rispetto alle 8 feature acustiche standardizzate}{table.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces PCA sulle 8 feature acustiche: Scree Plot della varianza spiegata individuale e cumulativa con soglia obiettivo del 70\%.}}{29}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:pca_scree}{{13}{29}{PCA sulle 8 feature acustiche: Scree Plot della varianza spiegata individuale e cumulativa con soglia obiettivo del 70\%}{figure.caption.16}{}}
+\newlabel{eq:pca_linear_comb}{{4}{29}{Principal Component Analysis (PCA) e Selezione delle Componenti:}{equation.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Matrice dei Loadings (pesi lineari) delle prime 4 Componenti Principali rispetto alle 8 feature acustiche standardizzate.}}{30}{table.caption.17}\protected@file@percent }
+\newlabel{tab:pca_loadings}{{4}{30}{Matrice dei Loadings (pesi lineari) delle prime 4 Componenti Principali rispetto alle 8 feature acustiche standardizzate}{table.caption.17}{}}
 \@writefile{toc}{\contentsline {paragraph}{t-SNE (t-Distributed Stochastic Neighbor Embedding):}{31}{table.caption.17}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Mappa 2D generata tramite t-SNE sulle feature acustiche, colorata retrospettivamente per genere Spotify originale.}}{31}{figure.caption.18}\protected@file@percent }
 \newlabel{fig:tsne_overview}{{14}{31}{Mappa 2D generata tramite t-SNE sulle feature acustiche, colorata retrospettivamente per genere Spotify originale}{figure.caption.18}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}K-Means nello Spazio PCA}{32}{subsection.4.2}\protected@file@percent }
-\newlabel{eq:wcss}{{3}{32}{K-Means nello Spazio PCA}{equation.3}{}}
+\newlabel{eq:wcss}{{5}{32}{K-Means nello Spazio PCA}{equation.5}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Applicazione dell'algoritmo, Elbow Method e Coefficiente di Silhouette}{32}{subsubsection.4.2.1}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Selezione del parametro $k$ per K-Means nello spazio PCA (4 PC): curva WCSS (a sinistra) e Coefficiente di Silhouette medio (a destra).}}{32}{figure.caption.19}\protected@file@percent }
 \newlabel{fig:kmeans_elbow}{{15}{32}{Selezione del parametro $k$ per K-Means nello spazio PCA (4 PC): curva WCSS (a sinistra) e Coefficiente di Silhouette medio (a destra)}{figure.caption.19}{}}
@@ -87,7 +89,7 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Profiling acustico dei 5 cluster K-Means: Heatmap delle medie reali per feature (a sinistra) e Radar Chart comparativo delle impronte sonore (a destra).}}{34}{figure.caption.22}\protected@file@percent }
 \newlabel{fig:kmeans_profiling}{{17}{34}{Profiling acustico dei 5 cluster K-Means: Heatmap delle medie reali per feature (a sinistra) e Radar Chart comparativo delle impronte sonore (a destra)}{figure.caption.22}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.4}Valutazione della Silhouette per K-Means}{36}{subsubsection.4.2.4}\protected@file@percent }
-\newlabel{eq:silhouette}{{4}{36}{Valutazione della Silhouette per K-Means}{equation.4}{}}
+\newlabel{eq:silhouette}{{6}{36}{Valutazione della Silhouette per K-Means}{equation.6}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Profilo dei coefficienti di Silhouette per ciascun cluster K-Means ($k=5$) calcolato nello spazio PCA a 4 componenti.}}{36}{figure.caption.23}\protected@file@percent }
 \newlabel{fig:kmeans_silhouette}{{18}{36}{Profilo dei coefficienti di Silhouette per ciascun cluster K-Means ($k=5$) calcolato nello spazio PCA a 4 componenti}{figure.caption.23}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}DBSCAN nello Spazio PCA}{37}{subsection.4.3}\protected@file@percent }

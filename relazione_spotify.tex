@@ -513,10 +513,14 @@ Prima di applicare gli algoritmi di clustering, il dataset deduplicato ($N = 35.
         \item La variabile \texttt{liveness}, poiché misura la probabilità che la traccia sia stata registrata dal vivo in presenza di pubblico (contesto di esecuzione) e non una proprietà musicale o emotiva intrinseca del brano.
     \end{enumerate}
     Il sottoinsieme finale per il clustering comprende pertanto le \textbf{8 feature acustiche continue fondamentali}: \texttt{danceability}, \texttt{energy}, \texttt{speechiness}, \texttt{acousticness}, \texttt{instrumentalness}, \texttt{valence}, \texttt{tempo} e \texttt{duration\_ms}.
-    \item \textbf{Standardizzazione Statistica (Z-score):} Poiché grandezze come \texttt{duration\_ms} ($10^5$ ms) e \texttt{tempo} ($60\text{--}220$ BPM) operano su scale numeriche incompatibili con gli indici normalizzati in $[0, 1]$, la matrice delle 8 feature selezionate è stata standardizzata a media $\mu = 0$ e deviazione standard $\sigma = 1$ mediante l'Equazione \ref{eq:standardizzazione}.
+    \item \textbf{Standardizzazione Statistica Obbligatoria (Z-score) e Rischio di Dominanza della Varianza:} Prima di applicare la PCA e gli algoritmi basati su distanza euclidea, le 8 variabili selezionate presentano ordini di grandezza e varianze totalmente incomparabili: \texttt{duration\_ms} oscilla infatti nell'ordine delle centinaia di migliaia di millisecondi ($\sim 200.000\text{ ms}$, con varianza $\sigma^2 \approx 10^{10}$) e \texttt{tempo} nell'ordine delle centinaia ($\sim 140\text{ BPM}$, con $\sigma^2 \approx 900$), mentre gli indici psicoacustici come \texttt{danceability}, \texttt{energy} o \texttt{valence} sono confinati nell'intervallo $[0, 1]$ ($\sigma^2 \approx 0,02\text{--}0,08$). Poiché la PCA ricerca le direzioni che massimizzano la varianza globale, applicarla sui dati grezzi non standardizzati comporterebbe il collasso dell'analisi: la sola variabile \texttt{duration\_ms} assorbirebbe oltre il $99,99\%$ della varianza totale e la prima componente principale ($\text{PC}_1$) coinciderebbe banalmente con la durata del brano, schiacciando a zero il contributo di tutte le altre caratteristiche sonore. Per neutralizzare questa distorsione di scala, ciascuna delle $p=8$ feature è stata trasformata mediante \texttt{StandardScaler} secondo la formula:
+    \begin{equation}
+    \boxed{z_{i,j} = \frac{x_{i,j} - \mu_j}{\sigma_j} \quad \Longrightarrow \quad \mu(z_j) = 0, \quad \sigma^2(z_j) = 1 \qquad \forall j \in \{1, \dots, 8\}}
+    \label{eq:std_clustering}
+    \end{equation}
+    dove $x_{i,j}$ è il valore originale della $j$-esima feature per il brano $i$-esimo, mentre $\mu_j$ e $\sigma_j$ sono rispettivamente la media e la deviazione standard calcolate sull'intero catalogo deduplicato ($N = 35.877$). Grazie all'Equazione \ref{eq:std_clustering}, tutte e 8 le variabili partono con \textbf{peso informativo identico} (varianza unitaria $\sigma^2 = 1$, per una varianza complessiva dello spazio esattamente pari a $8$) e la PCA diagonalizza la \textbf{matrice di correlazione di Pearson} anziché la matrice di covarianza grezza.
 \end{itemize}
 
-\newpage
 \subsubsection{Riduzione di dimensionalità: PCA e t-SNE}
 
 Anche dopo la selezione delle 8 feature continue, operare direttamente nello spazio originario espone gli algoritmi di clustering ad una parziale dispersione metrica e al rumore residuo delle singole variabili. Per comprimere l'informazione utile in un sottospazio ortogonale privo di multicollinearità e per visualizzare la topologia dei dati, sono state adottate due tecniche complementari: la \textit{Principal Component Analysis} (PCA), impiegata come trasformazione effettiva dello spazio di input per il clustering, e il \textit{t-Distributed Stochastic Neighbor Embedding} (t-SNE), utilizzato per la visualizzazione bidimensionale non lineare.
@@ -556,7 +560,12 @@ $\text{PC}_8$ & 4,08\% & 100,00\% & Esclusa \\
 
 Adottando il criterio canonico della varianza cumulativa minima del 70\%, è stato scelto un numero di componenti pari a \textbf{$\text{n\_components} = 4$}, che consente di preservare il \textbf{73,96\% della varianza totale} dimezzando la dimensionalità dello spazio (da 8 a 4 variabili latenti ortogonali) e filtrando il 26,04\% di varianza residua legata a fluttuazioni locali o rumore. Sia il modello K-Means sia il modello DBSCAN sono stati quindi addestrati direttamente sulla matrice ridotta $\mathbf{X}_{\text{PCA}} \in \mathbb{R}^{N \times 4}$.
 
-Per interpretare il significato fisico e musicale dei 4 assi latenti estratti, la Tabella \ref{tab:pca_loadings} riporta la matrice dei pesi (\textit{PCA Loadings}) che legano le 8 feature originarie alle prime 4 Componenti Principali.
+Ciascuna Componente Principale $\text{PC}_k$ ($k \in \{1, 2, 3, 4\}$) costituisce una nuova "super-variabile" latente ortogonale, ottenuta come combinazione lineare delle 8 feature standardizzate $z_{i,j}$ pesate attraverso i rispettivi coefficienti (\textit{PCA Loadings} $w_{j,k}$):
+\begin{equation}
+\boxed{\text{PC}_{i,k} = \sum_{j=1}^{8} w_{j,k} \, z_{i,j} = w_{1,k}\, z_{i,\text{dance}} + w_{2,k}\, z_{i,\text{energy}} + \dots + w_{8,k}\, z_{i,\text{duration}}}
+\label{eq:pca_linear_comb}
+\end{equation}
+Per interpretare il significato fisico e musicale dei 4 assi latenti estratti, la Tabella \ref{tab:pca_loadings} riporta la matrice completa dei pesi $w_{j,k}$ che legano le 8 feature originarie alle prime 4 Componenti Principali.
 
 \begin{table}[H]
 \centering

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.10.18)  9 NOV 2026 17:05
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.10.18)  9 NOV 2026 17:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -607,7 +607,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.39 ...stica del Rumore}{40}{subsubsection.4.3.3}
+l.39 ...stica del Rumore}{41}{subsubsection.4.3.3}
                                                   % [1])
 \tf@toc=\write4
 \openout4 = `relazione_spotify.toc'.
@@ -756,32 +756,32 @@ Overfull \hbox (36.94705pt too wide) in paragraph at lines 511--512
  []
 
 [27]
-<figures/fig14_pca_varianza_cumulativa.png, id=411, 722.7pt x 433.62pt>
+<figures/fig14_pca_varianza_cumulativa.png, id=412, 722.7pt x 433.62pt>
 File: figures/fig14_pca_varianza_cumulativa.png Graphic file (type png)
 <use figures/fig14_pca_varianza_cumulativa.png>
 Package pdftex.def Info: figures/fig14_pca_varianza_cumulativa.png  used on inp
-ut line 552.
+ut line 556.
 (pdftex.def)             Requested size: 355.08984pt x 213.05128pt.
- [28 <./figures/fig14_pca_varianza_cumulativa.png>]
-Overfull \hbox (27.38713pt too wide) in paragraph at lines 566--580
+ [28]
+Overfull \hbox (27.38713pt too wide) in paragraph at lines 575--589
  [][] 
  []
 
-
-Overfull \hbox (3.35536pt too wide) in paragraph at lines 584--585
+[29 <./figures/fig14_pca_varianza_cumulativa.png>]
+Overfull \hbox (3.35536pt too wide) in paragraph at lines 593--594
 []$[]$ \T1/lmr/bx/n/12 (32,00% ^^V As-se Stru-men-ta-le/Elettronico Este-so vs.
  Vo-ca-le/Acustico
  []
 
 
-Overfull \hbox (15.90189pt too wide) in paragraph at lines 584--585
+Overfull \hbox (15.90189pt too wide) in paragraph at lines 593--594
 \T1/lmr/bx/n/12 Bre-ve): \T1/lmr/m/n/12 Pre-sen-ta pe-si po-si-ti-vi mar-ca-ti 
 su \T1/lmtt/m/n/12 instrumentalness \T1/lmr/m/n/12 ($\OT1/lmr/m/n/12 +0\OML/lmm
 /m/it/12 ; \OT1/lmr/m/n/12 4838$\T1/lmr/m/n/12 ), \T1/lmtt/m/n/12 duration_ms
  []
 
 
-Overfull \hbox (21.34132pt too wide) in paragraph at lines 584--585
+Overfull \hbox (21.34132pt too wide) in paragraph at lines 593--594
 \T1/lmr/m/n/12 ($\OT1/lmr/m/n/12 +0\OML/lmm/m/it/12 ; \OT1/lmr/m/n/12 4494$\T1/
 lmr/m/n/12 ) ed \T1/lmtt/m/n/12 energy \T1/lmr/m/n/12 ($\OT1/lmr/m/n/12 +0\OML/
 lmm/m/it/12 ; \OT1/lmr/m/n/12 3767$\T1/lmr/m/n/12 ), con-trap-po-sti a pe-si ne
@@ -789,36 +789,36 @@ lmm/m/it/12 ; \OT1/lmr/m/n/12 3767$\T1/lmr/m/n/12 ), con-trap-po-sti a pe-si ne
 OT1/lmr/m/n/12 0\OML/lmm/m/it/12 ; \OT1/lmr/m/n/12 3724$\T1/lmr/m/n/12 )
  []
 
-[29] [30]
-<figures/fig15_tsne_2d_overview.png, id=434, 939.51pt x 650.43pt>
+[30]
+<figures/fig15_tsne_2d_overview.png, id=436, 939.51pt x 650.43pt>
 File: figures/fig15_tsne_2d_overview.png Graphic file (type png)
 <use figures/fig15_tsne_2d_overview.png>
 Package pdftex.def Info: figures/fig15_tsne_2d_overview.png  used on input line
- 596.
+ 605.
 (pdftex.def)             Requested size: 391.51021pt x 271.0449pt.
  [31 <./figures/fig15_tsne_2d_overview.png>]
-<figures/fig16_kmeans_elbow_wcss.png, id=442, 1084.05pt x 433.62pt>
+<figures/fig16_kmeans_elbow_wcss.png, id=444, 1084.05pt x 433.62pt>
 File: figures/fig16_kmeans_elbow_wcss.png Graphic file (type png)
 <use figures/fig16_kmeans_elbow_wcss.png>
 Package pdftex.def Info: figures/fig16_kmeans_elbow_wcss.png  used on input lin
-e 617.
+e 626.
 (pdftex.def)             Requested size: 432.48051pt x 172.98839pt.
  [32 <./figures/fig16_kmeans_elbow_wcss.png>]
-<figures/fig17_kmeans_tsne_clusters.png, id=457, 1156.32pt x 505.89pt>
+<figures/fig17_kmeans_tsne_clusters.png, id=459, 1156.32pt x 505.89pt>
 File: figures/fig17_kmeans_tsne_clusters.png Graphic file (type png)
 <use figures/fig17_kmeans_tsne_clusters.png>
 Package pdftex.def Info: figures/fig17_kmeans_tsne_clusters.png  used on input 
-line 655.
+line 664.
 (pdftex.def)             Requested size: 437.0374pt x 191.19809pt.
  [33 <./figures/fig17_kmeans_tsne_clusters.png>]
-<figures/fig18_kmeans_feature_profiling.png, id=467, 1322.7819pt x 591.8913pt>
+<figures/fig18_kmeans_feature_profiling.png, id=469, 1322.7819pt x 591.8913pt>
 File: figures/fig18_kmeans_feature_profiling.png Graphic file (type png)
 <use figures/fig18_kmeans_feature_profiling.png>
 Package pdftex.def Info: figures/fig18_kmeans_feature_profiling.png  used on in
-put line 669.
+put line 678.
 (pdftex.def)             Requested size: 446.13727pt x 199.62373pt.
  [34 <./figures/fig18_kmeans_feature_profiling.png>]
-Overfull \hbox (29.45561pt too wide) in paragraph at lines 679--680
+Overfull \hbox (29.45561pt too wide) in paragraph at lines 688--689
 \T1/lmr/m/n/12 (\T1/lmtt/m/n/12 danceability $\OT1/lmr/m/n/12 = 0\OML/lmm/m/it/
 12 ; \OT1/lmr/m/n/12 76$\T1/lmr/m/n/12 ), ca-rat-te-riz-za-to da un \T1/lmtt/m/
 n/12 tempo \T1/lmr/m/n/12 mo-de-ra-to e ca-den-za-to ($\OT1/lmr/m/n/12 130\OML/
@@ -826,7 +826,7 @@ lmm/m/it/12 ; \OT1/lmr/m/n/12 31[]$\T1/lmr/m/n/12 ),
  []
 
 
-Overfull \hbox (4.88603pt too wide) in paragraph at lines 679--680
+Overfull \hbox (4.88603pt too wide) in paragraph at lines 688--689
 \T1/lmtt/m/n/12 valence \T1/lmr/m/n/12 po-si-ti-va ($\OT1/lmr/m/n/12 0\OML/lmm/
 m/it/12 ; \OT1/lmr/m/n/12 49$\T1/lmr/m/n/12 ), buo-na \T1/lmtt/m/n/12 energy \T
 1/lmr/m/n/12 ($\OT1/lmr/m/n/12 0\OML/lmm/m/it/12 ; \OT1/lmr/m/n/12 70$\T1/lmr/m
@@ -834,39 +834,39 @@ m/it/12 ; \OT1/lmr/m/n/12 49$\T1/lmr/m/n/12 ), buo-na \T1/lmtt/m/n/12 energy \T
  []
 
 [35]
-<figures/fig19_kmeans_silhouette_plot.png, id=480, 722.7pt x 505.89pt>
+<figures/fig19_kmeans_silhouette_plot.png, id=482, 722.7pt x 505.89pt>
 File: figures/fig19_kmeans_silhouette_plot.png Graphic file (type png)
 <use figures/fig19_kmeans_silhouette_plot.png>
 Package pdftex.def Info: figures/fig19_kmeans_silhouette_plot.png  used on inpu
-t line 695.
+t line 704.
 (pdftex.def)             Requested size: 355.08984pt x 248.55983pt.
  [36 <./figures/fig19_kmeans_silhouette_plot.png>]
-<figures/fig20_dbscan_knn_distance.png, id=492, 722.7pt x 433.62pt>
+<figures/fig20_dbscan_knn_distance.png, id=494, 722.7pt x 433.62pt>
 File: figures/fig20_dbscan_knn_distance.png Graphic file (type png)
 <use figures/fig20_dbscan_knn_distance.png>
 Package pdftex.def Info: figures/fig20_dbscan_knn_distance.png  used on input l
-ine 719.
+ine 728.
 (pdftex.def)             Requested size: 345.98302pt x 207.59268pt.
-<figures/fig21_dbscan_grid_search.png, id=493, 1084.05pt x 433.62pt>
+<figures/fig21_dbscan_grid_search.png, id=495, 1084.05pt x 433.62pt>
 File: figures/fig21_dbscan_grid_search.png Graphic file (type png)
 <use figures/fig21_dbscan_grid_search.png>
 Package pdftex.def Info: figures/fig21_dbscan_grid_search.png  used on input li
-ne 726.
+ne 735.
 (pdftex.def)             Requested size: 432.48051pt x 172.98839pt.
  [37 <./figures/fig20_dbscan_knn_distance.png>] [38 <./figures/fig21_dbscan_gri
 d_search.png>]
-<figures/fig22_dbscan_tsne_clusters_noise.png, id=509, 1156.32pt x 505.89pt>
+<figures/fig22_dbscan_tsne_clusters_noise.png, id=511, 1156.32pt x 505.89pt>
 File: figures/fig22_dbscan_tsne_clusters_noise.png Graphic file (type png)
 <use figures/fig22_dbscan_tsne_clusters_noise.png>
 Package pdftex.def Info: figures/fig22_dbscan_tsne_clusters_noise.png  used on 
-input line 744.
+input line 753.
 (pdftex.def)             Requested size: 437.0374pt x 191.19809pt.
  [39 <./figures/fig22_dbscan_tsne_clusters_noise.png>]
-<figures/fig23_dbscan_noise_profiling.png, id=518, 1156.32pt x 361.35pt>
+<figures/fig23_dbscan_noise_profiling.png, id=520, 1156.32pt x 361.35pt>
 File: figures/fig23_dbscan_noise_profiling.png Graphic file (type png)
 <use figures/fig23_dbscan_noise_profiling.png>
 Package pdftex.def Info: figures/fig23_dbscan_noise_profiling.png  used on inpu
-t line 762.
+t line 771.
 (pdftex.def)             Requested size: 427.93057pt x 133.72498pt.
  [40 <./figures/fig23_dbscan_noise_profiling.png>] [41] [42] (relazione_spotify
 .lof [43])
@@ -879,17 +879,21 @@ t line 762.
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-04-28>
  ***********
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
 Package rerunfilecheck Info: File `relazione_spotify.out' has not changed.
 (rerunfilecheck)             Checksum: DE4FC26DF5799C2BA5F795F1B0C596B9;9553.
  ) 
 Here is how much of TeX's memory you used:
- 14529 strings out of 467683
- 237950 string characters out of 5414720
- 669780 words of memory out of 5000000
- 43249 multiletter control sequences out of 15000+600000
+ 14533 strings out of 467683
+ 238009 string characters out of 5414720
+ 669942 words of memory out of 5000000
+ 43251 multiletter control sequences out of 15000+600000
  697372 words of font info for 88 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,13n,79p,1055b,626s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,13n,79p,1343b,626s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/andre/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pf
 b><C:/Users/andre/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx8.pfb
 ><C:/Users/andre/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmex10.pfb
@@ -907,9 +911,9 @@ sers/andre/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtk10.pfb><C:/U
 sers/andre/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt12.pfb><C:/U
 sers/andre/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/ms
 bm10.pfb>
-Output written on relazione_spotify.pdf (45 pages, 16300463 bytes).
+Output written on relazione_spotify.pdf (45 pages, 16305892 bytes).
 PDF statistics:
- 703 PDF objects out of 1000 (max. 8388607)
- 127 named destinations out of 1000 (max. 500000)
+ 705 PDF objects out of 1000 (max. 8388607)
+ 129 named destinations out of 1000 (max. 500000)
  436 words of extra memory for PDF output out of 10000 (max. 10000000)
 

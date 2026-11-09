@@ -12,7 +12,7 @@
 \contentsline {figure}{\numberline {10}{\ignorespaces Valutazione delle performance: Curve ROC One-vs-Rest e Curve Precision-Recall.}}{23}{figure.caption.12}%
 \contentsline {figure}{\numberline {11}{\ignorespaces Learning Curve (Training vs Validation) calcolata al variare della numerosità del dataset.}}{24}{figure.caption.13}%
 \contentsline {figure}{\numberline {12}{\ignorespaces Feature Importance: confronto dei contributi percentuali tra Random Forest e XGBoost.}}{25}{figure.caption.14}%
-\contentsline {figure}{\numberline {13}{\ignorespaces PCA sulle 8 feature acustiche: Scree Plot della varianza spiegata individuale e cumulativa con soglia obiettivo del 70\%.}}{28}{figure.caption.16}%
+\contentsline {figure}{\numberline {13}{\ignorespaces PCA sulle 8 feature acustiche: Scree Plot della varianza spiegata individuale e cumulativa con soglia obiettivo del 70\%.}}{29}{figure.caption.16}%
 \contentsline {figure}{\numberline {14}{\ignorespaces Mappa 2D generata tramite t-SNE sulle feature acustiche, colorata retrospettivamente per genere Spotify originale.}}{31}{figure.caption.18}%
 \contentsline {figure}{\numberline {15}{\ignorespaces Selezione del parametro $k$ per K-Means nello spazio PCA (4 PC): curva WCSS (a sinistra) e Coefficiente di Silhouette medio (a destra).}}{32}{figure.caption.19}%
 \contentsline {figure}{\numberline {16}{\ignorespaces Partizionamento K-Means ($k=5$) visualizzato nel piano lineare PCA ($\text {PC}_1$ vs $\text {PC}_2$ con centroidi) e sulla mappa non lineare t-SNE 2D.}}{33}{figure.caption.21}%
