@@ -1,0 +1,10 @@
+# Dati grezzi pesanti scaricati da Kaggle (superano i 100 MB limite di GitHub)
+data/football/raw/
+*.zip
+
+# File temporanei Python
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
