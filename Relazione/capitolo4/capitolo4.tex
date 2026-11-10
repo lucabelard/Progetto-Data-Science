@@ -12,7 +12,7 @@ In generale, le tecniche di clustering si suddividono in diverse famiglie metodo
     \item \textbf{Clusterizzazione basata su modello:} Assume che i dati siano generati da una combinazione di distribuzioni statistiche sottostanti (ad esempio Gaussian Mixture Models).
 \end{itemize}
 
-Gli algoritmi esplorati e confrontati in questo elaborato appartengono alle due categorie di partizionamento (K-Means) e di densità (DBSCAN).
+Gli algoritmi confrontati comprendono K-Means (partizionamento), GMM (modello di mistura probabilistico) e DBSCAN/HDBSCAN (clustering basato su densità). GMM e HDBSCAN estendono rispettivamente le analisi iniziali con appartenenze probabilistiche e una gestione gerarchica delle densità.
 
 \subsection{Fase di ETL per il clustering}
 
@@ -73,7 +73,7 @@ $\text{PC}_8$ & 4,08\% & 100,00\% & Esclusa \\
     \label{fig:pca_scree}
 \end{figure}
 
-Adottando il criterio canonico della varianza cumulativa minima del 70\%, è stato scelto un numero di componenti pari a \textbf{$\text{n\_components} = 4$}, che consente di preservare il \textbf{73,96\% della varianza totale} dimezzando la dimensionalità dello spazio (da 8 a 4 variabili latenti ortogonali) e filtrando il 26,04\% di varianza residua legata a fluttuazioni locali o rumore. Sia il modello K-Means sia il modello DBSCAN sono stati quindi addestrati direttamente sulla matrice ridotta $\mathbf{X}_{\text{PCA}} \in \mathbb{R}^{N \times 4}$.
+Adottando il criterio della varianza cumulativa minima del 70\%, è stato scelto un numero di componenti pari a \textbf{$\text{n\_components} = 4$}, che preserva il \textbf{73,96\% della varianza totale} e dimezza la dimensionalità dello spazio (da 8 a 4 variabili latenti ortogonali). Il 26,04\% residuo non viene assunto automaticamente come rumore privo di informazione. K-Means, GMM, DBSCAN e HDBSCAN sono confrontati sulla matrice PCA a quattro dimensioni; t-SNE resta una tecnica di visualizzazione.
 
 Ciascuna Componente Principale $\text{PC}_k$ ($k \in \{1, 2, 3, 4\}$) costituisce una nuova "super-variabile" latente ortogonale, ottenuta come combinazione lineare delle 8 feature standardizzate $z_{i,j}$ pesate attraverso i rispettivi coefficienti (\textit{PCA Loadings} $w_{j,k}$):
 \begin{equation}
@@ -223,10 +223,47 @@ dove $a(i)$ è la distanza euclidea media tra il brano $i$ e gli altri brani del
 
 Dalla Figura \ref{fig:kmeans_silhouette} emerge un valore medio globale di Silhouette pari a \textbf{$0,2829$} (notevolmente superiore al valore di $0,1204$ che si otterrebbe applicando K-Means direttamente sulle 13 variabili non ridotte). Tutti e 5 i cluster superano ampiamente la soglia media con picchi superiori a $0,50$ (in particolare il Cluster 1 strumentale e i Cluster 3 e 4 urban/groove) e una frazione molto ridotta di valori negativi (punti di confine). Un valore di Silhouette intorno a $0,28\text{--}0,30$ è pienamente coerente con la natura fisica dei dati musicali: a differenza di dataset sintetici con isole disgiunte, gli attributi acustici formano una varietà continua in cui le transizioni tra stili avvengono gradualmente, e K-Means opera efficacemente una tassonomia geometrica convessa di tale continuum.
 
+\subsubsection{Evoluzione probabilistica di K-Means: Gaussian Mixture Model}
+K-Means assegna ciascun brano a un solo cluster, anche quando le sue caratteristiche sono intermedie tra più profili. Per rappresentare esplicitamente questa sovrapposizione è stato affiancato un \textit{Gaussian Mixture Model} (GMM) con cinque componenti, mantenendo lo stesso campione di $N=6.000$ brani e lo spazio PCA a quattro dimensioni usati nel confronto con K-Means. Il numero di componenti pari a cinque consente un confronto diretto con i cinque archetipi K-Means; non implica che esistano cinque mood naturali e distinti.
+
+Il GMM stima per ogni brano un vettore di probabilità posteriori rispetto ai cinque componenti. Questi valori rappresentano affiliazioni probabilistiche \textit{del modello} nello spazio acustico, non probabilità calibrate che un ascoltatore percepisca un determinato mood. La Figura \ref{fig:gmm_soft} mostra la proiezione dei componenti e la distribuzione dell'affiliazione massima. Sono inoltre considerati candidati a un'affiliazione trasversale i brani per cui la differenza tra le due probabilità più alte non supera $0,15$; la soglia è adottata come criterio esplorativo per selezionare esempi da ispezionare, non come regola universale per assegnare playlist.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.96\textwidth]{capitolo4/img/fig24_gmm_soft_membership.png}
+    \caption{GMM a cinque componenti nello spazio PCA e distribuzione dell'affiliazione massima per brano.}
+    \label{fig:gmm_soft}
+\end{figure}
+
+L'utilità aggiuntiva rispetto a K-Means consiste nel poter proporre una stessa traccia in più playlist acusticamente compatibili e nell'evidenziare brani di confine tra profili. Le componenti vengono interpretate tramite le medie delle otto feature originali e, solo a posteriori, tramite la distribuzione dei generi. Il GMM assume componenti gaussiane e può dividere un continuum in componenti statistiche che non corrispondono a categorie musicali autonome; per questo l'interpretazione dei profili e l'ascolto di esempi rappresentativi sono necessari prima di tradurre le affiliazioni in playlist.
+
+Nel campione, 409 brani su 6.000 (6,82\%) hanno le due affiliazioni più alte distanti non più di $0,15$; la mediana dell'affiliazione più alta è $0,883$. La Tabella \ref{tab:gmm_profile} mostra che le componenti hanno profili acustici diversi e che i generi più frequenti, consultati solo dopo l'addestramento, possono aiutare a descriverle.
+
+\begin{table}[H]
+\centering
+\caption{Sintesi descrittiva delle componenti GMM sul campione di 6.000 brani. I generi sono riportati solo come interpretazione a posteriori.}
+\label{tab:gmm_profile}
+\vspace{0.2cm}
+\small
+\begin{tabularx}{\textwidth}{c r X X}
+\toprule
+\textbf{Componente} & \textbf{Brani} & \textbf{Tratti acustici medi distintivi} & \textbf{Generi più frequenti (a posteriori)} \\
+\midrule
+0 & 1.130 & Energia alta ($0,92$), strumentalità alta ($0,72$), durata lunga ($352$ s) & Psytrance, DnB, Trance \\
+1 & 741 & Maggiore acusticità ($0,39$), energia più contenuta ($0,51$) & Dark Trap, Underground Rap, RnB \\
+2 & 1.111 & Energia alta ($0,90$), prevalenza vocale ($\text{instrumentalness}=0,08$) & Hardstyle, Trap, Emo \\
+3 & 843 & Ballabilità alta ($0,74$), strumentalità alta ($0,76$), durata lunga ($367$ s) & Techno, Techhouse \\
+4 & 2.175 & Profilo più vocale ($\text{speechiness}=0,20$), ballabilità alta ($0,71$) & Underground Rap, Dark Trap, Hiphop \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Le componenti 0 e 3, ad esempio, condividono una forte componente strumentale ma si distinguono per intensità e ballabilità; le componenti 1, 2 e 4 separano ulteriormente profili acustici o vocali. La numerazione delle componenti è arbitraria e non costituisce una gerarchia di mood.
+
 \newpage
 \subsection{DBSCAN nello Spazio PCA}
 
-DBSCAN (\textit{Density-Based Spatial Clustering of Applications with Noise}) è un algoritmo di clustering basato sulla densità locale dei punti nello spazio metrico. A differenza di K-Means (che forza ogni singolo brano, inclusi i brani anomali, ad appartenere a un centroide convesso), DBSCAN non richiede di fissare a priori il numero di cluster e gode della proprietà fondamentale di isolare le osservazioni situate in regioni a bassa densità, classificandole esplicitamente come \textbf{rumore o outlier} (etichetta $-1$).
+DBSCAN (\textit{Density-Based Spatial Clustering of Applications with Noise}) è un algoritmo di clustering basato sulla densità locale dei punti nello spazio metrico. A differenza di K-Means (che assegna ogni brano a un centroide), DBSCAN non richiede di fissare a priori il numero di cluster e marca come \textbf{noise} (etichetta $-1$) i punti che non soddisfano i criteri di densità locale. Questa etichetta descrive la geometria rispetto al modello e ai parametri scelti; non è un giudizio sul valore musicale della traccia.
 
 Il comportamento di DBSCAN nello spazio PCA a 4 dimensioni dipende da due iperparametri:
 \begin{itemize}
@@ -255,42 +292,56 @@ Per calibrare il raggio $\epsilon$ sulla scala metrica delle 4 Componenti Princi
 L'ispezione della curva $k$-NN (Figura \ref{fig:dbscan_knn}) evidenzia che le distanze dal 5° vicino si mantengono contenute sotto $0,55$ per oltre il 90\% del campione, per poi impennarsi bruscamente (il "gomito" della curva) intorno alla soglia \textbf{$\epsilon = 0,60$}. Dalla griglia di Figura \ref{fig:dbscan_grid} si osserva che:
 \begin{itemize}
     \item Valori di raggio troppo piccoli ($\epsilon = 0,45$) causano una sovra-frammentazione della coda della distribuzione ($20\text{--}27$ micro-cluster) ed espellono oltre il 20\% del catalogo come rumore.
-    \item In corrispondenza del punto di gomito \textbf{$\epsilon = 0,60, \texttt{min\_samples} = 5$}, l'algoritmo raggiunge un equilibrio ottimale identificando \textbf{6 cluster} e isolando esattamente \textbf{462 tracce anomale}, pari al \textbf{7,70\% del campione} (con Silhouette sui punti non-rumore pari a $0,120$, che sale fino a $0,332$ restringendo la densità a $\texttt{min\_samples} = 8$, dove sopravvivono 3 cluster e il rumore sale all'11,05\%).
+    \item In corrispondenza del punto di gomito \textbf{$\epsilon = 0,60, \texttt{min\_samples} = 5$}, l'algoritmo identifica \textbf{6 cluster} e marca come noise \textbf{462 brani} (\textbf{7,70\% del campione}). La Silhouette sui punti assegnati è $0,120$; con $\texttt{min\_samples}=8$ sale a $0,332$, ma rimangono 3 cluster e la quota noise cresce all'11,05\%.
 \end{itemize}
 
 \newpage
 \subsubsection{Analisi dei risultati ottenuti e interpretazione topologica}
 
-La Figura \ref{fig:dbscan_tsne} mostra il risultato della clusterizzazione DBSCAN ($\epsilon = 0,60, \texttt{min\_samples} = 5$) proiettato sia sul piano lineare delle prime due Componenti Principali ($\text{PC}_1$ vs $\text{PC}_2$) sia sulla mappa non lineare t-SNE, evidenziando con croci rosse i 462 brani classificati come rumore ($\text{label} = -1$).
+La Figura \ref{fig:dbscan_tsne} mostra il risultato della clusterizzazione DBSCAN ($\epsilon = 0,60, \texttt{min\_samples} = 5$) proiettato sia sul piano lineare delle prime due Componenti Principali ($\text{PC}_1$ vs $\text{PC}_2$) sia sulla mappa non lineare t-SNE, evidenziando con croci rosse i 462 brani classificati come noise ($\text{label} = -1$).
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.96\textwidth]{capitolo4/img/fig22_dbscan_tsne_clusters_noise.png}
-    \caption{Clusterizzazione DBSCAN ($\epsilon=0,60, \texttt{min\_samples}=5$) nello spazio PCA 2D (a sinistra) e t-SNE 2D (a destra), con evidenziazione delle 462 tracce outlier.}
+    \caption{Clusterizzazione DBSCAN ($\epsilon=0,60, \texttt{min\_samples}=5$) nello spazio PCA 2D (a sinistra) e t-SNE 2D (a destra), con evidenziazione dei 462 punti noise.}
     \label{fig:dbscan_tsne}
 \end{figure}
 
 Un'analisi oggettiva della Figura \ref{fig:dbscan_tsne} mette in luce un fenomeno topologico classico dei grandi cataloghi multimediali continui:
 \begin{itemize}
     \item Poiché le caratteristiche acustiche dei brani mainstream ed elettronici non presentano "vuoti" netti tra un mood e l'altro ma sfumano con continuità, DBSCAN connette la nube centrale ad alta densità in un \textbf{unico macro-cluster principale (Cluster 0, composto da $5.509$ brani)}, affiancata da \textbf{5 micro-cluster periferici} ad altissima specificità locale ($29$ brani complessivi situati su isole timbriche di confine).
-    \item Al contempo, l'algoritmo scorpora con precisione chirurgica la "corona" esterna a bassa densità (\textbf{$462$ brani, pari al $7,70\%$}), costituita dalle tracce che violano la continuità metrica del catalogo.
+    \item L'algoritmo marca inoltre una "corona" esterna a bassa densità (\textbf{$462$ brani, pari al $7,70\%$ del campione}). Sono punti periferici rispetto alla metrica e ai parametri scelti; questa label non dimostra che siano errori, né che vadano esclusi dall'esplorazione musicale.
 \end{itemize}
-Questo risultato dimostra la perfetta \textbf{complementarità operativa tra i due algoritmi}: mentre K-Means è lo strumento ideale per partizionare il continuum denso centrale in 5 \textit{Mood Playlists} equilibrate mediante iperpiani di Voronoi, DBSCAN eccelle come motore non supervisionato di \textbf{Anomaly Detection e Controllo Qualità} per intercettare i brani strutturalmente fuori standard prima che inquinino le playlist automatiche.
+K-Means offre una partizione completa del catalogo in cinque profili; DBSCAN individua il nucleo denso e i punti periferici. La sua label noise è quindi utile per aprire un'analisi dedicata dei brani rari o ibridi, non per decidere automaticamente quali tracce scartare.
 
 \subsubsection{Diagnostica del Rumore}
 
-Per verificare le cause fisiche e musicali che hanno portato DBSCAN a respingere i 462 brani classificati come rumore ($\text{label} = -1$), la Figura \ref{fig:dbscan_noise} mette a confronto le distribuzioni statistiche dei punti di cluster e degli outlier sulle tre variabili maggiormente discriminanti (\texttt{duration\_ms}, \texttt{speechiness} e \texttt{acousticness}).
+Per descrivere le caratteristiche dei 462 brani classificati come noise ($\text{label} = -1$), la Figura \ref{fig:dbscan_noise} mette a confronto le distribuzioni statistiche dei punti di cluster e dei punti periferici sulle tre variabili considerate più discriminanti (\texttt{duration\_ms}, \texttt{speechiness} e \texttt{acousticness}).
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.94\textwidth]{capitolo4/img/fig23_dbscan_noise_profiling.png}
-    \caption{Analisi diagnostica del rumore DBSCAN: confronto tramite boxplot tra punti di cluster e tracce outlier ($n=462$).}
+    \caption{Analisi diagnostica dei punti noise DBSCAN: confronto tramite boxplot tra il nucleo denso e i 462 brani periferici.}
     \label{fig:dbscan_noise}
 \end{figure}
 
-Il confronto dei boxplot in Figura \ref{fig:dbscan_noise} conferma che i 462 punti di rumore non sono errori casuali, bensì vere anomalie acustiche:
+Il confronto dei boxplot in Figura \ref{fig:dbscan_noise} mostra che i 462 punti etichettati come rumore differiscono dal nucleo denso per alcune combinazioni di feature. La label $-1$ indica che questi brani non soddisfano la soglia di densità di DBSCAN; non dimostra che siano errori, musica non valida o tracce da scartare. In un catalogo musicale un punto periferico può rappresentare una traccia rara, ibrida o semplicemente non simile ai profili più frequenti. Le distribuzioni osservate vanno quindi interpretate come caratteristiche da approfondire, non come una diagnosi di qualità:
 \begin{itemize}
     \item \textbf{Durata Estrema (\texttt{duration\_ms}):} Le tracce outlier presentano una mediana e una coda superiore nettamente più elevate rispetto al catalogo standard, includendo DJ-set ininterrotti, suite progressive oltre gli 8--12 minuti o, all'opposto, brevi \textit{skit} introduttivi sotto i 45 secondi.
     \item \textbf{Speechiness Fuori Scala:} Il box degli outlier mostra una dispersione molto più ampia verso valori elevati di parlato ($> 0,40\text{--}0,80$), intercettando tracce parlate, interludi discorsivi o frammenti di podcast finiti nelle playlist musicali.
-    \item \textbf{Combinazioni Acustiche Atipiche (\texttt{acousticness}):} Molti outlier presentano valori estremi di acusticità combinati con velocità o durate inconsuete per il proprio genere di appartenenza, confermando la validità di DBSCAN come filtro automatico di integrità del catalogo.
+    \item \textbf{Combinazioni Acustiche Atipiche (\texttt{acousticness}):} Alcune tracce presentano valori di acusticità combinati con velocità o durate poco frequenti nel campione. Ciò le rende periferiche rispetto alla densità locale, senza dimostrare che siano errori o contenuti da escludere.
 \end{itemize}
+
+\subsubsection{Evoluzione di DBSCAN: HDBSCAN e affiliazioni dei brani periferici}
+Per verificare se la classificazione dipenda dall'uso di un unico raggio di vicinato, è stato applicato HDBSCAN nello stesso spazio PCA a quattro dimensioni e sullo stesso campione di $N=6.000$ brani. La configurazione esplorativa usa \texttt{min\_cluster\_size=30} e \texttt{min\_samples=5}: il primo parametro evita di trattare micro-gruppi troppo piccoli come playlist stabili, mentre il secondo controlla la severità richiesta per la densità locale. HDBSCAN esamina strutture a densità variabile e può quindi individuare comunità che DBSCAN, con un solo valore di $\epsilon$, tende a fondere o a frammentare. Con questa configurazione individua \textbf{10 cluster} e marca come noise \textbf{4.847 brani (80,78\% del campione)}: HDBSCAN non riduce automaticamente i punti periferici su questo spazio e con questi parametri.
+
+HDBSCAN non garantisce che ogni punto noise diventi un membro certo di un cluster: nel campione, nessuno dei 462 punti noise di DBSCAN viene assegnato a un cluster HDBSCAN con i parametri adottati. Le affiliazioni soft HDBSCAN per questi punti sono deboli; con il criterio esplorativo \texttt{max-affinity $\geq 0,10$} e somma delle affiliazioni $\geq 0,25$, 22 tracce risultano candidate da ispezionare. Per evitare che l'etichetta noise le escluda da ogni proposta di playlist, le stesse 462 tracce vengono inoltre valutate con le probabilità GMM dei cinque profili K-Means: la mediana dell'affiliazione GMM più alta è \textbf{0,928}, e \textbf{39 brani (8,44\%)} hanno le due affiliazioni maggiori distanti non più di $0,15$. Si tratta di suggerimenti model-based, non di appartenenze certe o di validazione umana del mood.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.96\textwidth]{capitolo4/img/fig25_hdbscan_soft_membership.png}
+    \caption{Cluster HDBSCAN e affiliazione GMM massima dei 462 brani noise DBSCAN nella proiezione PCA 2D.}
+    \label{fig:hdbscan_soft}
+\end{figure}
+
+Il risultato sostiene una lettura più ampia del catalogo: noise è una categoria geometrica prodotta da uno specifico modello, non una categoria musicale. I 462 brani noise DBSCAN non vengono eliminati: il GMM propone per ciascuno un'affinità ai profili sonori e individua una quota di casi con possibile sovrapposizione; HDBSCAN segnala invece che, secondo la densità locale, essi restano periferici. L'applicazione pratica è una funzione di esplorazione di brani rari o ibridi, mantenendo visibile l'incertezza. Per validare i nomi dei mood e la loro utilità per gli ascoltatori servirebbe inoltre una valutazione qualitativa su esempi ascoltati.

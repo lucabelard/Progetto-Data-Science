@@ -13,7 +13,7 @@ Questo script esegue l'intera pipeline di elaborazione in modo completamente rip
 3. Classificazione Supervisionata (SMOTE + undersampling, 8 modelli baseline, ensemble voting & stacking,
    matrice di confusione, curve ROC/PR, learning curve, feature importance)
 4. Clustering Non Supervisionato (StandardScaler, PCA, t-SNE 2D, K-Means con Elbow e Silhouette,
-   DBSCAN con k-NN distance graph, griglia di tuning e profiling degli outlier)
+   GMM per le appartenenze soft, DBSCAN e HDBSCAN con profiling dei punti periferici)
 ========================================================================================
 """
 
@@ -58,8 +58,18 @@ from imblearn.under_sampling import RandomUnderSampler
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans, DBSCAN
+from sklearn.mixture import GaussianMixture
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics import silhouette_score, silhouette_samples
+
+try:
+    import hdbscan
+    from hdbscan import all_points_membership_vectors
+except ImportError as exc:
+    raise ImportError(
+        "La pipeline di clustering richiede la dipendenza 'hdbscan'. "
+        "Installarla con: pip install hdbscan"
+    ) from exc
 
 # Silenziamo eventuali warning minori di FutureWarning di librerie esterne
 warnings.filterwarnings('ignore', category=FutureWarning)
@@ -837,7 +847,9 @@ plt.close()
 
 # FIGURA 23: Analisi diagnostica del rumore DBSCAN (Perché sono considerati outlier?)
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 5))
-df_cluster_sample['is_noise'] = (df_cluster_sample['dbscan_cluster'] == -1).map({True: 'Rumore / Outlier (-1)', False: 'Punti di Cluster'}
+df_cluster_sample['is_noise'] = (df_cluster_sample['dbscan_cluster'] == -1).map(
+    {True: 'Noise DBSCAN (-1)', False: 'Cluster DBSCAN'}
+)
 
 sns.boxplot(data=df_cluster_sample, x='is_noise', y='duration_ms', ax=ax1, hue='is_noise', palette='Set1', legend=False)
 ax1.set_title('Durata Brano (ms, scala logaritmica)', fontweight='bold')
@@ -855,6 +867,162 @@ plt.suptitle('Analisi Diagnostica del Rumore DBSCAN: Caratteristiche Acustiche d
 plt.tight_layout()
 plt.savefig('figures/fig23_dbscan_noise_profiling.png', dpi=300)
 plt.close()
+
+# 4.8 GMM: evoluzione probabilistica dei cinque profili K-Means
+# Si mantiene k=5 per un confronto diretto con K-Means; le probabilita' sono
+# affiliazioni stimate ai componenti, non probabilita' calibrate di un mood umano.
+print("\nStima delle appartenenze probabilistiche GMM (5 componenti, spazio PCA 4D)...", flush=True)
+gmm_final = GaussianMixture(
+    n_components=k_opt,
+    covariance_type='full',
+    reg_covar=1e-5,
+    n_init=10,
+    random_state=42
+)
+gmm_final.fit(X_cluster_sample)
+gmm_memberships = gmm_final.predict_proba(X_cluster_sample)
+gmm_labels = gmm_memberships.argmax(axis=1)
+gmm_sorted = np.sort(gmm_memberships, axis=1)
+gmm_top1 = gmm_sorted[:, -1]
+gmm_top2_gap = gmm_sorted[:, -1] - gmm_sorted[:, -2]
+gmm_membership_columns = [f'gmm_affinity_{i}' for i in range(k_opt)]
+for component_idx, column in enumerate(gmm_membership_columns):
+    df_cluster_sample[column] = gmm_memberships[:, component_idx]
+df_cluster_sample['gmm_component'] = gmm_labels
+df_cluster_sample['gmm_top_affinity'] = gmm_top1
+df_cluster_sample['gmm_top2_gap'] = gmm_top2_gap
+# Gap <= 0.15 e' una soglia esplorativa per estrarre casi da ispezionare,
+# non una soglia universale di appartenenza.
+df_cluster_sample['gmm_cross_mood_candidate'] = gmm_top2_gap <= 0.15
+gmm_component_profile = df_cluster_sample.groupby('gmm_component')[clustering_features].mean()
+gmm_component_genres = {
+    int(component): group['genre'].value_counts().head(5).to_dict()
+    for component, group in df_cluster_sample.groupby('gmm_component')
+}
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+sns.scatterplot(
+    data=df_cluster_sample, x='pc_1', y='pc_2', hue='gmm_component',
+    palette='tab10', alpha=0.55, s=22, edgecolor=None, ax=ax1
+)
+ax1.set_title('GMM a 5 componenti nella proiezione PCA 2D', fontweight='bold')
+ax1.set_xlabel(f"PC1 ({exp_var[0] * 100:.1f}% varianza)")
+ax1.set_ylabel(f"PC2 ({exp_var[1] * 100:.1f}% varianza)")
+ax1.legend(title='Componente GMM', fontsize=8)
+ax2.hist(gmm_top1, bins=np.linspace(0.2, 1.0, 17), color='#4e79a7', edgecolor='white')
+ax2.axvline(np.median(gmm_top1), color='crimson', linestyle='--', linewidth=2,
+            label=f'Mediana = {np.median(gmm_top1):.2f}')
+ax2.set_title('Forza dell’affiliazione più alta per brano', fontweight='bold')
+ax2.set_xlabel('Probabilità stimata del componente più probabile')
+ax2.set_ylabel('Numero di brani')
+ax2.legend()
+plt.suptitle('GMM: profili musicali con appartenenze probabilistiche', fontsize=14, fontweight='bold')
+plt.tight_layout()
+plt.savefig('figures/fig24_gmm_soft_membership.png', dpi=300)
+plt.close()
+print(
+    f"GMM: candidati a cavallo tra componenti (gap top-2 <= 0.15) "
+    f"{int(df_cluster_sample['gmm_cross_mood_candidate'].sum())}/ {sample_size}; "
+    f"affiliazione massima mediana={np.median(gmm_top1):.3f}.", flush=True
+)
+dbscan_noise_mask = df_cluster_sample['dbscan_cluster'].eq(-1).to_numpy()
+dbscan_noise_gmm_cross_mood = int((dbscan_noise_mask & (gmm_top2_gap <= 0.15)).sum())
+dbscan_noise_gmm_mean_top = float(gmm_top1[dbscan_noise_mask].mean()) if dbscan_noise_mask.any() else 0.0
+dbscan_noise_gmm_median_top = float(np.median(gmm_top1[dbscan_noise_mask])) if dbscan_noise_mask.any() else 0.0
+
+# 4.9 HDBSCAN: densita' variabile e affiliazioni soft dei punti periferici
+# HDBSCAN conserva l'etichetta noise: le affiliazioni soft ne esplorano le
+# vicinanze, senza trasformarle automaticamente in assegnazioni certe.
+print("\nApplicazione HDBSCAN e stima delle affiliazioni soft...", flush=True)
+hdbscan_min_cluster_size = 30
+hdbscan_min_samples = 5
+hdbscan_model = hdbscan.HDBSCAN(
+    min_cluster_size=hdbscan_min_cluster_size,
+    min_samples=hdbscan_min_samples,
+    metric='euclidean',
+    cluster_selection_method='eom',
+    prediction_data=True
+)
+hdbscan_model.fit(X_cluster_sample)
+hdbscan_labels = hdbscan_model.labels_
+hdbscan_noise_mask = hdbscan_labels == -1
+n_hdbscan_clusters = len(set(hdbscan_labels)) - (1 if -1 in hdbscan_labels else 0)
+n_hdbscan_noise = int(hdbscan_noise_mask.sum())
+if n_hdbscan_clusters:
+    hdbscan_soft = all_points_membership_vectors(hdbscan_model)
+    hdbscan_top_component = hdbscan_soft.argmax(axis=1)
+    hdbscan_top_affinity = hdbscan_soft.max(axis=1)
+    hdbscan_total_affinity = hdbscan_soft.sum(axis=1)
+    hdbscan_soft_columns = [f'hdbscan_affinity_{i}' for i in range(n_hdbscan_clusters)]
+else:
+    hdbscan_soft = np.zeros((sample_size, 0))
+    hdbscan_top_component = np.full(sample_size, -1, dtype=int)
+    hdbscan_top_affinity = np.zeros(sample_size)
+    hdbscan_total_affinity = np.zeros(sample_size)
+    hdbscan_soft_columns = []
+
+df_cluster_sample['hdbscan_cluster'] = hdbscan_labels
+df_cluster_sample['hdbscan_cluster_strength'] = hdbscan_model.probabilities_
+df_cluster_sample['hdbscan_top_soft_component'] = hdbscan_top_component
+df_cluster_sample['hdbscan_top_soft_affinity'] = hdbscan_top_affinity
+df_cluster_sample['hdbscan_total_soft_affinity'] = hdbscan_total_affinity
+for component_idx, column in enumerate(hdbscan_soft_columns):
+    df_cluster_sample[column] = hdbscan_soft[:, component_idx]
+
+dbscan_noise_hdbscan_recovered = int((df_cluster_sample['dbscan_cluster'].eq(-1) & ~hdbscan_noise_mask).sum())
+dbscan_noise_hdbscan_still_noise = df_cluster_sample['dbscan_cluster'].eq(-1) & hdbscan_noise_mask
+dbscan_noise_soft_candidates = int(
+    (dbscan_noise_hdbscan_still_noise & (hdbscan_top_affinity >= 0.10) & (hdbscan_total_affinity >= 0.25)).sum()
+)
+print(
+    f"HDBSCAN: {n_hdbscan_clusters} cluster, {n_hdbscan_noise}/{sample_size} punti ancora noise "
+    f"({n_hdbscan_noise / sample_size * 100:.2f}%). Dei punti DBSCAN noise, "
+    f"{dbscan_noise_hdbscan_recovered} sono in cluster HDBSCAN e "
+    f"{dbscan_noise_soft_candidates} hanno un'affiliazione soft candidata da esplorare.", flush=True
+)
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+hdbscan_assigned = df_cluster_sample.loc[~hdbscan_noise_mask]
+hdbscan_noise = df_cluster_sample.loc[hdbscan_noise_mask]
+if not hdbscan_assigned.empty:
+    sns.scatterplot(
+        data=hdbscan_assigned, x='pc_1', y='pc_2', hue='hdbscan_cluster',
+        palette='tab10', alpha=0.65, s=24, edgecolor=None, ax=ax1
+    )
+if not hdbscan_noise.empty:
+    ax1.scatter(hdbscan_noise['pc_1'], hdbscan_noise['pc_2'], c='gray', marker='x', s=34,
+                alpha=0.8, label=f'Noise HDBSCAN (n={n_hdbscan_noise})')
+ax1.set_title('HDBSCAN: cluster densi e brani periferici', fontweight='bold')
+ax1.set_xlabel(f\"PC1 ({exp_var[0] * 100:.1f}% varianza)\")
+ax1.set_ylabel(f\"PC2 ({exp_var[1] * 100:.1f}% varianza)\")
+ax1.legend(fontsize=8, loc='best')
+
+dbscan_noise_sample = df_cluster_sample.loc[df_cluster_sample['dbscan_cluster'].eq(-1)]
+if not dbscan_noise_sample.empty:
+    scatter = ax2.scatter(
+        dbscan_noise_sample['pc_1'], dbscan_noise_sample['pc_2'],
+        c=dbscan_noise_sample['gmm_top_affinity'], cmap='viridis',
+        vmin=0, vmax=1, s=32, alpha=0.85
+    )
+    fig.colorbar(scatter, ax=ax2, label='Affiliazione GMM massima')
+    ax2.set_title('Punti noise DBSCAN: affinità ai 5 profili GMM', fontweight='bold')
+else:
+    ax2.text(0.5, 0.5, 'Nessun punto noise DBSCAN', ha='center', va='center', transform=ax2.transAxes)
+    ax2.set_title('Affiliazioni dei punti noise DBSCAN', fontweight='bold')
+ax2.set_xlabel(f"PC1 ({exp_var[0] * 100:.1f}% varianza)")
+ax2.set_ylabel(f"PC2 ({exp_var[1] * 100:.1f}% varianza)")
+plt.suptitle('HDBSCAN: il noise è geometrico; le affinità GMM aiutano a esplorare i brani', fontsize=14, fontweight='bold')
+plt.tight_layout()
+plt.savefig('figures/fig25_hdbscan_soft_membership.png', dpi=300)
+plt.close()
+
+# Esportazione delle appartenenze per rendere ispezionabili i candidati playlist.
+membership_export_columns = ['id', 'genre', 'dbscan_cluster', 'gmm_component', 'gmm_top_affinity',
+                             'gmm_top2_gap', 'gmm_cross_mood_candidate', 'hdbscan_cluster',
+                             'hdbscan_cluster_strength', 'hdbscan_top_soft_component',
+                             'hdbscan_top_soft_affinity', 'hdbscan_total_soft_affinity']
+membership_export_columns += gmm_membership_columns + hdbscan_soft_columns
+df_cluster_sample[membership_export_columns].to_csv('data/clustering_soft_memberships_sample.csv', index=False)
 
 # Salvataggio delle statistiche e dei risultati in un file JSON
 summary_stats = {
@@ -883,10 +1051,33 @@ summary_stats = {
     'dbscan_clusters': n_db_clusters,
     'dbscan_noise': int(n_db_noise),
     'dbscan_noise_pct': round(n_db_noise/sample_size*100, 2),
-    'dbscan_sil_non_noise': round(sil_dbscan, 4)
+    'dbscan_sil_non_noise': round(sil_dbscan, 4),
+    'gmm_components': k_opt,
+    'gmm_covariance_type': 'full',
+    'gmm_mean_top_affinity': round(float(np.mean(gmm_top1)), 4),
+    'gmm_median_top_affinity': round(float(np.median(gmm_top1)), 4),
+    'gmm_cross_mood_gap_threshold': 0.15,
+    'gmm_cross_mood_candidates': int(df_cluster_sample['gmm_cross_mood_candidate'].sum()),
+    'gmm_cross_mood_candidate_pct': round(float(df_cluster_sample['gmm_cross_mood_candidate'].mean() * 100), 2),
+    'gmm_component_profiles': gmm_component_profile.round(4).to_dict(orient='index'),
+    'gmm_component_top_genres_posthoc': gmm_component_genres,
+    'hdbscan_min_cluster_size': hdbscan_min_cluster_size,
+    'hdbscan_min_samples': hdbscan_min_samples,
+    'hdbscan_clusters': int(n_hdbscan_clusters),
+    'hdbscan_noise': int(n_hdbscan_noise),
+    'hdbscan_noise_pct': round(n_hdbscan_noise / sample_size * 100, 2),
+    'hdbscan_dbscan_noise_recovered': int(dbscan_noise_hdbscan_recovered),
+    'hdbscan_dbscan_noise_still_noise': int(dbscan_noise_hdbscan_still_noise.sum()),
+    'hdbscan_dbscan_noise_soft_candidates': int(dbscan_noise_soft_candidates),
+    'hdbscan_noise_mean_top_soft_affinity': round(float(hdbscan_top_affinity[hdbscan_noise_mask].mean()), 4) if n_hdbscan_noise else 0.0,
+    'hdbscan_noise_mean_total_soft_affinity': round(float(hdbscan_total_affinity[hdbscan_noise_mask].mean()), 4) if n_hdbscan_noise else 0.0,
+    'dbscan_noise_gmm_cross_mood_candidates': int(dbscan_noise_gmm_cross_mood),
+    'dbscan_noise_gmm_cross_mood_candidate_pct': round(float(dbscan_noise_gmm_cross_mood / max(1, n_db_noise) * 100), 2),
+    'dbscan_noise_gmm_mean_top_affinity': round(dbscan_noise_gmm_mean_top, 4),
+    'dbscan_noise_gmm_median_top_affinity': round(dbscan_noise_gmm_median_top, 4)
 }
 
 with open('data/project_summary.json', 'w') as f:
     json.dump(summary_stats, f, indent=2)
 
-print("All figures fig14-fig23 and data/project_summary.json updated successfully!", flush=True)
+print("Figures fig14-fig25, soft-membership sample export and data/project_summary.json updated successfully!", flush=True)

@@ -132,9 +132,11 @@ cells.append(md(r"""
     * [4.2.1 Applicazione dell'algoritmo K-means ed Elbow Method](#421-applicazione-dellalgoritmo-k-means)
     * [4.2.2 Analisi dei risultati ottenuti e Profiling dei Cluster](#422-analisi-dei-risultati-ottenuti)
     * [4.2.3 Grafico della Silhouette](#423-grafico-della-silhouette)
+    * [4.2.4 Evoluzione probabilistica con GMM](#424-evoluzione-probabilistica-con-gmm)
   * [4.3 DBSCAN](#43-dbscan)
     * [4.3.1 Applicazione dell'algoritmo DBSCAN](#431-applicazione-dellalgoritmo-dbscan)
     * [4.3.2 Analisi dei risultati ottenuti e Diagnostica del Rumore](#432-analisi-dei-risultati-ottenuti)
+    * [4.3.3 Evoluzione con HDBSCAN e affiliazioni soft](#433-evoluzione-con-hdbscan-e-affiliazioni-soft)
 * [**5 Business Case finale e Conclusioni**](#5-business-case-finale-e-conclusioni)
 """))
 
@@ -177,6 +179,9 @@ from imblearn.under_sampling import RandomUnderSampler
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans, DBSCAN
+from sklearn.mixture import GaussianMixture
+import hdbscan
+from hdbscan import all_points_membership_vectors
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics import silhouette_score, silhouette_samples
 
@@ -443,7 +448,7 @@ cells.append(md(r"""
 ---
 # 4 Spotify tracks analysis: Clustering
 
-Questo capitolo illustra l'applicazione di tecniche di clusterizzazione con lo scopo di raggruppare i brani musicali in un insieme di gruppi con caratteristiche sonore omogenee. L'analisi è condotta in modalità **totalmente non supervisionata**, rimuovendo il target commerciale `genre` e gli identificativi.
+Questo capitolo illustra tecniche di clustering non supervisionato per raggruppare i brani in base alle caratteristiche sonore, senza usare il target commerciale `genre` per l'addestramento. K-Means e DBSCAN sono estesi rispettivamente con GMM e HDBSCAN per analizzare sovrapposizioni tra mood e densità variabile.
 
 ## 4.1 Fase di ETL per il clustering
 ### 4.1.1 Operazioni preliminari e selezione delle feature
@@ -457,7 +462,7 @@ Prima di applicare gli algoritmi basati su distanza euclidea (K-Means e DBSCAN),
 \end{equation}
 
 ### 4.1.2 Riduzione di dimensionalità: PCA e t-SNE
-* **PCA (Principal Component Analysis):** applicata sulle 8 feature standardizzate come riduzione dimensionale effettiva prima del clustering. Come mostrato in **Tabella 3** e nello Scree Plot di **Figura 14**, le prime **4 Componenti Principali (`PC1`–`PC4`)** catturano il **73.96% della varianza cumulativa totale** (superando la soglia canonica del 70%). Sia K-Means che DBSCAN operano quindi direttamente nello spazio ridotto a 4 dimensioni (`X_pca`).
+* **PCA (Principal Component Analysis):** applicata sulle 8 feature standardizzate come riduzione dimensionale effettiva prima del clustering. Come mostrato in **Tabella 3** e nello Scree Plot di **Figura 14**, le prime **4 Componenti Principali (`PC1`–`PC4`)** catturano il **73.96% della varianza cumulativa totale** (superando la soglia del 70%). K-Means, GMM, DBSCAN e HDBSCAN sono confrontati nello spazio PCA a 4 dimensioni; il 26,04% residuo non viene assunto automaticamente come rumore privo di informazione.
 
 #### Table 3: Quota di varianza spiegata individuale e cumulativa (PCA sulle 8 feature selezionate).
 
@@ -515,6 +520,9 @@ Applicando K-Means con $k=5$ nello spazio PCA 4D e proiettando i cluster sia nel
 
 ### 4.2.3 Grafico della Silhouette
 La qualità del partizionamento nello spazio PCA 4D è attestata dal diagramma di Silhouette (**Figura 19**), con valore medio **`0.2829`** e picchi superiori a `0.50` per tutti i 5 cluster.
+
+### 4.2.4 Evoluzione probabilistica con GMM
+K-Means assegna ciascun brano a un solo cluster. Per rappresentare le tracce che condividono più profili acustici, è stato aggiunto un **Gaussian Mixture Model (GMM) a 5 componenti** nello stesso spazio PCA 4D. Per ogni brano il modello stima un vettore di affiliazioni ai componenti. Sul campione, **409 brani (6,82%)** hanno le due affiliazioni maggiori distanti non più di 0,15; la mediana dell'affiliazione massima è 0,883. Fra i 462 punti noise DBSCAN, la mediana dell'affiliazione massima è 0,928 e 39 (8,44%) sono candidati a un’affiliazione trasversale. Le probabilità sono stime del modello, non etichette di mood validate dagli ascoltatori. La **Figura 24** mostra le componenti e la distribuzione dell’affiliazione massima. La scelta di 5 componenti mantiene il confronto con K-Means diretto; il GMM può descrivere covarianze e sovrapposizioni, ma assume componenti gaussiane e non garantisce che ogni componente corrisponda a un mood musicale distinto.
 """))
 
 cells.append(code(r"""
@@ -528,14 +536,19 @@ display(Image(filename='figures/fig19_kmeans_silhouette_plot.png'))
 cells.append(md(r"""
 ## 4.3 DBSCAN nello Spazio PCA (4 Componenti)
 
-DBSCAN (*Density-Based Spatial Clustering of Applications with Noise*) raggruppa i punti in base alla densità locale nello spazio PCA a 4 dimensioni ed è ideale per isolare automaticamente le osservazioni anomale come rumore (`label = -1`).
+DBSCAN (*Density-Based Spatial Clustering of Applications with Noise*) raggruppa i punti in base alla densità locale nello spazio PCA a 4 dimensioni. La label `-1` indica che un brano non soddisfa i criteri di densità del modello; non è un giudizio sulla sua qualità musicale.
 
 ### 4.3.1 Scelta dei parametri e tuning ($\epsilon = 0.60, \text{min\_samples} = 5$)
 * Dal grafico delle distanze ordinate 5-NN nello spazio PCA 4D (**Figura 20**), il punto di ginocchio si colloca a **$\epsilon = 0.60$**.
-* La doppia matrice di tuning $(\epsilon \times \text{min\_samples})$ in **Figura 21** mostra il numero di cluster e il Silhouette Score dei punti non-rumore: con $\epsilon = 0.60, \text{min\_samples} = 5$ si identificano **6 cluster** (un macro-cluster centrale ad alta densità di 5.509 brani + 5 micro-cluster periferici) isolando **462 tracce outlier (7.70% del campione)**.
+* La doppia matrice di tuning $(\epsilon \times \text{min\_samples})$ in **Figura 21** mostra il numero di cluster e il Silhouette Score dei punti non-rumore: con $\epsilon = 0.60, \text{min\_samples} = 5$ si identificano **6 cluster** (un macro-cluster centrale ad alta densità di 5.509 brani + 5 micro-cluster periferici) e si marcano come noise **462 brani (7.70% del campione)**.
 
 ### 4.3.2 Analisi dei risultati ottenuti e Diagnostica del Rumore
-In **Figura 22** è mostrata la distribuzione spaziale DBSCAN su PCA 2D e t-SNE 2D con le 462 tracce di rumore evidenziate in rosso. I boxplot in **Figura 23** confermano che gli outlier isolati da DBSCAN corrispondono a tracce con durate estreme (`duration_ms`), parlato anomalo (`speechiness` da podcast/interludi) o valori atipici di `acousticness`.
+In **Figura 22** è mostrata la distribuzione spaziale DBSCAN su PCA 2D e t-SNE 2D con le 462 tracce noise evidenziate in rosso. I boxplot in **Figura 23** ne descrivono le durate, la `speechiness` e l'`acousticness`; i valori periferici non dimostrano che le tracce siano errori o vadano scartate.
+
+### 4.3.3 Evoluzione con HDBSCAN e affiliazioni soft
+La label `-1` di DBSCAN indica bassa densità rispetto ai parametri scelti; non significa che il brano sia privo di valore musicale. **HDBSCAN** è stato aggiunto nello stesso spazio PCA 4D (`min_cluster_size=30`, `min_samples=5`): sul campione trova 10 cluster, ma marca ancora come noise 4.847 brani (80,78%). Nessuno dei 462 punti noise DBSCAN entra in un cluster HDBSCAN con questa configurazione. Questo esito mostra che HDBSCAN non risolve automaticamente il problema e che i risultati dipendono dalla geometria e dai parametri.
+
+Le affiliazioni soft HDBSCAN per quei 462 punti sono deboli: 22 superano il criterio esplorativo adottato per essere ispezionati. Per non escluderli a priori da ogni playlist, sono state quindi considerate anche le affiliazioni GMM ai cinque profili: ogni traccia riceve una proposta di profilo sonoro e, per 39 brani, i due profili più probabili sono vicini. La Figura 25 mostra i cluster HDBSCAN e l'affiliazione GMM massima per i punti noise DBSCAN. Le affiliazioni restano suggerimenti del modello: quando l'affinità è debole o le componenti sono poco interpretabili, il brano va mantenuto come caso periferico, non assegnato forzatamente.
 """))
 
 cells.append(code(r"""
@@ -544,6 +557,8 @@ display(Image(filename='figures/fig20_dbscan_knn_distance.png'))
 display(Image(filename='figures/fig21_dbscan_grid_search.png'))
 display(Image(filename='figures/fig22_dbscan_tsne_clusters_noise.png'))
 display(Image(filename='figures/fig23_dbscan_noise_profiling.png'))
+display(Image(filename='figures/fig24_gmm_soft_membership.png'))
+display(Image(filename='figures/fig25_hdbscan_soft_membership.png'))
 """))
 
 # =========================================================================
@@ -555,8 +570,8 @@ cells.append(md(r"""
 
 L'integrazione di tecniche supervisionate e non supervisionate dimostra come la Data Science applicata all'audio intelligence trasformi semplici numeri in decisioni strategiche per l'industria discografica:
 
-1. **Motore di Raccomandazione per Mood (Clustering K-Means):** Supera la rigidità delle etichette commerciali di genere raggruppando i brani in base al loro "DNA sonoro latente", consentendo alle piattaforme di streaming di generare playlist dinamiche e contestuali (*Workout, Focus, Party, Chillout*).
-2. **Controllo Qualità Automatizzato e Anomaly Detection (DBSCAN):** Consente ai distributori musicali di intercettare automaticamente file audio anomali, campionamenti corrotti o parlato non musicale prima dell'inserimento nei canali promozionali.
+1. **Playlist per affinità acustica (K-Means e GMM):** K-Means offre profili compatti; il GMM aggiunge appartenenze probabilistiche, utili per proporre tracce ibride in più playlist basate sul suono.
+2. **Scoperta di nicchie e brani periferici (DBSCAN e HDBSCAN):** gli algoritmi di densità individuano comunità e punti poco rappresentati. La label noise è una proprietà geometrica del modello, non un giudizio sulla qualità musicale; le affiliazioni GMM e HDBSCAN aiutano a suggerire possibili famiglie senza imporre un’assegnazione quando il modello non offre supporto sufficiente.
 3. **Valutazione Quantitativa del Potenziale Commerciale (Classificazione Stacking):** Con un'accuratezza vicina al **69% su 15 generi** e una **Macro-AUC di 0.94**, il modello fornisce a produttori ed etichette discografiche uno strumento oggettivo per posizionare sul mercato un nuovo brano demo prima di allocare budget pubblicitari.
 """))
 

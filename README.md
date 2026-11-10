@@ -2,7 +2,7 @@
 
 Progetto accademico di **Data Science** sviluppato per il Corso di Laurea Magistrale in Ingegneria Informatica e dell'Automazione (Università Politecnica delle Marche).
 
-Il progetto applica una pipeline rigorosa di Machine Learning e Data Mining su oltre **42.000 brani musicali** estratti dall'API di Spotify (**Spotify Audio Features / Genres v2**), combinando **Data Cleaning**, **Analisi Esplorativa (EDA)**, **Classificazione Supervisionata Multiclasse con Ensemble Learning** e **Clustering Non Supervisionato (K-Means & DBSCAN)**.
+Il progetto applica una pipeline di Machine Learning e Data Mining su oltre **42.000 brani musicali** del dataset Spotify (**Audio Features / Genres v2**), combinando **Data Cleaning**, **Analisi Esplorativa (EDA)**, **Classificazione Supervisionata Multiclasse con Ensemble Learning** e **Clustering Non Supervisionato**. Il capitolo di clustering confronta K-Means con GMM per le appartenenze probabilistiche e DBSCAN con HDBSCAN per le strutture a densità variabile e l'analisi dei brani periferici.
 
 ---
 
@@ -15,9 +15,11 @@ Progetto-Data-Science/
 │
 ├── data/
 │   ├── genres_cleaned.csv                                   # Dataset pulito (35.877 tracce uniche, 0 valori nulli)
-│   └── project_summary.json                                 # Metriche riassuntive e parametri dei modelli
+│   ├── project_summary.json                                 # Metriche riassuntive e parametri dei modelli
+│   ├── clustering_extensions_summary.json                  # Metriche specifiche GMM/HDBSCAN
+│   └── clustering_soft_memberships_sample.csv              # Affiliazioni GMM/HDBSCAN del campione da 6.000 brani
 │
-├── figures/                                                 # 23 grafici ad alta risoluzione (300 DPI)
+├── figures/                                                 # 25 grafici ad alta risoluzione (300 DPI)
 │   ├── fig01_distribuzione_generi.png                       # Distribuzione dei 15 generi post-pulizia
 │   ├── fig02_audio_features_hist_kde.png                    # Istogrammi + curve KDE per le feature audio continue
 │   ├── fig03_discrete_features.png                          # Distribuzione di Key, Mode e Time Signature
@@ -40,7 +42,9 @@ Progetto-Data-Science/
 │   ├── fig20_dbscan_knn_distance.png                        # Grafico k-NN distance per individuazione di Epsilon
 │   ├── fig21_dbscan_grid_search.png                         # Matrice di tuning griglia (Epsilon x min_samples)
 │   ├── fig22_dbscan_tsne_clusters_noise.png                 # Cluster DBSCAN con punti rumorosi (-1) evidenziati
-│   └── fig23_dbscan_noise_profiling.png                     # Boxplot diagnostico caratteristiche del rumore
+│   ├── fig23_dbscan_noise_profiling.png                     # Boxplot diagnostico dei punti periferici DBSCAN
+│   ├── fig24_gmm_soft_membership.png                        # Componenti GMM e affiliazione probabilistica
+│   └── fig25_hdbscan_soft_membership.png                    # Cluster HDBSCAN e affiliazioni soft dei punti noise
 │
 ├── scripts/
 │   ├── build_full_project.py                                # Pipeline Python end-to-end
@@ -97,19 +101,23 @@ Progetto-Data-Science/
     * *Cluster 2 (549 / 3.189 brani, 8.89%):* **Acoustic, Chill & Atmospheric** (Max Acousticness `0.49`, Min Energy `0.45`, Loudness `-9.87 dB` — *Acoustic, RnB, Emo, Lo-Fi*)
     * *Cluster 3 (1.250 / 7.354 brani, 20.50%):* **Groove, Melodic Urban & Dance-Pop** (Max Danceability `0.76`, Tempo `130.3 BPM`, Valence `0.49` — *Pop, RnB, Melodic Rap*)
     * *Cluster 4 (974 / 5.787 brani, 16.13%):* **Fast-Flow Rap & High-Tempo Urban** (Max Tempo `179.1 BPM`, Max Speechiness `0.26`, Max Valence `0.55` — *Underground Rap, Hiphop, Dark Trap*)
-* **DBSCAN Clustering ($\epsilon = 0.60, 	ext{min\_samples} = 5$ su 4 PC):**
-  * Scelta di $\epsilon = 0.60$ tramite gomito del grafico **$k$-NN distance** ($k=5$) e doppia griglia di tuning $(\epsilon 	imes 	ext{min\_samples})$.
-  * Identificati **6 cluster** (1 nucleo denso principale di 5.509 brani + 5 micro-cluster periferici) e **462 tracce isolate come Rumore/Outlier (`7.70%`, `label = -1`)**.
-  * L'analisi diagnostica degli outlier conferma che si tratta di tracce con durata estrema (`duration_ms`), parlato anomalo (`speechiness` da podcast/skit) o combinazioni acustiche fuori scala (`acousticness`).
+* **DBSCAN Clustering ($\epsilon = 0.60$, `min_samples=5` su 4 PC):**
+  * Scelta di $\epsilon = 0.60$ tramite gomito del grafico **$k$-NN distance** ($k=5$) e doppia griglia di tuning.
+  * Identificati **6 cluster** (un nucleo denso principale di 5.509 brani + 5 micro-cluster periferici) e **462 punti noise (`7.70%` del campione, `label=-1`)**.
+  * I 462 punti noise sono periferici secondo le feature e i parametri scelti; l'etichetta non indica errori né brani da scartare.
 
 ---
+
+* **GMM (5 componenti su 4 PC):** affianca a K-Means un vettore di affiliazioni probabilistiche per ogni brano. Le tracce con le due affiliazioni maggiori vicine sono candidate per playlist trasversali; i punteggi descrivono l'affinità al modello, non una valutazione umana del mood.
+  * Nel campione, 409 brani (6,82%) sono candidati a sovrapposizioni GMM; dei 462 punti noise DBSCAN, 39 (8,44%) hanno le due affiliazioni maggiori vicine.
+* **HDBSCAN (`min_cluster_size=30`, `min_samples=5`):** cerca comunità a densità variabile sullo stesso campione. Con questi parametri individua 10 cluster e marca 4.847 brani (80,78%) come noise, inclusi i 462 punti noise DBSCAN. Le affiliazioni soft HDBSCAN risultano deboli per gran parte dei periferici; il GMM fornisce comunque un profilo sonoro candidato, senza cancellare l'incertezza.
 
 ## Requisiti e Come Eseguire
 
 1. **Requisiti:** Python 3.10+ (testato su Python 3.14).
 2. **Installazione dipendenze:**
    ```bash
-   pip install pandas numpy scikit-learn xgboost imbalanced-learn seaborn matplotlib ipykernel nbformat nbclient
+   pip install pandas numpy scikit-learn xgboost imbalanced-learn seaborn matplotlib ipykernel nbformat nbclient hdbscan
    ```
 3. **Aprire il Notebook:**
    Puoi aprire ed esplorare direttamente [`Spotify_Audio_Analysis_Classification_Clustering.ipynb`](file:///c:/Users/lucab/OneDrive/Documenti/GitHub/Progetto-Data-Science/Spotify_Audio_Analysis_Classification_Clustering.ipynb) in VS Code o Jupyter Lab. Tutte le celle sono già pre-renderizzate con i relativi grafici e tabelle.

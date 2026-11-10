@@ -161,5 +161,134 @@
     "3": 7354,
     "4": 5787
   },
-  "dbscan_sil_non_noise": 0.1204
+  "dbscan_sil_non_noise": 0.1204,
+  "gmm_components": 5,
+  "gmm_covariance_type": "full",
+  "gmm_mean_top_affinity": 0.8321585932850406,
+  "gmm_median_top_affinity": 0.8826562657663639,
+  "gmm_cross_mood_gap_threshold": 0.15,
+  "gmm_cross_mood_candidates": 409,
+  "gmm_cross_mood_candidate_pct": 6.816666666666666,
+  "gmm_component_counts": {
+    "0": 1130,
+    "1": 741,
+    "2": 1111,
+    "3": 843,
+    "4": 2175
+  },
+  "gmm_component_profiles": {
+    "0": {
+      "danceability": 0.5340592920353981,
+      "energy": 0.9237433628318583,
+      "speechiness": 0.06666929203539823,
+      "acousticness": 0.006128852663716811,
+      "instrumentalness": 0.7176473160707965,
+      "valence": 0.24077230088495574,
+      "tempo": 149.26086902654868,
+      "duration_ms": 351531.84159292036
+    },
+    "1": {
+      "danceability": 0.6127353576248313,
+      "energy": 0.5108958164642375,
+      "speechiness": 0.14218529014844802,
+      "acousticness": 0.3948654489878542,
+      "instrumentalness": 0.2418137651551957,
+      "valence": 0.28047692307692307,
+      "tempo": 156.07609581646423,
+      "duration_ms": 211296.32793522268
+    },
+    "2": {
+      "danceability": 0.5123556255625563,
+      "energy": 0.8997434743474347,
+      "speechiness": 0.1378662466246625,
+      "acousticness": 0.019545361611161112,
+      "instrumentalness": 0.08459296415841586,
+      "valence": 0.3118287128712871,
+      "tempo": 146.83129612961298,
+      "duration_ms": 216435.8577857786
+    },
+    "3": {
+      "danceability": 0.744491103202847,
+      "energy": 0.7927485172004746,
+      "speechiness": 0.06532158956109134,
+      "acousticness": 0.025863848600237244,
+      "instrumentalness": 0.7613417290272835,
+      "valence": 0.34527236061684463,
+      "tempo": 127.87356820877818,
+      "duration_ms": 367299.53262158955
+    },
+    "4": {
+      "danceability": 0.7129397701149426,
+      "energy": 0.6712022988505746,
+      "speechiness": 0.19643567816091953,
+      "acousticness": 0.11772473116321838,
+      "instrumentalness": 0.0194086904183908,
+      "valence": 0.46883305747126436,
+      "tempo": 153.1034611494253,
+      "duration_ms": 193055.9448275862
+    }
+  },
+  "gmm_component_top_genres_posthoc": {
+    "0": {
+      "psytrance": 355,
+      "dnb": 272,
+      "trance": 254,
+      "hardstyle": 79,
+      "techno": 63
+    },
+    "1": {
+      "Dark Trap": 250,
+      "Underground Rap": 129,
+      "RnB": 84,
+      "Hiphop": 71,
+      "dnb": 54
+    },
+    "2": {
+      "hardstyle": 274,
+      "trap": 262,
+      "Emo": 138,
+      "trance": 124,
+      "Dark Trap": 92
+    },
+    "3": {
+      "techno": 382,
+      "techhouse": 303,
+      "psytrance": 64,
+      "trance": 46,
+      "Dark Trap": 31
+    },
+    "4": {
+      "Underground Rap": 718,
+      "Dark Trap": 342,
+      "Hiphop": 284,
+      "RnB": 222,
+      "Rap": 178
+    }
+  },
+  "hdbscan_min_cluster_size": 30,
+  "hdbscan_min_samples": 5,
+  "hdbscan_clusters": 10,
+  "hdbscan_noise": 4847,
+  "hdbscan_noise_pct": 80.78333333333333,
+  "hdbscan_dbscan_noise_recovered": 0,
+  "hdbscan_dbscan_noise_still_noise": 462,
+  "hdbscan_dbscan_noise_soft_candidates": 22,
+  "hdbscan_noise_mean_top_soft_affinity": 0.18749309309436588,
+  "hdbscan_noise_mean_total_soft_affinity": 0.7399198905946962,
+  "hdbscan_cluster_counts": {
+    "0": 55,
+    "1": 59,
+    "2": 115,
+    "3": 34,
+    "4": 33,
+    "5": 31,
+    "6": 357,
+    "7": 100,
+    "8": 128,
+    "9": 241
+  },
+  "dbscan_noise_gmm_cross_mood_candidates": 39,
+  "dbscan_noise_gmm_cross_mood_candidate_pct": 8.44,
+  "dbscan_noise_gmm_mean_top_affinity": 0.8538,
+  "dbscan_noise_gmm_median_top_affinity": 0.9278
 }
