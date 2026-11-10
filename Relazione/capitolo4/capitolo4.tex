@@ -1,15 +1,15 @@
 % CAPITOLO 4: CLUSTERING
 % =========================================================================
-\section{Spotify tracks analysis: Clustering}
+\section{Spotify tracks analysis: clustering}
 
 Questo capitolo ha lo scopo di illustrare l'applicazione di tecniche di clusterizzazione non supervisionata con l'obiettivo di suddividere il dataset in gruppi o cluster caratterizzati da proprietà acustiche simili, operando in modo del tutto agnostico rispetto alle etichette di genere commerciale e rimuovendo la colonna target \texttt{genre}.
 
 In generale, le tecniche di clustering si suddividono in diverse famiglie metodologiche:
 \begin{itemize}
-    \item \textbf{Clusterizzazione per Partizione:} Suddivide i dati in $k$ cluster predefiniti, ottimizzando una funzione obiettivo (come la minimizzazione della distanza intra-cluster e la massimizzazione della distanza inter-cluster).
-    \item \textbf{Clusterizzazione Basata su Densità:} Identifica i cluster come regioni densamente popolate nello spazio dati, separate da aree a bassa densità, isolando autonomamente i punti anomali come rumore.
-    \item \textbf{Clusterizzazione Gerarchica:} Costruisce un albero di raggruppamento (dendrogramma) combinando iterativamente i campioni più vicini o dividendo i gruppi esistenti.
-    \item \textbf{Clusterizzazione Basata su Modello:} Assume che i dati siano generati da una combinazione di distribuzioni statistiche sottostanti (ad esempio Gaussian Mixture Models).
+    \item \textbf{Clusterizzazione per partizione:} Suddivide i dati in $k$ cluster predefiniti, ottimizzando una funzione obiettivo (come la minimizzazione della distanza intra-cluster e la massimizzazione della distanza inter-cluster).
+    \item \textbf{Clusterizzazione basata su densità:} Identifica i cluster come regioni densamente popolate nello spazio dati, separate da aree a bassa densità, isolando autonomamente i punti anomali come rumore.
+    \item \textbf{Clusterizzazione gerarchica:} Costruisce un albero di raggruppamento (dendrogramma) combinando iterativamente i campioni più vicini o dividendo i gruppi esistenti.
+    \item \textbf{Clusterizzazione basata su modello:} Assume che i dati siano generati da una combinazione di distribuzioni statistiche sottostanti (ad esempio Gaussian Mixture Models).
 \end{itemize}
 
 Gli algoritmi esplorati e confrontati in questo elaborato appartengono alle due categorie di partizionamento (K-Means) e di densità (DBSCAN).

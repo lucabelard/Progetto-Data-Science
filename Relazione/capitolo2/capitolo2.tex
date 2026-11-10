@@ -1,22 +1,22 @@
 % =========================================================================
 % CAPITOLO 2: DATASET (SPOTIFY)
 % =========================================================================
-\section{Spotify tracks analysis: Dataset}
+\section{Spotify tracks analysis: dataset}
 
-Il dataset impiegato per la realizzazione di questo progetto è stato reperito dalla piattaforma Kaggle, ed è noto come \textit{Spotify Audio Features / Genres v2}. Il dataset grezzo raccoglie 42.305 osservazioni relative a brani musicali estratti tramite le Web API ufficiali di Spotify a partire da playlist pubbliche focalizzate su 15 generi e sottogeneri musicali contemporanei. 
+Il dataset impiegato per la realizzazione di questo progetto è stato reperito dalla piattaforma Kaggle, ed è noto come \textit{Spotify Audio Features / Genres v2}. Il dataset grezzo raccoglie \textbf{42.305 osservazioni} relative a brani musicali estratti tramite le Web API ufficiali di Spotify a partire da playlist pubbliche focalizzate su \textbf{15 generi e sottogeneri} musicali contemporanei. 
 
-Ciascuna traccia all'interno del dataset è descritta da un totale di 22 attributi, comprendenti metadati identificativi, parametri sonori continui derivati dall'analisi spettrale e variabili discrete legate alla teoria musicale. Nel dettaglio, le informazioni fornite dal dataset si suddividono nelle seguenti categorie:
+Ciascuna traccia all'interno del dataset è descritta da un totale di \textbf{22 attributi}, comprendenti metadati identificativi, parametri sonori continui derivati dall'analisi spettrale e variabili discrete legate alla teoria musicale. Nel dettaglio, le informazioni fornite dal dataset si suddividono nelle seguenti categorie:
 
 \begin{itemize}
-    \item \textbf{Informazioni e Metadati di Servizio:}
+    \item \textbf{Informazioni e metadati di servizio:}
     \begin{itemize}
         \item \texttt{id}: Stringa alfanumerica univoca assegnata da Spotify a ciascun brano.
         \item \texttt{song\_name} e \texttt{title}: Titolo della traccia o stringa del nome del file.
         \item \texttt{uri}, \texttt{track\_href}, \texttt{analysis\_url}: Indirizzi URI e URL web per l'accesso programmatico alle risorse audio sui server di Spotify.
-        \item \texttt{type}: Tipologia dell'oggetto ritornato dall'API (costantemente pari ad \texttt{audio\_features}).
+        \item \texttt{type}: Tipologia dell'oggetto ritornato dall'API (pari ad \texttt{audio\_features}).
         \item \texttt{genre}: Genere musicale associato alla playlist da cui è stato estratto il brano (rappresenta la nostra variabile target per la classificazione).
     \end{itemize}
-    \item \textbf{Caratteristiche Audio Continue (Misure Fisiche e Psicoacustiche):}
+    \item \textbf{Caratteristiche audio continue (misure fisiche e psicoacustiche):}
     \begin{itemize}
         \item \texttt{danceability}: Valore compreso tra 0.0 e 1.0 che descrive quanto un brano sia adatto al ballo, calcolato sulla base di regolarità del ritmo, stabilità del tempo e forza della battuta.
         \item \texttt{energy}: Valore tra 0.0 e 1.0 che rappresenta una misura percettiva dell'intensità e dell'attività della traccia (i brani energici risultano veloci, rumorosi e densi).
@@ -29,7 +29,7 @@ Ciascuna traccia all'interno del dataset è descritta da un totale di 22 attribu
         \item \texttt{tempo}: Velocità stimata del brano espressa in battiti al minuto (BPM).
         \item \texttt{duration\_ms}: Durata temporale complessiva del brano espressa in millisecondi.
     \end{itemize}
-    \item \textbf{Parametri Musicali Discreti:}
+    \item \textbf{Parametri musicali discreti:}
     \begin{itemize}
         \item \texttt{key}: Tonalità complessiva del brano codificata come intero secondo la notazione standard Pitch Class (0 = Do, 1 = Do$\sharp$/Re$\flat$, 2 = Re, ..., 11 = Si).
         \item \texttt{mode}: Modalità del brano, dove 1 indica la modalità Maggiore e 0 indica la modalità Minore.
@@ -43,9 +43,13 @@ Nella Tabella \ref{tab:colonne_dataset} vediamo una rappresentazione riepilogati
 \centering
 \caption{Colonne del dataset e relativo formato dei dati.}
 \label{tab:colonne_dataset}
+\rowcolors{2}{TableRowEven}{white}
 \begin{tabular}{lll}
 \toprule
-\textbf{Colonna} & \textbf{Formato} & \textbf{Descrizione / Range} \\
+\rowcolor{TableHeaderBg}
+\color{TableHeaderFg}\textbf{Colonna} & 
+\color{TableHeaderFg}\textbf{Formato} & 
+\color{TableHeaderFg}\textbf{Descrizione / Range} \\
 \midrule
 \texttt{danceability} & Float & Ballabilità del brano [0.0 - 1.0] \\
 \texttt{energy} & Float & Intensità dinamica percepita [0.0 - 1.0] \\

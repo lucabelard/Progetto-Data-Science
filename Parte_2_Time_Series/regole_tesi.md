@@ -3,7 +3,7 @@
 questo manuale definisce le regole stilistiche e tipografiche da seguire per garantire coerenza e professionalità nel materiale prodotto; ogni collaboratore deve attenersi a questi punti per mantenere un’identità testuale univoca.
 
 ### *norme grammaticali e punteggiatura*
-la grammatica italiana rappresenta la base fondamentale di ogni testo; tuttavia, per questo specifico stile, sono state definite delle deroghe sulla gestione delle maiuscole legate alla punteggiatura. nello specifico:
+* la grammatica italiana rappresenta la base fondamentale di ogni testo; tuttavia, per questo specifico stile, sono state definite delle deroghe sulla gestione delle maiuscole legate alla punteggiatura. nello specifico:
 * le maiuscole vanno usate solo quando le regole grammaticali lo impongono (inizio periodo, nomi propri).
 * nei titoli e nelle intestazioni non si usa mai la maiuscola per ogni parola; si segue la capitalizzazione standard della frase (es: "estrazione di feature locali").
 * non si deve mai usare la lettera maiuscola dopo i due punti (:).
@@ -18,7 +18,8 @@ la grammatica italiana rappresenta la base fondamentale di ogni testo; tuttavia,
 il tono deve mantenersi sempre discorsivo e fluido, evitando una frammentazione eccessiva del testo in sezioni minuscole o superflue; se strettamente necessario, è possibile ricorrere all'uso delle `subsection`. è vietato inventare informazioni non verificate. gli elenchi puntati devono essere utilizzati solo se strettamente necessari.
 
 ### *formattazione visiva e citazioni*
-
+* l'enfasi preferibilmente esprimila in grassetto.
+* eventuali parti di codice che non vanno nei listati esprimile con /textiit o roba del genere
 * i riferimenti a variabili, nomi di file o programmi devono essere formattati con un font monospace, come ad esempio `script.py`.
 * le porzioni di codice estese devono essere inserite all'interno di appositi blocchi di codice (o listati in LaTeX).
 

@@ -2,10 +2,20 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{lmodern}
+
+% =========================================================================
+% FONT & TIPOGRAFIA MODERNA
+% Serif editoriale elegante (Charter) + Sans-serif pulito (Helvetica/TeX Gyre Heros)
+% =========================================================================
+\usepackage[charter]{mathdesign}
+\usepackage[scaled=0.92]{helvet}
+\usepackage[scaled=0.88]{beramono}
+\usepackage{microtype}
 \usepackage[italian]{babel}
-\usepackage{amsmath,amssymb,amsfonts}
+
+\usepackage{amsmath}
 \usepackage{graphicx}
+\graphicspath{{./}{./Relazione/}}
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{geometry}
@@ -13,10 +23,14 @@
 \usepackage{float}
 \usepackage{caption}
 \usepackage{subcaption}
-\usepackage{xcolor}
+\usepackage[table]{xcolor}
 \usepackage{titlesec}
 \usepackage{setspace}
 \usepackage{listings}
+\usepackage{etoolbox}
+\usepackage{titletoc}
+\usepackage{tcolorbox}
+\tcbuselibrary{listings,skins}
 
 \onehalfspacing
 
@@ -28,89 +42,202 @@
   right=2.5cm
 }
 
+% =========================================================================
+% PALETTE COLORI (Deep Navy & Modern Tech Accents)
+% =========================================================================
+\definecolor{NavyBlueTheme}{RGB}{26, 54, 93}       % #1A365D - Deep Navy istituzionale
+\definecolor{SteelBlueTheme}{RGB}{43, 108, 176}    % #2B6CB0 - Steel Blue
+\definecolor{SlateGrayTheme}{RGB}{74, 85, 104}     % #4A5568 - Slate Gray
+\definecolor{LightBgTheme}{RGB}{247, 250, 252}     % #F7FAFC - Light Background
+
+% Colori per tabelle moderne
+\definecolor{TableHeaderBg}{RGB}{26, 54, 93}       % Intestazione Navy scuro
+\definecolor{TableHeaderFg}{RGB}{255, 255, 255}    % Testo intestazione bianco
+\definecolor{TableRowEven}{RGB}{248, 250, 252}     % Riga pari alternata azzurro chiarissimo
+\definecolor{TableLineColor}{RGB}{203, 213, 225}   % Linee di separazione sottili
+
+% =========================================================================
+% TAVOLOZZA ESATTA CARBON DALL'IMMAGINE FORNITA
+% =========================================================================
+\definecolor{CarbonBg}{RGB}{0, 34, 53}             % #002235 - Blu petrolio profondo esatto dello sfondo
+\definecolor{CarbonFg}{RGB}{255, 255, 255}         % #ffffff - Bianco brillante per identificatori
+\definecolor{CarbonNumber}{RGB}{72, 114, 142}      % Numeri di riga azzurro petrolio attenuato
+\definecolor{CarbonKeyword}{RGB}{255, 219, 90}      % #ffdb5a - Giallo brillante per keywords (const, def, return...)
+\definecolor{CarbonFunction}{RGB}{0, 222, 255}     % #00deff - Ciano acceso (split, reduce, groupby...)
+\definecolor{CarbonComment}{RGB}{0, 150, 255}      % #0096ff - Blu acceso per commenti (// Photo...)
+\definecolor{CarbonLiteral}{RGB}{255, 100, 160}     % Rosa/magenta acceso (numeri tra parentesi)
+\definecolor{CarbonString}{RGB}{0, 225, 200}       % Ciano smeraldo per stringhe
+\definecolor{CarbonDotRed}{RGB}{255, 95, 86}       % Pallino rosso Mac
+\definecolor{CarbonDotYellow}{RGB}{255, 189, 46}   % Pallino giallo Mac
+\definecolor{CarbonDotGreen}{RGB}{39, 201, 63}     % Pallino verde Mac
+
 \hypersetup{
     colorlinks=true,
-    linkcolor=black,
-    filecolor=magenta,
-    urlcolor=blue,
-    citecolor=blue,
+    linkcolor=NavyBlueTheme,
+    filecolor=SteelBlueTheme,
+    urlcolor=SteelBlueTheme,
+    citecolor=SteelBlueTheme,
+    plainpages=false,
+    pdfpagelabels=true
+}
+
+% =========================================================================
+% FORMATTAZIONE CAPTION (Figure, Tabelle, Listati)
+% Label in grassetto e colorata con NavyBlueTheme (\color{NavyBlueTheme}\bfseries)
+% =========================================================================
+\captionsetup{
+    labelfont={bf,color=NavyBlueTheme},
+    textfont={small},
+    labelsep=colon,
+    skip=8pt
+}
+
+% =========================================================================
+% FORMATTAZIONE TITOLI E SEZIONI
+% =========================================================================
+\titleformat{\section}
+  {\sffamily\Large\bfseries\color{NavyBlueTheme}}
+  {\thesection}{1em}{}[\color{SteelBlueTheme}\titlerule]
+
+\titleformat{\subsection}
+  {\sffamily\large\bfseries\color{NavyBlueTheme}}
+  {\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+  {\sffamily\normalsize\bfseries\color{SlateGrayTheme}}
+  {\thesubsubsection}{1em}{}
+
+% =========================================================================
+% CONFIGURAZIONE LISTATI DI CODICE STILE CARBON (COLORI ESATTI SCREENSHOT)
+% =========================================================================
+\lstdefinestyle{carbonstyle}{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize\color{CarbonFg},
+    backgroundcolor=\color{CarbonBg},
+    breaklines=true,
+    numbers=left,
+    numberstyle=\tiny\color{CarbonNumber},
+    numbersep=12pt,
+    keywordstyle=[1]\color{CarbonKeyword}\bfseries,
+    keywordstyle=[2]\color{CarbonFunction}\bfseries,
+    morekeywords=[1]{import,from,as,def,return,lambda,class,if,elif,else,for,while,in,and,or,not,is,with,const},
+    morekeywords=[2]{pd,np,plt,sns,len,range,print,reindex,ffill,bfill,fillna,groupby,unstack,concat,apply,last,split,reduce},
+    commentstyle=\color{CarbonComment}\itshape,
+    stringstyle=\color{CarbonString},
+    showstringspaces=false,
+    tabsize=4,
+    xleftmargin=1.8em,
+    framexleftmargin=1.2em,
+    literate=*{=}{{\color{CarbonFunction}=}}{1}%
+             {>}{{\color{CarbonFunction}>}}{1}%
+             {<}{{\color{CarbonFunction}<}}{1}%
+             {=>}{{\color{CarbonFunction}=>}}{2}%
+             {0}{{\color{CarbonLiteral}0}}{1}%
+             {1}{{\color{CarbonLiteral}1}}{1}%
+             {2}{{\color{CarbonLiteral}2}}{1}%
+             {3}{{\color{CarbonLiteral}3}}{1}%
+             {4}{{\color{CarbonLiteral}4}}{1}%
+             {5}{{\color{CarbonLiteral}5}}{1}%
+             {6}{{\color{CarbonLiteral}6}}{1}%
+             {7}{{\color{CarbonLiteral}7}}{1}%
+             {8}{{\color{CarbonLiteral}8}}{1}%
+             {9}{{\color{CarbonLiteral}9}}{1}
 }
 
 \lstset{
-    basicstyle=\ttfamily\footnotesize,
-    breaklines=true,
-    frame=single,
-    numbers=left,
-    numberstyle=\tiny\color{gray},
-    keywordstyle=\color{blue},
-    commentstyle=\color{teal},
-    stringstyle=\color{purple},
-    captionpos=b
+    style=carbonstyle
 }
-
 \renewcommand{\lstlistingname}{Listato}
 
-% Stile visivo per separare chiaramente le due parti tematiche
-\newcommand{\partseparator}[2]{
-    \newpage
-    \vspace*{\fill}
-    \begin{center}
-        \rule{0.85\linewidth}{1.2pt}\\[0.6cm]
-        {\Huge \textbf{#1}}\\[0.4cm]
-        {\Large \textit{#2}}\\[0.6cm]
-        \rule{0.85\linewidth}{1.2pt}
-    \end{center}
-    \vspace*{\fill}
-    \newpage
+% Riquadro personalizzato tcolorbox con finestra stile Mac Carbon
+\newtcblisting{carbonwindow}[1]{
+    enhanced,
+    arc=7pt,
+    boxrule=0pt,
+    colback=CarbonBg,
+    colframe=CarbonBg,
+    left=4mm,
+    right=4mm,
+    top=12mm,
+    bottom=4mm,
+    listing only,
+    listing style=carbonstyle,
+    overlay={
+        % Barra superiore finestra con i tre pallini Mac stile Carbon
+        \fill[CarbonDotRed] ([xshift=9mm, yshift=-5mm]frame.north west) circle (2mm);
+        \fill[CarbonDotYellow] ([xshift=16mm, yshift=-5mm]frame.north west) circle (2mm);
+        \fill[CarbonDotGreen] ([xshift=23mm, yshift=-5mm]frame.north west) circle (2mm);
+        \node[anchor=north, font=\sffamily\scriptsize\color{CarbonNumber}] at ([yshift=-3.8mm]frame.north) {#1};
+    }
+}
+
+% =========================================================================
+% MACRO FRONTESPIZIO ISTITUZIONALE UNIVPM
+% Conforme al modello ufficiale con stemma UnivPM e logo del dominio tematico
+% =========================================================================
+\newcommand{\makePartTitlePage}[4]{
+    \begin{titlepage}
+        \centering
+        \vspace*{-1.2cm}
+        {\sffamily\bfseries\Large UNIVERSITÀ POLITECNICA DELLE MARCHE}\\[0.15cm]
+        {\sffamily\bfseries\large FACOLTÀ DI INGEGNERIA}\\[0.12cm]
+        {\sffamily\normalsize Dipartimento di Ingegneria dell'Informazione}\\[0.12cm]
+        {\sffamily\small Corso di Laurea Magistrale in Ingegneria Informatica e dell'Automazione}\\[0.25cm]
+        \rule{\linewidth}{0.8pt}\\[0.5cm]
+        
+        % Sigillo / Stemma UnivPM centrato
+        \includegraphics[width=0.28\textwidth]{logo_univpm.jpg}\\[0.4cm]
+        
+        {\sffamily\bfseries\large PROGETTO DI DATA SCIENCE}\\[0.35cm]
+        
+        {\sffamily\bfseries\Large #1}\\[0.15cm]
+        {\sffamily\normalsize\color{SlateGrayTheme} #2}\\[0.5cm]
+        
+        % Logo tematico del dominio (Spotify / Transfermarkt) ingrandito
+        \includegraphics[height=2.5cm, width=0.65\textwidth, keepaspectratio]{#3}\\[0.6cm]
+        
+        \vfill
+        
+        \begin{minipage}[t]{0.48\textwidth}
+            \raggedright
+            {\sffamily\bfseries Docenti:}\\[0.2cm]
+            {\sffamily Prof. Ursino Domenico}\\[0.12cm]
+            {\sffamily Dott. Buratti Christopher}
+        \end{minipage}
+        \hfill
+        \begin{minipage}[t]{0.48\textwidth}
+            \raggedleft
+            {\sffamily\bfseries A cura di:}\\[0.2cm]
+            {\sffamily Altieri Andrea}\\[0.12cm]
+            {\sffamily Belardinelli Luca}\\[0.12cm]
+            {\sffamily Contursi Andrea}\\[0.12cm]
+            {\sffamily Flaiani Andrea}
+        \end{minipage}
+        
+        \vspace{0.8cm}
+        \rule{\linewidth}{0.8pt}\\[0.25cm]
+        {\sffamily\bfseries\small ANNO ACCADEMICO 2024--2025}
+        \vspace*{-0.5cm}
+    \end{titlepage}
 }
 
 \begin{document}
 
 % =========================================================================
-% FRONTESPIZIO UNICO DEL PROGETTO
-% =========================================================================
-\begin{titlepage}
-    \centering
-    \vspace*{0.5cm}
-    {\Large \textbf{Università Politecnica delle Marche}}\\[0.3cm]
-    {\large \textbf{Facoltà di Ingegneria}}\\[0.2cm]
-    {\large Dipartimento di Ingegneria dell'Informazione}\\[0.2cm]
-    {\small Corso di Laurea Magistrale in Ingegneria Informatica e dell'Automazione}\\[1.5cm]
-    
-    \rule{\linewidth}{0.8pt}\\[0.4cm]
-    {\LARGE \textbf{Progetto di Data Science}}\\[0.3cm]
-    {\large \textbf{Parte I: Audio Feature Analysis, Classificazione e Clustering su Dati Spotify}}\\[0.2cm]
-    {\large \textbf{Parte II: Analisi delle Serie Storiche sul Mercato Calcistico Europeo (Transfermarkt)}}\\[0.4cm]
-    \rule{\linewidth}{0.8pt}\\[2.2cm]
-    
-    \begin{minipage}{0.48\textwidth}
-        \textbf{Docenti:}\\[0.2cm]
-        Prof. Ursino Domenico\\
-        Dott. Buratti Christopher
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.48\textwidth}
-        \begin{flushright}
-            \textbf{Componenti del gruppo:}\\[0.2cm]
-            Altieri Andrea\\
-            Belardinelli Luca\\
-            Flaiani Andrea
-        \end{flushright}
-    \end{minipage}
-    
-    \vfill
-    {\large Anno Accademico 2024-2025}
-    \vspace*{0.5cm}
-\end{titlepage}
-
-\newpage
-\tableofcontents
-\newpage
-
-% =========================================================================
 % PARTE I: CLASSIFICAZIONE E CLUSTERING (SPOTIFY)
 % =========================================================================
-\partseparator{PARTE I}{Classificazione Supervisionata e Clustering Non Supervisionato su Dati Spotify}
+\renewcommand{\thepage}{I-\arabic{page}}
+\makePartTitlePage%
+    {Parte I: Audio Feature Analysis, Classificazione e Clustering}%
+    {Studio avanzato su dati Spotify: Data Cleaning, EDA, Modelli di Classificazione Multiclasse ed Ensemble, Clustering e Profiling dei Mood}%
+    {logo_spotify.png}%
+    {}
+
+\startcontents[part1]
+{\hypersetup{linkcolor=NavyBlueTheme}
+\printcontents[part1]{l}{1}{\section*{\sffamily\color{NavyBlueTheme}Indice dei Contenuti}\vspace{0.5cm}}
+}
+\newpage
 
 \input{capitolo1/capitolo1.tex}
 \newpage
@@ -122,10 +249,36 @@
 \newpage
 \input{capitolo5/capitolo5.tex}
 
+\newpage
+\addcontentsline{toc}{section}{\listfigurename}
+\listoffigures
+
+\vspace{0.8cm}
+\addcontentsline{toc}{section}{\listtablename}
+\listoftables
+
 % =========================================================================
 % PARTE II: TIME SERIES ANALYSIS (TRANSFERMARKT)
 % =========================================================================
-\partseparator{PARTE II}{Analisi delle Serie Storiche sul Mercato Calcistico Europeo (Transfermarkt)}
+\newpage
+% Reset numerazione per renderla indipendente
+\setcounter{section}{0}
+\setcounter{figure}{0}
+\setcounter{table}{0}
+\setcounter{page}{1}
+\renewcommand{\thepage}{II-\arabic{page}}
+
+\makePartTitlePage%
+    {Parte II: Analisi delle Serie Storiche sul Mercato Calcistico Europeo}%
+    {Ricostruzione temporale su dati Transfermarkt, studio quantitativo degli shock di mercato, decomposizione stagionale e modelli predittivi (ARIMA, SARIMAX con variabili esogene)}%
+    {logo_transfermarkt.png}%
+    {}
+
+\startcontents[part2]
+{\hypersetup{linkcolor=NavyBlueTheme}
+\printcontents[part2]{l}{1}{\section*{\sffamily\color{NavyBlueTheme}Indice dei Contenuti}\vspace{0.5cm}}
+}
+\newpage
 
 \input{capitolo6/capitolo6.tex}
 \newpage
@@ -139,7 +292,7 @@
 \addcontentsline{toc}{section}{\listfigurename}
 \listoffigures
 
-\newpage
+\vspace{0.8cm}
 \addcontentsline{toc}{section}{\listtablename}
 \listoftables
 

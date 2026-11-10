@@ -1,0 +1,17 @@
+# 1. Griglia mensile regolare e propagazione controllata dell'ultima valutazione valida
+grid_months = pd.period_range("2009-01", "2026-05", freq="M")
+target_months = pd.period_range("2011-06", "2026-05", freq="M")  # 180 mesi (15 anni)
+
+val_m = vals_sub.groupby(["player_id", "year_month"])["market_value_in_eur"].last().unstack(level=0)
+val_ff = val_m.reindex(grid_months).ffill(limit=18)
+
+# 2. Ricostruzione del club storico mese per mese da presenze (appearances) e trasferimenti (transfers)
+app_club_m = app_sub.groupby(["player_id", "year_month"])["player_club_id"].last()
+tr_club_m = tr_sub.groupby(["player_id", "year_month"])["to_club_id"].last()
+
+club_events = pd.concat([app_club_m, tr_club_m]).groupby(level=[0, 1]).last().unstack(level=0)
+club_events = club_events.reindex(index=grid_months, columns=val_ff.columns)
+club_hist = club_events.ffill().bfill().fillna(val_club_m)
+
+# 3. Mappatura dal club storico alla rispettiva lega nazionale (IT1, GB1, ES1, L1, FR1)
+comp_hist = club_hist.apply(lambda col: col.map(club_to_comp)).fillna("OTHER")
