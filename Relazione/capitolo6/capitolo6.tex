@@ -25,14 +25,10 @@ Per la costruzione della serie storica del valore patrimoniale delle rose e dei 
 \centering
 \caption{Riepilogo delle tabelle relazionali del dataset di Transfermarkt utilizzate nella pipeline.}
 \label{tab:tabelle_transfermarkt}
-\rowcolors{2}{TableRowEven}{white}
+\vspace{0.2cm}
 \begin{tabularx}{\textwidth}{ll>{\raggedleft\arraybackslash}rX}
 \toprule
-\rowcolor{TableHeaderBg}
-\color{TableHeaderFg}\textbf{File sorgente} & 
-\color{TableHeaderFg}\textbf{Chiavi principali} & 
-\color{TableHeaderFg}\textbf{Record} & 
-\color{TableHeaderFg}\textbf{Ruolo nella ricostruzione temporale} \\
+\textbf{File sorgente} & \textbf{Chiavi principali} & \textbf{Record} & \textbf{Ruolo nella ricostruzione temporale} \\
 \midrule
 \texttt{player\_valuations.csv} & \texttt{player\_id}, \texttt{date} & 656.301 & Storico delle valutazioni di mercato in euro \\
 \texttt{transfers.csv} & \texttt{player\_id}, \texttt{transfer\_date} & 175.165 & Spostamenti tra club e volume spese (\texttt{transfer\_fee}) \\
@@ -109,13 +105,10 @@ La scelta di fissare l'orizzonte temporale definitivo tra \textbf{giugno 2011} (
 \centering
 \caption{Struttura delle variabili principali contenute nel dataset mensile elaborato \texttt{market\_monthly.csv}.}
 \label{tab:schema_market_monthly}
-\rowcolors{2}{TableRowEven}{white}
+\vspace{0.2cm}
 \begin{tabularx}{\textwidth}{llX}
 \toprule
-\rowcolor{TableHeaderBg}
-\color{TableHeaderFg}\textbf{Variabile} & 
-\color{TableHeaderFg}\textbf{Unità / Tipo} & 
-\color{TableHeaderFg}\textbf{Descrizione} \\
+\textbf{Variabile} & \textbf{Unità / Tipo} & \textbf{Descrizione} \\
 \midrule
 \texttt{year\_month}, \texttt{date} & Data mensile & Indice temporale regolare ($\Delta t = 1$ mese, 180 osservazioni) \\
 \texttt{top5\_market\_value\_bn} & Float (Mld EUR) & Valore di mercato aggregato delle rose dei Top-5 campionati \\

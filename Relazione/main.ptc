@@ -1,65 +1,67 @@
 \babel@toc {italian}{}\relax 
 \babel@toc {italian}{}\relax 
 \ttl@starttoc {part1@1}
-\contentsline {section}{\numberline {1}Spotify tracks analysis: introduzione}{I-3}{section.1}%
-\contentsline {subsection}{\numberline {1.1}Obiettivi del progetto}{I-3}{subsection.1.1}%
-\contentsline {section}{\numberline {2}Spotify tracks analysis: dataset}{I-5}{section.2}%
-\contentsline {subsection}{\numberline {2.1}ETL}{I-7}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}Analisi descrittiva}{I-8}{subsection.2.2}%
-\contentsline {subsubsection}{\numberline {2.2.1}Distribuzione dei generi musicali}{I-8}{subsubsection.2.2.1}%
-\contentsline {subsubsection}{\numberline {2.2.2}Distribuzione delle feature continue}{I-9}{subsubsection.2.2.2}%
-\contentsline {subsubsection}{\numberline {2.2.3}Distribuzione delle variabili discrete}{I-11}{subsubsection.2.2.3}%
-\contentsline {subsubsection}{\numberline {2.2.4}Matrice di correlazione}{I-12}{subsubsection.2.2.4}%
-\contentsline {section}{\numberline {3}Spotify tracks analysis: classificazione}{I-13}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Preprocessing del dataset}{I-13}{subsection.3.1}%
-\contentsline {subsubsection}{\numberline {3.1.1}Oversampling con SMOTE e Undersampling}{I-13}{subsubsection.3.1.1}%
-\contentsline {subsubsection}{\numberline {3.1.2}Dataset Finale}{I-14}{subsubsection.3.1.2}%
-\contentsline {subsection}{\numberline {3.2}Processo di Classificazione}{I-16}{subsection.3.2}%
-\contentsline {subsubsection}{\numberline {3.2.1}Confronto Modelli di Machine Learning}{I-16}{subsubsection.3.2.1}%
-\contentsline {subsubsection}{\numberline {3.2.2}Tuning degli Iperparametri}{I-17}{subsubsection.3.2.2}%
-\contentsline {subsubsection}{\numberline {3.2.3}Ensemble Learning}{I-17}{subsubsection.3.2.3}%
-\contentsline {subsection}{\numberline {3.3}Diagnostica e Commento ai Risultati}{I-19}{subsection.3.3}%
-\contentsline {subsubsection}{\numberline {3.3.1}Matrice di Confusione e Classification Report}{I-19}{subsubsection.3.3.1}%
-\contentsline {subsubsection}{\numberline {3.3.2}Curve ROC, Precision-Recall e Learning Curve}{I-21}{subsubsection.3.3.2}%
-\contentsline {subsubsection}{\numberline {3.3.3}Feature Importance}{I-22}{subsubsection.3.3.3}%
-\contentsline {subsection}{\numberline {3.4}Evoluzione del Modello: Classificazione Gerarchica e Modelli Specialisti}{I-23}{subsection.3.4}%
-\contentsline {subsubsection}{\numberline {3.4.1}Livello 1: Classificazione delle Macro-Famiglie}{I-23}{subsubsection.3.4.1}%
-\contentsline {subsubsection}{\numberline {3.4.2}Livello 2: Modelli Specialisti Intra-Famiglia}{I-27}{subsubsection.3.4.2}%
-\contentsline {subsubsection}{\numberline {3.4.3}Conclusione Diagnostica e Considerazioni sulla Natura delle Etichette}{I-29}{subsubsection.3.4.3}%
-\contentsline {section}{\numberline {4}Spotify tracks analysis: clustering}{I-30}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Fase di ETL per il clustering}{I-30}{subsection.4.1}%
-\contentsline {subsubsection}{\numberline {4.1.1}Operazioni preliminari e selezione delle feature}{I-30}{subsubsection.4.1.1}%
-\contentsline {subsubsection}{\numberline {4.1.2}Riduzione di dimensionalità: PCA e t-SNE}{I-32}{subsubsection.4.1.2}%
-\contentsline {paragraph}{Principal Component Analysis (PCA) e Selezione delle Componenti:}{I-32}{subsubsection.4.1.2}%
-\contentsline {paragraph}{t-SNE (t-Distributed Stochastic Neighbor Embedding):}{I-35}{table.caption.20}%
-\contentsline {subsection}{\numberline {4.2}K-Means nello Spazio PCA}{I-36}{subsection.4.2}%
-\contentsline {subsubsection}{\numberline {4.2.1}Applicazione dell'algoritmo, Elbow Method e Coefficiente di Silhouette}{I-36}{subsubsection.4.2.1}%
-\contentsline {subsubsection}{\numberline {4.2.2}Analisi dei risultati ottenuti e proiezioni spaziali}{I-37}{subsubsection.4.2.2}%
-\contentsline {subsubsection}{\numberline {4.2.3}Profiling acustico dei Cluster e Mood Playlists}{I-38}{subsubsection.4.2.3}%
-\contentsline {subsubsection}{\numberline {4.2.4}Valutazione della Silhouette per K-Means}{I-40}{subsubsection.4.2.4}%
-\contentsline {subsubsection}{\numberline {4.2.5}Evoluzione probabilistica di K-Means: Gaussian Mixture Model}{I-41}{subsubsection.4.2.5}%
-\contentsline {subsection}{\numberline {4.3}DBSCAN nello Spazio PCA}{I-43}{subsection.4.3}%
-\contentsline {subsubsection}{\numberline {4.3.1}Scelta dei parametri e tuning nello spazio PCA}{I-43}{subsubsection.4.3.1}%
-\contentsline {subsubsection}{\numberline {4.3.2}Analisi dei risultati ottenuti e interpretazione topologica}{I-45}{subsubsection.4.3.2}%
-\contentsline {subsubsection}{\numberline {4.3.3}Diagnostica del Rumore}{I-46}{subsubsection.4.3.3}%
-\contentsline {subsubsection}{\numberline {4.3.4}Evoluzione di DBSCAN: HDBSCAN e affiliazioni dei brani periferici}{I-46}{subsubsection.4.3.4}%
-\contentsline {section}{\numberline {5}Business case finale e conclusioni della Parte I}{I-48}{section.5}%
-\contentsline {subsection}{\numberline {5.1}Sintesi dei risultati metodologici}{I-48}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}Ricadute applicative e scenari di business}{I-48}{subsection.5.2}%
-\contentsline {subsection}{\numberline {5.3}Sviluppi futuri}{I-49}{subsection.5.3}%
-\contentsline {section}{Elenco delle figure}{I-50}{subsection.5.3}%
-\contentsline {section}{Elenco delle tabelle}{I-52}{subsection.5.3}%
+\contentsline {section}{\numberline {1}Spotify tracks analysis: introduzione}{3}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Obiettivi del progetto}{3}{subsection.1.1}%
+\contentsline {section}{\numberline {2}Spotify tracks analysis: dataset}{5}{section.2}%
+\contentsline {subsection}{\numberline {2.1}ETL}{7}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Analisi descrittiva}{8}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Distribuzione dei generi musicali}{8}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Distribuzione delle feature continue}{9}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.3}Distribuzione delle variabili discrete}{11}{subsubsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {2.2.4}Matrice di correlazione}{12}{subsubsection.2.2.4}%
+\contentsline {section}{\numberline {3}Spotify tracks analysis: classificazione}{14}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Preprocessing del dataset}{14}{subsection.3.1}%
+\contentsline {subsubsection}{\numberline {3.1.1}Oversampling con SMOTE e Undersampling}{14}{subsubsection.3.1.1}%
+\contentsline {subsubsection}{\numberline {3.1.2}Dataset Finale}{15}{subsubsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.2}Processo di Classificazione}{17}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Confronto Modelli di Machine Learning}{17}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Tuning degli Iperparametri}{18}{subsubsection.3.2.2}%
+\contentsline {subsubsection}{\numberline {3.2.3}Ensemble Learning}{18}{subsubsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.3}Diagnostica e Commento ai Risultati}{20}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}Matrice di Confusione e Classification Report}{20}{subsubsection.3.3.1}%
+\contentsline {subsubsection}{\numberline {3.3.2}Curve ROC, Precision-Recall e Learning Curve}{22}{subsubsection.3.3.2}%
+\contentsline {subsubsection}{\numberline {3.3.3}Feature Importance}{24}{subsubsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.4}Evoluzione del Modello: Classificazione Gerarchica e Modelli Specialisti}{25}{subsection.3.4}%
+\contentsline {subsubsection}{\numberline {3.4.1}Livello 1: Classificazione delle Macro-Famiglie}{25}{subsubsection.3.4.1}%
+\contentsline {subsubsection}{\numberline {3.4.2}Livello 2: Modelli Specialisti Intra-Famiglia}{29}{subsubsection.3.4.2}%
+\contentsline {subsubsection}{\numberline {3.4.3}Conclusione Diagnostica e Considerazioni sulla Natura delle Etichette}{31}{subsubsection.3.4.3}%
+\contentsline {section}{\numberline {4}Spotify tracks analysis: clustering}{33}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Fase di ETL per il clustering}{33}{subsection.4.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}Operazioni preliminari e selezione delle feature}{33}{subsubsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.2}Riduzione di dimensionalità: PCA e t-SNE}{35}{subsubsection.4.1.2}%
+\contentsline {paragraph}{Principal Component Analysis (PCA) e Selezione delle Componenti:}{35}{subsubsection.4.1.2}%
+\contentsline {paragraph}{t-SNE (t-Distributed Stochastic Neighbor Embedding):}{39}{table.caption.20}%
+\contentsline {subsection}{\numberline {4.2}K-Means nello Spazio PCA}{40}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Applicazione dell'algoritmo, Elbow Method e Coefficiente di Silhouette}{40}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Analisi dei risultati ottenuti e proiezioni spaziali}{41}{subsubsection.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.2.3}Profiling acustico dei Cluster e Mood Playlists}{42}{subsubsection.4.2.3}%
+\contentsline {subsubsection}{\numberline {4.2.4}Valutazione della Silhouette per K-Means}{44}{subsubsection.4.2.4}%
+\contentsline {subsubsection}{\numberline {4.2.5}Evoluzione probabilistica di K-Means: Gaussian Mixture Model}{45}{subsubsection.4.2.5}%
+\contentsline {subsection}{\numberline {4.3}DBSCAN nello Spazio PCA}{47}{subsection.4.3}%
+\contentsline {subsubsection}{\numberline {4.3.1}Scelta dei parametri e tuning nello spazio PCA}{47}{subsubsection.4.3.1}%
+\contentsline {subsubsection}{\numberline {4.3.2}Analisi dei risultati ottenuti e interpretazione topologica}{49}{subsubsection.4.3.2}%
+\contentsline {subsubsection}{\numberline {4.3.3}Diagnostica del Rumore}{50}{subsubsection.4.3.3}%
+\contentsline {subsubsection}{\numberline {4.3.4}Evoluzione di DBSCAN: HDBSCAN e affiliazioni dei brani periferici}{51}{subsubsection.4.3.4}%
+\contentsline {section}{\numberline {5}Business case finale e conclusioni della Parte 1}{53}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Sintesi dei risultati metodologici}{53}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Ricadute applicative e scenari di business}{54}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Sviluppi futuri}{54}{subsection.5.3}%
+\ttl@stoptoc {part1@1}
+\contentsline {section}{Elenco delle figure}{55}{subsection.5.3}%
+\contentsline {section}{Elenco delle tabelle}{55}{subsection.5.3}%
 \ttl@starttoc {part2@1}
-\contentsline {section}{\numberline {1}Analisi delle serie storiche sul mercato calcistico: introduzione e dataset}{II-2}{section.1}%
-\contentsline {subsection}{\numberline {1.1}Struttura del dataset relazionale di Transfermarkt}{II-3}{subsection.1.1}%
-\contentsline {subsection}{\numberline {1.2}Processo di estrazione, trasformazione e caricamento per la serie storica}{II-5}{subsection.1.2}%
-\contentsline {section}{\numberline {2}Analisi esplorativa della serie storica e dinamica degli shock di mercato}{II-10}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Evoluzione comparata dei cinque campionati europei e divario strutturale}{II-10}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}Anatomia dei tre shock storici: inflazione del 2017, crollo COVID-19 e ciclo post-2023}{II-12}{subsection.2.2}%
-\contentsline {subsection}{\numberline {2.3}Analisi delle variazioni percentuali mensili, volatilità e identificazione degli outlier}{II-15}{subsection.2.3}%
-\contentsline {subsection}{\numberline {2.4}Relazione dinamica tra valore delle rose e spese nelle sessioni di calciomercato}{II-16}{subsection.2.4}%
-\contentsline {section}{\numberline {3}Decomposizione stagionale, stazionarietà e analisi delle autocorrelazioni}{II-19}{section.3}%
-\contentsline {section}{\numberline {4}Modellazione predittiva, diagnostica dei residui e conclusioni finali}{II-20}{section.4}%
-\contentsline {section}{Elenco delle figure}{II-21}{section.4}%
-\contentsline {section}{Elenco delle tabelle}{II-21}{section.4}%
+\contentsline {section}{\numberline {1}Analisi delle serie storiche sul mercato calcistico: introduzione e dataset}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Struttura del dataset relazionale di Transfermarkt}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Processo di estrazione, trasformazione e caricamento per la serie storica}{5}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Analisi esplorativa della serie storica e dinamica degli shock di mercato}{11}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Evoluzione comparata dei cinque campionati europei e divario strutturale}{11}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Anatomia dei tre shock storici: inflazione del 2017, crollo COVID-19 e ciclo post-2023}{13}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Analisi delle variazioni percentuali mensili, volatilità e identificazione degli outlier}{16}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Relazione dinamica tra valore delle rose e spese nelle sessioni di calciomercato}{18}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Decomposizione stagionale, stazionarietà e analisi delle autocorrelazioni}{21}{section.3}%
+\contentsline {section}{\numberline {4}Modellazione predittiva, diagnostica dei residui e conclusioni finali}{22}{section.4}%
+\ttl@stoptoc {part2@1}
+\contentsline {section}{Elenco delle figure}{23}{section.4}%
+\contentsline {section}{Elenco delle tabelle}{23}{section.4}%
 \contentsfinish 
