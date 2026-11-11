@@ -45,12 +45,12 @@ for d in [PROC_DIR, FIG_DIR, CAP7_IMG_DIR]:
 
 sns.set_theme(style="whitegrid", font_scale=1.1)
 plt.rcParams["font.sans-serif"] = "DejaVu Sans"
-plt.rcParams["figure.dpi"] = 300
+plt.rcParams["figure.dpi"] = 600
 
 
 def save_fig(fig, name):
     for out_dir in [FIG_DIR, CAP7_IMG_DIR]:
-        fig.savefig(os.path.join(out_dir, name), dpi=300, bbox_inches="tight")
+        fig.savefig(os.path.join(out_dir, name), dpi=600, bbox_inches="tight")
     plt.close(fig)
 
 

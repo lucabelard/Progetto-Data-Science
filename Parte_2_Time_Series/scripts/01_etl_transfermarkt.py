@@ -39,15 +39,16 @@ RAW_DIR = os.path.join(PART2_ROOT, "data", "raw")
 PROC_DIR = os.path.join(PART2_ROOT, "data", "processed")
 FIG_DIR = os.path.join(PART2_ROOT, "figures")
 CAP1_IMG_DIR = os.path.join(PART2_ROOT, "Relazione", "capitolo1", "img")
+CAP6_IMG_DIR = os.path.join(WORKSPACE_ROOT, "Relazione", "capitolo6", "img")
 
-for d in [RAW_DIR, PROC_DIR, FIG_DIR, CAP1_IMG_DIR]:
+for d in [RAW_DIR, PROC_DIR, FIG_DIR, CAP1_IMG_DIR, CAP6_IMG_DIR]:
     os.makedirs(d, exist_ok=True)
 
-# Stile grafico coerente con il progetto (300 DPI, DejaVu Sans, whitegrid)
+# Stile grafico coerente con il progetto (600 DPI Ultra-HD, DejaVu Sans, whitegrid)
 sns.set_theme(style="whitegrid", palette="muted")
 plt.rcParams["font.sans-serif"] = "DejaVu Sans"
 plt.rcParams["figure.autolayout"] = True
-plt.rcParams["figure.dpi"] = 300
+plt.rcParams["figure.dpi"] = 600
 
 
 def setup_and_clean_raw_files():
@@ -413,8 +414,8 @@ def run_etl():
     )
     plt.tight_layout()
 
-    for out_dir in [FIG_DIR, CAP1_IMG_DIR]:
-        fig.savefig(os.path.join(out_dir, "fig01_etl_complementarita_fonti.png"), dpi=300, bbox_inches="tight")
+    for out_dir in [FIG_DIR, CAP1_IMG_DIR, CAP6_IMG_DIR]:
+        fig.savefig(os.path.join(out_dir, "fig01_etl_complementarita_fonti.png"), dpi=600, bbox_inches="tight")
     plt.close(fig)
 
     # FIGURA 2: Confronto tra approccio statico naive e ricostruzione storica dinamica (Serie A e Top-5)
@@ -480,8 +481,8 @@ def run_etl():
     ax_bot.legend(loc="upper left", frameon=True, fontsize=10)
 
     plt.tight_layout()
-    for out_dir in [FIG_DIR, CAP1_IMG_DIR]:
-        fig.savefig(os.path.join(out_dir, "fig02_etl_ricostruzione_storica_confronto.png"), dpi=300, bbox_inches="tight")
+    for out_dir in [FIG_DIR, CAP1_IMG_DIR, CAP6_IMG_DIR]:
+        fig.savefig(os.path.join(out_dir, "fig02_etl_ricostruzione_storica_confronto.png"), dpi=600, bbox_inches="tight")
     plt.close(fig)
 
     print(">>> [FASE 1 - ETL] Completata con successo!")

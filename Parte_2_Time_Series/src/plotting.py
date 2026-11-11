@@ -16,10 +16,10 @@ import seaborn as sns
 
 from .config import FIGURES_DIR
 
-# Impostiamo lo stile grafico elegante e leggibile
+# Impostiamo lo stile grafico elegante e leggibile alla massima risoluzione di stampa (600 DPI)
 sns.set_theme(style="whitegrid", font_scale=1.1)
 plt.rcParams["font.sans-serif"] = "DejaVu Sans"
-plt.rcParams["figure.dpi"] = 300
+plt.rcParams["figure.dpi"] = 600
 
 
 def crea_figura(larghezza=11.5, altezza=5.8):
@@ -30,7 +30,7 @@ def crea_figura(larghezza=11.5, altezza=5.8):
 
 def salva_figura(fig, nome_file, cartella_capitolo):
     """
-    Salva la figura in alta risoluzione (300 DPI) in due posti:
+    Salva la figura alla massima risoluzione Ultra-HD (600 DPI) in due posti:
     1. Nella cartella centrale: Parte_2_Time_Series/figures/
     2. Nella cartella delle immagini del capitolo: Relazione/capitoloX/img/
     """
@@ -39,7 +39,7 @@ def salva_figura(fig, nome_file, cartella_capitolo):
         os.path.join(cartella_capitolo, nome_file),
     ]
     for p in percorsi:
-        fig.savefig(p, dpi=300, bbox_inches="tight")
+        fig.savefig(p, dpi=600, bbox_inches="tight")
     plt.close(fig)
-    print(f"   [OK] Immagine salvata con successo: {nome_file}")
+    print(f"   [OK] Immagine salvata con successo (600 DPI Ultra-HD): {nome_file}")
 

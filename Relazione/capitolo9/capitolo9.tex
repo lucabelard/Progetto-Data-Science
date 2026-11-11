@@ -9,17 +9,17 @@ Nell'ultimo capitolo della seconda parte vengono addestrati e messi a confronto 
 
 Nelle serie storiche non è possibile dividere i dati in modo casuale perché i mesi seguono un ordine cronologico preciso e non si possono usare informazioni future per prevedere il passato. La serie di 180 mesi è stata quindi divisa in modo cronologico con proporzione \textbf{80\% / 20\%}, come mostrato nella Figura \ref{fig:split_train_test}: i primi \textbf{144 mesi} (12 anni completi, da giugno 2011 a maggio 2023) formano il \textbf{training set} usato per addestrare i modelli, mentre gli ultimi \textbf{36 mesi} (3 anni completi, da giugno 2023 a maggio 2026) formano il \textbf{test set} usato per valutare le previsioni.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{capitolo9/img/fig16_split_train_test_serie.png}
+    \includegraphics[width=0.85\textwidth]{capitolo9/img/fig16_split_train_test_serie.png}
     \caption{Divisione cronologica della serie storica tra training set (144 mesi, giugno 2011 -- maggio 2023) e test set (36 mesi, giugno 2023 -- maggio 2026).}
     \label{fig:split_train_test}
 \end{figure}
 
 Per misurare la precisione di ogni modello sui $M = 36$ mesi del test set sono state usate tre metriche standard: l'errore quadratico medio (\textbf{RMSE}, in miliardi di euro, che penalizza di più gli errori grandi), l'errore assoluto medio (\textbf{MAE}, in miliardi di euro) e l'errore percentuale medio assoluto (\textbf{MAPE}, espresso in percentuale):
 \begin{equation}
-    \mathrm{RMSE} = \sqrt{\frac{1}{M} \sum_{t=1}^{M} \left(Y_t - \hat{Y}_t\right)^2}, \qquad
-    \mathrm{MAE} = \frac{1}{M} \sum_{t=1}^{M} \left|Y_t - \hat{Y}_t\right|, \qquad
+    \mathrm{RMSE} = \sqrt{\frac{1}{M} \sum_{t=1}^{M} (Y_t - \hat{Y}_t)^2}, \quad
+    \mathrm{MAE} = \frac{1}{M} \sum_{t=1}^{M} |Y_t - \hat{Y}_t|, \quad
     \mathrm{MAPE} = \frac{100}{M} \sum_{t=1}^{M} \left|\frac{Y_t - \hat{Y}_t}{Y_t}\right|
     \label{eq:metriche_errore}
 \end{equation}
@@ -42,19 +42,21 @@ Oltre a guardare il passato della serie e il ciclo annuale, il modello SARIMAX r
 
 La Figura \ref{fig:confronto_previsioni} confronta i dati reali osservati tra giugno 2023 e maggio 2026 (linea nera con pallini) con le previsioni dei modelli, mentre la Tabella \ref{tab:confronto_modelli_top5} e la Figura \ref{fig:metriche_errore} riassumono gli errori commessi da ciascun modello.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{capitolo9/img/fig17_confronto_previsioni_modelli.png}
+    \includegraphics[width=0.85\textwidth]{capitolo9/img/fig17_confronto_previsioni_modelli.png}
     \caption{Confronto sul test set (giugno 2023 -- maggio 2026) tra i valori reali e le previsioni di Baseline Naive, ARIMA, SARIMA e SARIMAX.}
     \label{fig:confronto_previsioni}
 \end{figure}
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
+\small
+\setlength{\tabcolsep}{4.5pt}
 \caption{Confronto degli errori di previsione sul test set (36 mesi, 2023--2026) e dei criteri AIC/BIC per i cinque modelli sul mercato Top-5.}
 \label{tab:confronto_modelli_top5}
 \vspace{0.2cm}
-\begin{tabularx}{\textwidth}{Xrrrrr}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5.4cm} *{5}{>{\centering\arraybackslash}X}}
 \toprule
 \textbf{Modello predittivo} & \textbf{RMSE (Mld)} & \textbf{MAE (Mld)} & \textbf{MAPE (\%)} & \textbf{AIC} & \textbf{BIC} \\
 \midrule
@@ -69,9 +71,9 @@ $\mathrm{SARIMA}(1, 1, 1) \times (1, 0, 1)_{12}$ & 0,703 & 0,476 & 1,45\% & 265,
 
 I risultati mostrano un miglioramento netto ad ogni passaggio: la Baseline Naive resta ferma a 31,01 miliardi e commette un errore alto ($\mathrm{RMSE} = 2,078$ miliardi, $\mathrm{MAPE} = 5,64\%$). Il modello $\mathrm{ARIMA}(1, 1, 1)$ coglie la salita generale riducendo l'errore ($\mathrm{MAPE} = 1,95\%$), ma disegna una curva liscia che non segue i salti stagionali. Aggiungendo la stagionalità di 12 mesi, Holt-Winters scende all'$1,88\%$ di errore e il modello $\mathrm{SARIMA}$ arriva a un $\mathrm{RMSE}$ di $0,703$ miliardi ($\mathrm{MAPE} = 1,45\%$).
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{capitolo9/img/fig18_metriche_errore_modelli.png}
+    \includegraphics[width=0.85\textwidth]{capitolo9/img/fig18_metriche_errore_modelli.png}
     \caption{Confronto grafico degli errori RMSE (in miliardi di euro) e MAPE (\%) sul test set tra i cinque modelli.}
     \label{fig:metriche_errore}
 \end{figure}
@@ -82,30 +84,32 @@ Il modello vincitore è chiaramente il \textbf{$\mathrm{SARIMAX}$ con variabili 
 
 Per confermare che il modello SARIMAX sia statisticamente corretto, bisogna verificare che i suoi errori di stima (\textbf{residui}) siano puro \textbf{rumore bianco}, cioè oscillazioni casuali centrate sullo zero e prive di correlazioni rimaste non spiegate.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{capitolo9/img/fig19_diagnostica_residui_sarimax.png}
+    \includegraphics[width=0.84\textwidth]{capitolo9/img/fig19_diagnostica_residui_sarimax.png}
     \caption{Andamento nel tempo dei residui standardizzati del modello SARIMAX e confronto della loro distribuzione con la curva normale $\mathcal{N}(0, 1)$.}
     \label{fig:diagnostica_residui}
 \end{figure}
 
 Nella Figura \ref{fig:diagnostica_residui} si vede che i residui oscillano stabilmente attorno a zero senza anomalie sistematiche e seguono bene la forma a campana della distribuzione normale. La Figura \ref{fig:qqplot_acf_residui} mostra inoltre il Q-Q Plot e il grafico di autocorrelazione (ACF) dei residui, dove tutte le barre restano dentro la fascia di confidenza al 95\%.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{capitolo9/img/fig20_qqplot_acf_residui_sarimax.png}
+    \includegraphics[width=0.84\textwidth]{capitolo9/img/fig20_qqplot_acf_residui_sarimax.png}
     \caption{Diagramma Q-Q Plot e funzione di autocorrelazione (ACF) dei residui del modello SARIMAX.}
     \label{fig:qqplot_acf_residui}
 \end{figure}
 
 Questa verifica visiva è confermata dal \textbf{test di Ljung-Box} riportato nella Tabella \ref{tab:ljung_box_residui}: a 6, 12 e 24 mesi di ritardo il $p$-value è sempre intorno a $0,57$--$0,59$ (molto più alto della soglia minima di $0,05$), dimostrando che i residui sono del tutto casuali e che il modello ha catturato tutte le informazioni utili della serie.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
+\small
+\setlength{\tabcolsep}{5pt}
 \caption{Risultati del test di Ljung-Box sui residui del modello SARIMAX a 6, 12 e 24 mesi.}
 \label{tab:ljung_box_residui}
 \vspace{0.2cm}
-\begin{tabularx}{\textwidth}{Xrrcl}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.5cm} *{4}{>{\centering\arraybackslash}X}}
 \toprule
 \textbf{Ritardo valutato ($m$)} & \textbf{Statistica $Q(m)$} & \textbf{p-value} & \textbf{Soglia $\alpha$} & \textbf{Esito del test} \\
 \midrule
@@ -120,9 +124,9 @@ Ritardo a 24 mesi ($m = 24$) & 21,890 & 0,5858 & 0,05 & Rumore bianco ($p > 0,05
 
 Lo stesso modello $\mathrm{SARIMAX}(1, 1, 1) \times (1, 0, 1)_{12}$ è stato infine applicato alla serie storica della \textbf{Serie A italiana} (\texttt{serie\_a\_market\_value\_bn}), usando come variabili esogene la spesa cumulata negli ultimi 12 mesi dai club italiani e il numero di trasferimenti del nostro campionato.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{capitolo9/img/fig21_focus_previsione_serie_a.png}
+    \includegraphics[width=0.85\textwidth]{capitolo9/img/fig21_focus_previsione_serie_a.png}
     \caption{Focus Serie A (\texttt{IT1}): serie storica e previsione del modello SARIMAX sul triennio di test 2023--2026.}
     \label{fig:focus_serie_a}
 \end{figure}

@@ -47,30 +47,30 @@
 \contentsline {subsection}{\numberline {5.1}Sintesi dei risultati metodologici}{53}{subsection.5.1}%
 \contentsline {subsection}{\numberline {5.2}Ricadute applicative e scenari di business}{54}{subsection.5.2}%
 \contentsline {subsection}{\numberline {5.3}Sviluppi futuri}{54}{subsection.5.3}%
+\contentsline {section}{Elenco delle figure}{55}{section*.34}%
+\contentsline {section}{Elenco delle tabelle}{56}{section*.35}%
 \ttl@stoptoc {part1@1}
-\contentsline {section}{Elenco delle figure}{55}{subsection.5.3}%
-\contentsline {section}{Elenco delle tabelle}{58}{subsection.5.3}%
 \ttl@starttoc {part2@1}
 \contentsline {section}{\numberline {1}Analisi delle serie storiche sul mercato calcistico: introduzione e dataset}{2}{section.1}%
 \contentsline {subsection}{\numberline {1.1}Struttura del dataset relazionale di Transfermarkt}{2}{subsection.1.1}%
-\contentsline {subsection}{\numberline {1.2}Processo di ETL e ricostruzione storica mensile}{4}{subsection.1.2}%
-\contentsline {section}{\numberline {2}Analisi esplorativa della serie storica e dinamica degli shock di mercato}{8}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Confronto tra i cinque campionati europei e divario strutturale}{8}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}I tre grandi shock storici del mercato}{10}{subsection.2.2}%
-\contentsline {subsection}{\numberline {2.3}Variazioni percentuali mensili e individuazione degli outlier}{13}{subsection.2.3}%
-\contentsline {subsection}{\numberline {2.4}Relazione tra valore delle rose e spese nel calciomercato}{14}{subsection.2.4}%
-\contentsline {section}{\numberline {3}Decomposizione stagionale, test di stazionarietà e autocorrelazione}{17}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Decomposizione STL della serie storica}{17}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Test di stazionarietà e differenziazione della serie}{19}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}Analisi delle autocorrelazioni ACF e PACF}{21}{subsection.3.3}%
-\contentsline {section}{\numberline {4}Modellazione predittiva, focus sulla Serie A e conclusioni}{23}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Divisione temporale Training/Test e metriche di errore}{23}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}I cinque modelli in gara}{24}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}Confronto dei risultati sul Test Set}{24}{subsection.4.3}%
-\contentsline {subsection}{\numberline {4.4}Diagnostica dei residui del modello SARIMAX}{26}{subsection.4.4}%
-\contentsline {subsection}{\numberline {4.5}Focus previsionale sulla Serie A}{28}{subsection.4.5}%
-\contentsline {subsection}{\numberline {4.6}Conclusioni}{29}{subsection.4.6}%
+\contentsline {subsection}{\numberline {1.2}Processo di ETL e ricostruzione storica mensile}{3}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Analisi esplorativa della serie storica e dinamica degli shock di mercato}{6}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Confronto tra i cinque campionati europei e divario strutturale}{6}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}I tre grandi shock storici del mercato}{8}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Variazioni percentuali mensili e individuazione degli outlier}{9}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Relazione tra valore delle rose e spese nel calciomercato}{11}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Decomposizione stagionale, test di stazionarietà e autocorrelazione}{12}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Decomposizione STL della serie storica}{12}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Test di stazionarietà e differenziazione della serie}{14}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Analisi delle autocorrelazioni ACF e PACF}{15}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Modellazione predittiva, focus sulla Serie A e conclusioni}{17}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Divisione temporale Training/Test e metriche di errore}{17}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}I cinque modelli in gara}{18}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Confronto dei risultati sul Test Set}{18}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Diagnostica dei residui del modello SARIMAX}{20}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Focus previsionale sulla Serie A}{21}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Conclusioni}{22}{subsection.4.6}%
+\contentsline {section}{Elenco delle figure}{24}{section*.64}%
+\contentsline {section}{Elenco delle tabelle}{25}{section*.65}%
 \ttl@stoptoc {part2@1}
-\contentsline {section}{Elenco delle figure}{30}{subsection.4.6}%
-\contentsline {section}{Elenco delle tabelle}{30}{subsection.4.6}%
 \contentsfinish 

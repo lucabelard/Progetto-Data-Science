@@ -12,12 +12,13 @@
 \usepackage[italian]{babel}
 
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{graphicx}
 \graphicspath{{./}{./Relazione/}}
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{geometry}
-\usepackage{hyperref}
+\usepackage[plainpages=false,pdfpagelabels=true]{hyperref}
 \usepackage{float}
 \usepackage{caption}
 \usepackage{subcaption}
@@ -73,9 +74,7 @@
     linkcolor=black,            % Link generici di default neri
     filecolor=SteelBlueTheme,
     urlcolor=SteelBlueTheme,
-    citecolor=SteelBlueTheme,
-    plainpages=false,
-    pdfpagelabels=true
+    citecolor=SteelBlueTheme
 }
 
 % =========================================================================
@@ -95,6 +94,19 @@
 
 \titlecontents{subsubsection}[4.2em]
   {\normalfont\footnotesize\hypersetup{linkcolor=black}\color{black}}
+  {\thecontentslabel\quad}
+  {}
+  {\dotfill\contentspage}
+
+% Stile titletoc per Figure e Tabelle
+\titlecontents{figure}[0em]
+  {\addvspace{0.25em}\normalfont\small\hypersetup{linkcolor=black}\color{black}}
+  {\thecontentslabel\quad}
+  {}
+  {\dotfill\contentspage}
+
+\titlecontents{table}[0em]
+  {\addvspace{0.25em}\normalfont\small\hypersetup{linkcolor=black}\color{black}}
   {\thecontentslabel\quad}
   {}
   {\dotfill\contentspage}
@@ -254,6 +266,8 @@
     {}
 
 \startcontents[part1]
+\startlist[part1]{lof}
+\startlist[part1]{lot}
 \section*{\color{NavyBlueTheme}Indice}
 \vspace{0.2cm}
 \printcontents[part1]{}{1}{}
@@ -268,15 +282,23 @@
 \input{capitolo4/capitolo4.tex}
 \newpage
 \input{capitolo5/capitolo5.tex}
-\stopcontents[part1]
 
 \newpage
-\addcontentsline{toc}{section}{\listfigurename}
-\listoffigures
+\phantomsection
+\addcontentsline{toc}{section}{Elenco delle figure}
+\stoplist[part1]{lof}
+\section*{\color{NavyBlueTheme}Elenco delle figure}
+\vspace{0.2cm}
+\printlist[part1]{lof}{}{}{}
 
 \vspace{0.8cm}
-\addcontentsline{toc}{section}{\listtablename}
-\listoftables
+\phantomsection
+\addcontentsline{toc}{section}{Elenco delle tabelle}
+\stoplist[part1]{lot}
+\section*{\color{NavyBlueTheme}Elenco delle tabelle}
+\vspace{0.2cm}
+\printlist[part1]{lot}{}{}{}
+\stopcontents[part1]
 
 % =========================================================================
 % PARTE 2: TIME SERIES ANALYSIS (TRANSFERMARKT)
@@ -295,6 +317,8 @@
     {}
 
 \startcontents[part2]
+\startlist[part2]{lof}
+\startlist[part2]{lot}
 \section*{\color{NavyBlueTheme}Indice}
 \vspace{0.2cm}
 \printcontents[part2]{}{1}{}
@@ -307,15 +331,23 @@
 \input{capitolo8/capitolo8.tex}
 \newpage
 \input{capitolo9/capitolo9.tex}
-\stopcontents[part2]
 
 \newpage
-\addcontentsline{toc}{section}{\listfigurename}
-\listoffigures
+\phantomsection
+\addcontentsline{toc}{section}{Elenco delle figure}
+\stoplist[part2]{lof}
+\section*{\color{NavyBlueTheme}Elenco delle figure}
+\vspace{0.2cm}
+\printlist[part2]{lof}{}{}{}
 
 \vspace{0.8cm}
-\addcontentsline{toc}{section}{\listtablename}
-\listoftables
+\phantomsection
+\addcontentsline{toc}{section}{Elenco delle tabelle}
+\stoplist[part2]{lot}
+\section*{\color{NavyBlueTheme}Elenco delle tabelle}
+\vspace{0.2cm}
+\printlist[part2]{lot}{}{}{}
+\stopcontents[part2]
 
 \end{document}
 

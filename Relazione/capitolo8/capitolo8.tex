@@ -14,18 +14,18 @@ Per separare le diverse componenti della serie mensile è stato utilizzato il me
 \end{equation}
 dove $T_t$ è il \textbf{trend} di lungo periodo, $S_t$ è la \textbf{stagionalità} che si ripete ogni anno e $R_t$ è il \textbf{residuo} (cioè le oscillazioni impreviste e gli shock). L'uso della stima robusta (\textit{Loess}) evita che eventi estremi come il crollo del 2020 deformino il calcolo del trend o della stagionalità. I quattro pannelli della decomposizione sono mostrati nella Figura \ref{fig:stl_decomposizione}.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{capitolo8/img/fig12_stl_decomposizione_completa.png}
+    \includegraphics[width=0.86\textwidth]{capitolo8/img/fig12_stl_decomposizione_completa.png}
     \caption{Decomposizione STL della serie storica del valore delle rose Top-5 con periodo stagionale $s = 12$ mesi.}
     \label{fig:stl_decomposizione}
 \end{figure}
 
 Dalla Figura \ref{fig:stl_decomposizione} si vede che la serie è guidata soprattutto dal \textbf{trend di lungo periodo} $T_t$, la cui forza statistica ($F_T = 1 - \mathrm{Var}(R_t)/\mathrm{Var}(T_t + R_t)$) è pari a \textbf{$0,992$} (vicinissima al massimo teorico di $1,0$). La \textbf{componente stagionale} $S_t$ mostra un ciclo regolare che si ripete ogni dodici mesi e diventa più ampio negli ultimi anni con la crescita dei prezzi di mercato, mentre la \textbf{componente residuale} $R_t$ resta vicina a zero per quasi tutto il periodo e isola chiaramente i soli shock imprevisti, in particolare la caduta verticale dell'aprile 2020 per il COVID-19.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.92\textwidth]{capitolo8/img/fig13_stl_profilo_medio_mensile.png}
+    \includegraphics[width=0.82\textwidth]{capitolo8/img/fig13_stl_profilo_medio_mensile.png}
     \caption{Profilo stagionale medio mensile del valore delle rose nei dodici mesi dell'anno.}
     \label{fig:stl_profilo_mensile}
 \end{figure}
@@ -42,26 +42,30 @@ I modelli previsionali della famiglia ARIMA richiedono che la serie sia \textbf{
 
 Per verificare matematicamente la stazionarietà prima e dopo questa trasformazione, sono stati eseguiti due test complementari: il \textbf{test ADF} (\textit{Augmented Dickey-Fuller}, per il quale la serie è stazionaria se il $p$-value è minore di $0,05$) e il \textbf{test KPSS} (che funziona all'opposto: la serie è stazionaria se il $p$-value è maggiore di $0,05$). I risultati sono riportati nella Tabella \ref{tab:test_stazionarieta}.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
-\caption{Risultati dei test di stazionarietà ADF e KPSS sulla serie originale ($d=0$) e sulla serie differenziata ($d=1$).}
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{Risultati dei test di stazionarietà ADF e KPSS sulla serie originale ($d=0$) e differenziata ($d=1$).}
 \label{tab:test_stazionarieta}
 \vspace{0.2cm}
-\begin{tabularx}{\textwidth}{Xrrrrc}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5.2cm} cccc >{\centering\arraybackslash}X}
 \toprule
-\textbf{Serie analizzata} & \textbf{Stat. ADF} & \textbf{p-value ADF} & \textbf{Stat. KPSS} & \textbf{p-value KPSS} & \textbf{Esito finale} \\
+\textbf{Serie analizzata} & \multicolumn{2}{c}{\textbf{Test ADF}} & \multicolumn{2}{c}{\textbf{Test KPSS}} & \textbf{Esito finale} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+& \textbf{Statistica} & \textbf{$p$-value} & \textbf{Statistica} & \textbf{$p$-value} & \\
 \midrule
-Serie originale $Y_t$ ($d=0$) & $-0,815$ & 0,8148 & 1,773 & 0,0100 & \textbf{Non stazionaria} \\
-Serie differenziata $\Delta Y_t$ ($d=1$) & $-13,819$ & $< 0,0001$ & 0,140 & 0,1000 & \textbf{Stazionaria} \\
+Serie originale $Y_t$ ($d=0$) & $-0,815$ & $0,8148$ & $1,773$ & $0,0100$ & \textbf{Non stazionaria} \\
+Serie differenziata $\Delta Y_t$ ($d=1$) & $-13,819$ & $< 0,0001$ & $0,140$ & $0,1000$ & \textbf{Stazionaria} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 I due test concordano pienamente: la serie originale ($d = 0$) \textbf{non è stazionaria} (ADF $p = 0,8148 > 0,05$ e KPSS $p = 0,0100 < 0,05$). Basta però applicare una sola differenza mensile ($d = 1$) perché la serie diventi \textbf{perfettamente stazionaria} (ADF $p < 0,0001$ e KPSS $p = 0,1000$). Questo fissa il parametro di differenziazione dei nostri modelli a \textbf{$d = 1$}.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{capitolo8/img/fig14_stazionarieta_confronto_differenziazione.png}
+    \includegraphics[width=0.86\textwidth]{capitolo8/img/fig14_stazionarieta_confronto_differenziazione.png}
     \caption{Confronto tra la serie originale in livelli (non stazionaria, $d=0$) e la serie differenziata prima $\Delta Y_t$ (stazionaria attorno a zero, $d=1$).}
     \label{fig:stazionarieta_differenziazione}
 \end{figure}
@@ -72,9 +76,9 @@ La Figura \ref{fig:stazionarieta_differenziazione} mostra chiaramente questa dif
 
 Una volta resa stazionaria la serie con $d = 1$, sono stati calcolati i grafici di \textbf{autocorrelazione (ACF)} e \textbf{autocorrelazione parziale (PACF)} fino a 36 mesi di ritardo (\textit{lag}) per capire da quanti mesi passati dipenda il valore attuale e scegliere i parametri $p$ (autoregressivo) e $q$ (media mobile).
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{capitolo8/img/fig15_acf_pacf_serie_differenziata.png}
+    \includegraphics[width=0.84\textwidth]{capitolo8/img/fig15_acf_pacf_serie_differenziata.png}
     \caption{Grafici di autocorrelazione (ACF) e autocorrelazione parziale (PACF) sulla serie differenziata $\Delta Y_t$ fino a 36 mesi di ritardo.}
     \label{fig:acf_pacf}
 \end{figure}
