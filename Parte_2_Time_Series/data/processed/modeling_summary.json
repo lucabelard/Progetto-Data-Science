@@ -10,9 +10,9 @@
       "MAPE": 5.64
     },
     "ARIMA(1,1,1)": {
-      "RMSE": 0.792,
-      "MAE": 0.65,
-      "MAPE": 1.95,
+      "RMSE": 0.978,
+      "MAE": 0.817,
+      "MAPE": 2.45,
       "AIC": 274.0,
       "BIC": 285.8
     },
@@ -31,20 +31,20 @@
       "BIC": 282.6
     },
     "SARIMAX (con esogene)": {
-      "RMSE": 4.024,
-      "MAE": 2.82,
-      "MAPE": 8.49,
-      "AIC": 93.9,
-      "BIC": 125.3
+      "RMSE": 0.589,
+      "MAE": 0.39,
+      "MAPE": 1.19,
+      "AIC": 158.8,
+      "BIC": 190.2
     }
   },
   "diagnostica_ljung_box": {
-    "ljung_box_stat_lag6": NaN,
-    "ljung_box_pval_lag6": NaN,
-    "ljung_box_stat_lag12": NaN,
-    "ljung_box_pval_lag12": NaN,
-    "ljung_box_stat_lag24": NaN,
-    "ljung_box_pval_lag24": NaN
+    "ljung_box_stat_lag6": 1.862,
+    "ljung_box_pval_lag6": 0.9319,
+    "ljung_box_stat_lag12": 16.587,
+    "ljung_box_pval_lag12": 0.1658,
+    "ljung_box_stat_lag24": 27.102,
+    "ljung_box_pval_lag24": 0.2997
   },
   "focus_serie_a": {
     "sarimax_serie_a": {

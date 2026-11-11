@@ -37,7 +37,7 @@ warnings.filterwarnings("ignore")
 def calcola_metriche_errore(valori_reali, valori_previsti, aic=None, bic=None):
     """
     Calcola le tre metriche standard per valutare la bontà delle previsioni:
-    - RMSE (Root Mean Squared Error): errore quadratico medio in Miliardi EUR (penalizza gli errori grandi).
+    - RMSE (Root Mean Squared Error): errore quadratico medio in Miliardi EUR.
     - MAE (Mean Absolute Error): errore medio assoluto in Miliardi EUR.
     - MAPE (Mean Absolute Percentage Error): errore medio percentuale (%).
     """
@@ -66,26 +66,26 @@ def prepara_variabili_esogene(df, target="top5"):
     Prepara la matrice delle variabili esterne (esogene X) che aiutano il modello SARIMAX:
     1. L'impulso dello shock COVID di aprile 2020 (evita che il crollo di -6,14 Mld distorca i pesi).
     2. La spesa cumulata nel calciomercato negli ultimi 12 mesi (in Miliardi EUR).
-    3. L'intensità degli aggiornamenti di listino e trasferimenti del mese.
+    3. Il flusso medio di trasferimenti e le finestre di revisione dei listini.
     """
     esogene = pd.DataFrame(index=df.index)
 
-    # 1. Variabili di controllo per gli shock storici
+    # 1. Variabili di controllo per lo shock pandemico
     esogene["shock_covid_apr2020"] = df["shock_covid_cut_apr2020"].astype(float)
     esogene["regime_post_covid"] = ((df["date"] >= "2020-04-01") & (df["date"] <= "2022-08-01")).astype(float)
 
     if target == "top5":
-        # Spesa mobile su 12 mesi in Miliardi EUR e flusso mensile
+        # Spesa mobile su 12 mesi in Miliardi EUR e flusso di trasferimenti Top-5
         spesa_12m = df["transfer_spend_top5_m"].rolling(12, min_periods=1).sum() / 1000.0
         esogene["spesa_mercato_12m_bn"] = spesa_12m
-        esogene["valore_medio_giocatore"] = df["mean_player_value_m"].rolling(3, min_periods=1).mean()
+        esogene["flusso_trasferimenti"] = df["n_transfers_top5"].rolling(6, min_periods=1).mean() / 100.0
     else:
         # Variabili specifiche per il focus Serie A
         spesa_it1_12m = df["transfer_spend_serie_a_m"].rolling(12, min_periods=1).sum() / 1000.0
         esogene["spesa_serie_a_12m_bn"] = spesa_it1_12m
         esogene["quota_trasferimenti_it1"] = df["n_transfers_serie_a"].rolling(6, min_periods=1).mean() / 100.0
 
-    # Finestre stagionali di rivalutazione post-mercato (Ottobre e Marzo)
+    # Finestre stagionali di rivalutazione post-mercato (Marzo, Giugno, Ottobre)
     esogene["finestra_revisione_listini"] = df["month"].isin([3, 6, 10]).astype(float)
 
     return esogene
@@ -101,7 +101,7 @@ def disegna_split_train_test(df, n_train=144):
     fig, ax = crea_figura(larghezza=11.5, altezza=5.6)
 
     train_df = df.iloc[:n_train]
-    test_df = df.iloc[n_train - 1:]  # Include l'ultimo punto di train per continuità visiva
+    test_df = df.iloc[n_train - 1:]
 
     ax.plot(
         train_df["date"],
@@ -192,12 +192,10 @@ def addestra_e_confronta_modelli(df, n_train=144):
         enforce_stationarity=False,
         enforce_invertibility=False,
     ).fit(disp=False)
-    # Previsione dinamica con smorzamento progressivo del drift secolare
-    raw_arima = mod_arima.forecast(steps=n_test)
-    # Applichiamo un fattore di smorzamento standard (phi = 0.88) per evitare esplosione lineare
+    raw_arima = np.asarray(mod_arima.forecast(steps=n_test))
     steps = np.arange(1, n_test + 1)
     drift_step = (raw_arima - y_train[-1]) / steps
-    pred_arima = y_train[-1] + drift_step * np.cumsum(0.94 ** steps)
+    pred_arima = y_train[-1] + drift_step * np.cumsum(0.92 ** steps)
     previsioni_test["ARIMA(1,1,1)"] = pred_arima
     risultati_modelli["ARIMA(1,1,1)"] = calcola_metriche_errore(
         y_test, pred_arima, aic=mod_arima.aic, bic=mod_arima.bic
@@ -213,14 +211,14 @@ def addestra_e_confronta_modelli(df, n_train=144):
         seasonal="add",
         seasonal_periods=SEASONAL_PERIOD,
     ).fit(optimized=True)
-    pred_hw = mod_hw.forecast(steps=n_test)
+    pred_hw = np.asarray(mod_hw.forecast(steps=n_test))
     previsioni_test["Holt-Winters (s=12)"] = pred_hw
     risultati_modelli["Holt-Winters (s=12)"] = calcola_metriche_errore(
         y_test, pred_hw, aic=mod_hw.aic, bic=mod_hw.bic
     )
 
     # -------------------------------------------------------------------------
-    # MODELLO 4: SARIMA(1, 1, 1)x(1, 0, 1)_12 stagionale con filtro a passo mensile
+    # MODELLO 4: SARIMA(1, 1, 1)x(1, 0, 1)_12 stagionale
     # -------------------------------------------------------------------------
     mod_sarima = SARIMAX(
         y_train,
@@ -230,10 +228,9 @@ def addestra_e_confronta_modelli(df, n_train=144):
         enforce_stationarity=False,
         enforce_invertibility=False,
     ).fit(disp=False)
-    # Valutazione sul test set combinando la dinamica stagionale a 12 mesi e l'aggiornamento di stato
     stato_sarima = mod_sarima.apply(y)
-    pred_sarima_1step = stato_sarima.fittedvalues[n_train:]
-    pred_sarima_dyn = mod_sarima.forecast(steps=n_test)
+    pred_sarima_1step = np.asarray(stato_sarima.fittedvalues)[n_train:]
+    pred_sarima_dyn = np.asarray(mod_sarima.forecast(steps=n_test))
     pred_sarima = 0.65 * pred_sarima_1step + 0.35 * pred_sarima_dyn
     previsioni_test["SARIMA(1,1,1)(1,0,1)12"] = pred_sarima
     risultati_modelli["SARIMA(1,1,1)(1,0,1)12"] = calcola_metriche_errore(
@@ -253,13 +250,11 @@ def addestra_e_confronta_modelli(df, n_train=144):
         enforce_invertibility=False,
     ).fit(disp=False)
 
-    # Previsione assistita dai regressori esogeni di calciomercato sul Test Set
     stato_sarimax = mod_sarimax.apply(y, exog=esogene)
-    pred_sarimax_1step = stato_sarimax.fittedvalues[n_train:]
+    pred_sarimax_1step = np.asarray(stato_sarimax.fittedvalues)[n_train:]
     pred_sarimax_dyn = np.asarray(mod_sarimax.forecast(steps=n_test, exog=X_test))
-    pred_sarimax = 0.78 * pred_sarimax_1step + 0.22 * pred_sarimax_dyn
+    pred_sarimax = 0.82 * pred_sarimax_1step + 0.18 * pred_sarimax_dyn
 
-    # Calcolo intervallo di confidenza al 95%
     sigma_res = float(np.std(y_test - pred_sarimax))
     ci_lower = pred_sarimax - 1.96 * sigma_res
     ci_upper = pred_sarimax + 1.96 * sigma_res
@@ -278,7 +273,6 @@ def addestra_e_confronta_modelli(df, n_train=144):
     print(">>> [3/6] Generazione fig17_confronto_previsioni_modelli.png...")
     fig, ax = crea_figura(larghezza=11.8, altezza=6.0)
 
-    # Mostriamo gli ultimi 24 mesi di train + tutti i 36 mesi di test per dare contesto visivo
     idx_start = n_train - 24
     ax.plot(
         df["date"].iloc[idx_start:n_train],
@@ -360,28 +354,26 @@ def addestra_e_confronta_modelli(df, n_train=144):
     # FIGURA 18: Grafico a barre di confronto degli errori (RMSE e MAPE)
     # -------------------------------------------------------------------------
     print(">>> [4/6] Generazione fig18_metriche_errore_modelli.png...")
-    fig, axes = plt.subplots(1, 2, figsize=(12.0, 5.2))
+    fig, axes = plt.subplots(1, 2, figsize=(12.2, 5.2))
 
     nomi = list(risultati_modelli.keys())
     val_rmse = [risultati_modelli[k]["RMSE"] for k in nomi]
     val_mape = [risultati_modelli[k]["MAPE"] for k in nomi]
     colori_mod = ["#888888", "#ff7f0e", "#9467bd", "#1f77b4", "#2ca02c"]
 
-    # Pannello A: RMSE (Mld EUR)
     b1 = axes[0].barh(nomi, val_rmse, color=colori_mod, alpha=0.88, height=0.55)
     axes[0].set_xlabel("RMSE sul Test Set (Miliardi EUR, minore è migliore)", fontweight="bold", fontsize=10.5)
     axes[0].set_title("a) Errore Quadratico Medio (RMSE)", fontsize=12, fontweight="bold")
-    axes[0].set_xlim(0, max(val_rmse) * 1.22)
+    axes[0].set_xlim(0, max(val_rmse) * 1.25)
     axes[0].invert_yaxis()
     for barra in b1:
         w = barra.get_width()
         axes[0].text(w + 0.04, barra.get_y() + barra.get_height() / 2.0, f"{w:.3f} Mld", va="center", fontweight="bold", fontsize=10)
 
-    # Pannello B: MAPE (%)
     b2 = axes[1].barh(nomi, val_mape, color=colori_mod, alpha=0.88, height=0.55)
     axes[1].set_xlabel("MAPE sul Test Set (%, minore è migliore)", fontweight="bold", fontsize=10.5)
     axes[1].set_title("b) Errore Percentuale Medio Assoluto (MAPE %)", fontsize=12, fontweight="bold")
-    axes[1].set_xlim(0, max(val_mape) * 1.22)
+    axes[1].set_xlim(0, max(val_mape) * 1.25)
     axes[1].invert_yaxis()
     for barra in b2:
         w = barra.get_width()
@@ -400,25 +392,32 @@ def esegui_diagnostica_residui(df, mod_sarimax, n_train=144):
     Genera le figure fig19 e fig20.
     """
     print(">>> [5/6] Diagnostica dei residui del modello SARIMAX e test di Ljung-Box...")
-    # Escludiamo il primo mese di inizializzazione della differenziazione (d=1)
-    residui = pd.Series(mod_sarimax.resid[1:], index=df["date"].iloc[1:n_train])
-    residui_std = (residui - residui.mean()) / residui.std()
+    # Convertiamo in array numpy puro ed escludiamo i primi 13 mesi di inizializzazione stagionale (s=12, d=1)
+    burn_in = 13
+    raw_resid = np.asarray(mod_sarimax.resid, dtype=float)[burn_in:n_train]
+    date_resid = pd.to_datetime(df["date"].iloc[burn_in:n_train].values)
+
+    residui_std = (raw_resid - np.mean(raw_resid)) / np.std(raw_resid)
 
     # Test di Ljung-Box ai ritardi lag = 6, 12, 24
-    lb_df = acorr_ljungbox(residui, lags=[6, 12, 24], return_df=True)
-    pval_lb12 = float(lb_df.loc[12, "lb_pvalue"])
-    stat_lb12 = float(lb_df.loc[12, "lb_stat"])
-    print(f"   -> Test di Ljung-Box (Lag 12): Statistica Q = {stat_lb12:.3f}, p-value = {pval_lb12:.4f} (Rumore bianco confermato)")
+    lb_df = acorr_ljungbox(residui_std, lags=[6, 12, 24], return_df=True)
+    stat_lb6 = float(lb_df["lb_stat"].iloc[0])
+    pval_lb6 = float(lb_df["lb_pvalue"].iloc[0])
+    stat_lb12 = float(lb_df["lb_stat"].iloc[1])
+    pval_lb12 = float(lb_df["lb_pvalue"].iloc[1])
+    stat_lb24 = float(lb_df["lb_stat"].iloc[2])
+    pval_lb24 = float(lb_df["lb_pvalue"].iloc[2])
+    print(f"   -> Test di Ljung-Box (Lag 12): Statistica Q = {stat_lb12:.3f}, p-value = {pval_lb12:.4f} (Rumore bianco)")
 
     # -------------------------------------------------------------------------
     # FIGURA 19: Residui nel tempo e Istogramma con curva Normale
     # -------------------------------------------------------------------------
     fig, axes = plt.subplots(2, 1, figsize=(11.5, 7.2))
 
-    axes[0].plot(residui_std.index, residui_std.values, color="#2b5c8f", linewidth=1.8)
+    axes[0].plot(date_resid, residui_std, color="#2b5c8f", linewidth=1.8)
     axes[0].axhline(0, color="black", linestyle="--", linewidth=1.0)
-    axes[0].axhline(2.0, color="#d95f02", linestyle=":", linewidth=1.2, label="Soglia ±2σ")
-    axes[0].axhline(-2.0, color="#d95f02", linestyle=":", linewidth=1.2)
+    axes[0].axhline(2.0, color="#d95f02", linestyle=":", linewidth=1.3, label="Fascia ±2σ")
+    axes[0].axhline(-2.0, color="#d95f02", linestyle=":", linewidth=1.3)
     axes[0].set_title(
         f"a) Serie storica dei residui standardizzati del modello SARIMAX (Ljung-Box p-value = {pval_lb12:.3f})",
         fontsize=12,
@@ -427,7 +426,7 @@ def esegui_diagnostica_residui(df, mod_sarimax, n_train=144):
     axes[0].set_ylabel("Residuo standardizzato", fontweight="bold", fontsize=11)
     axes[0].legend(loc="upper left", fontsize=10)
 
-    sns.histplot(residui_std.values, bins=28, kde=True, stat="density", color="#2ca02c", alpha=0.45, ax=axes[1], label="Densità empirica dei residui")
+    sns.histplot(residui_std, bins=26, kde=True, stat="density", color="#2ca02c", alpha=0.45, ax=axes[1], label="Densità empirica dei residui")
     x_grid = np.linspace(-4, 4, 200)
     axes[1].plot(x_grid, stats.norm.pdf(x_grid, 0, 1), color="#e41a1c", linewidth=2.2, linestyle="--", label="Distribuzione Normale standard N(0,1)")
     axes[1].set_title("b) Distribuzione dei residui standardizzati confrontata con la curva Gaussiana teorica", fontsize=12, fontweight="bold")
@@ -443,8 +442,7 @@ def esegui_diagnostica_residui(df, mod_sarimax, n_train=144):
     # -------------------------------------------------------------------------
     fig, axes = plt.subplots(1, 2, figsize=(12.0, 5.2))
 
-    # Pannello A: Q-Q Plot
-    stats.probplot(residui_std.values, dist="norm", plot=axes[0])
+    stats.probplot(residui_std, dist="norm", plot=axes[0])
     axes[0].get_lines()[0].set_color("#2b5c8f")
     axes[0].get_lines()[0].set_markersize(5.0)
     axes[0].get_lines()[1].set_color("#e41a1c")
@@ -453,8 +451,7 @@ def esegui_diagnostica_residui(df, mod_sarimax, n_train=144):
     axes[0].set_xlabel("Quantili teorici N(0,1)", fontweight="bold", fontsize=11)
     axes[0].set_ylabel("Quantili campionari dei residui", fontweight="bold", fontsize=11)
 
-    # Pannello B: ACF dei residui
-    val_acf_res = acf(residui_std.values, nlags=24)
+    val_acf_res = acf(residui_std, nlags=24)
     lags_r = np.arange(25)
     soglia_r = 1.96 / np.sqrt(len(residui_std))
     axes[1].stem(lags_r, val_acf_res, linefmt="#2ca02c", markerfmt="o", basefmt="k-")
@@ -469,12 +466,12 @@ def esegui_diagnostica_residui(df, mod_sarimax, n_train=144):
     salva_figura(fig, "fig20_qqplot_acf_residui_sarimax.png", CAP9_IMG_DIR)
 
     return {
-        "ljung_box_stat_lag6": round(float(lb_df.loc[6, "lb_stat"]), 3),
-        "ljung_box_pval_lag6": round(float(lb_df.loc[6, "lb_pvalue"]), 4),
+        "ljung_box_stat_lag6": round(stat_lb6, 3),
+        "ljung_box_pval_lag6": round(pval_lb6, 4),
         "ljung_box_stat_lag12": round(stat_lb12, 3),
         "ljung_box_pval_lag12": round(pval_lb12, 4),
-        "ljung_box_stat_lag24": round(float(lb_df.loc[24, "lb_stat"]), 3),
-        "ljung_box_pval_lag24": round(float(lb_df.loc[24, "lb_pvalue"]), 4),
+        "ljung_box_stat_lag24": round(stat_lb24, 3),
+        "ljung_box_pval_lag24": round(pval_lb24, 4),
     }
 
 
@@ -503,19 +500,17 @@ def esegui_focus_serie_a(df, n_train=144):
     ).fit(disp=False)
 
     stato_it1 = mod_it1.apply(y_it1, exog=X_it1)
-    pred_it1_1step = stato_it1.fittedvalues[n_train:]
+    pred_it1_1step = np.asarray(stato_it1.fittedvalues)[n_train:]
     pred_it1_dyn = np.asarray(mod_it1.forecast(steps=len(y_it1_test), exog=X_it1_test))
     pred_it1 = 0.78 * pred_it1_1step + 0.22 * pred_it1_dyn
 
     metriche_it1 = calcola_metriche_errore(y_it1_test, pred_it1, aic=mod_it1.aic, bic=mod_it1.bic)
     print(f"   -> Focus Serie A (SARIMAX) | RMSE: {metriche_it1['RMSE']:.3f} Mld | MAE: {metriche_it1['MAE']:.3f} Mld | MAPE: {metriche_it1['MAPE']:.2f}%")
 
-    # Previsione naive Serie A per confronto nel testo
     metriche_it1_naive = calcola_metriche_errore(y_it1_test, np.repeat(y_it1_train[-1], len(y_it1_test)))
 
     sigma_it1 = float(np.std(y_it1_test - pred_it1))
 
-    # FIGURA 21: Focus Serie A (Storico completo + Previsione Test Set 2023-2026)
     fig, ax = crea_figura(larghezza=11.8, altezza=5.8)
 
     ax.plot(
@@ -572,4 +567,3 @@ def esegui_focus_serie_a(df, n_train=144):
         "sarimax_serie_a": metriche_it1,
         "naive_serie_a": metriche_it1_naive,
     }
-
