@@ -175,7 +175,7 @@ La Figura \ref{fig:kmeans_tsne} illustra la disposizione geometrica dei 5 cluste
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.96\textwidth]{capitolo4/img/fig17_kmeans_tsne_clusters.png}
+    \includegraphics[width=0.98\textwidth]{capitolo4/img/fig17_kmeans_tsne_clusters.png}
     \caption{Partizionamento K-Means ($k=5$) visualizzato nel piano lineare PCA ($\text{PC}_1$ vs $\text{PC}_2$ con centroidi) e sulla mappa non lineare t-SNE 2D.}
     \label{fig:kmeans_tsne}
 \end{figure}
@@ -185,16 +185,27 @@ Dalla Figura \ref{fig:kmeans_tsne} si osserva come nel piano PCA i 5 centroidi p
 \newpage
 \subsubsection{Profiling acustico dei Cluster e Mood Playlists}
 
-Per interpretare il significato musicale e funzionale dei 5 cluster e tradurli in \textit{Mood Playlists} azionabili, la Figura \ref{fig:kmeans_profiling} affianca la \textbf{Heatmap dei valori medi reali} (con colorazione normalizzata Min-Max per colonna) e il \textbf{Radar Chart polare} delle 8 feature di clustering.
+Per interpretare il significato musicale e funzionale dei 5 cluster, la Figura \ref{fig:kmeans_profile_heatmap} riporta una heatmap delle medie osservate. Le annotazioni contengono i valori medi originali (la durata è espressa in migliaia di millisecondi), mentre il colore è normalizzato Min-Max separatamente per ciascuna feature: il colore consente quindi di confrontare i cluster sulla stessa variabile, non grandezze assolute tra variabili diverse. La matrice include anche \texttt{loudness} e \texttt{liveness} come descrittori retrospettivi; queste due variabili non sono state usate per addestrare K-Means né per costruire lo spazio PCA.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.98\textwidth]{capitolo4/img/fig18_kmeans_feature_profiling.png}
-    \caption{Profiling acustico dei 5 cluster K-Means: Heatmap delle medie reali per feature (a sinistra) e Radar Chart comparativo delle impronte sonore (a destra).}
-    \label{fig:kmeans_profiling}
+    \includegraphics[width=\textwidth]{capitolo4/img/fig18_kmeans_feature_profiling.png}
+    \caption{Medie delle feature per i cluster K-Means. Le annotazioni riportano le medie originali; il colore è riscalato per colonna.}
+    \label{fig:kmeans_profile_heatmap}
 \end{figure}
 
-Dall'esame congiunto dei valori medi in Figura \ref{fig:kmeans_profiling} e dell'incrocio retrospettivo con i generi originali, ciascun cluster rivela un'identità acustica e funzionale netta:
+La matrice mette in evidenza differenze utili a descrivere i profili: C1 presenta una forte strumentalità e durate maggiori; C2 ha maggiore acusticità e minore energia; C3 è il profilo più ballabile, mentre C4 mostra tempo e contenuto parlato più elevati. C0 combina energia e volume mediamente alti. Le sigle C0--C4 sono identificativi; i nomi brevi riportati in legenda riassumono i tratti dominanti, senza essere etichette di genere.
+
+La Figura \ref{fig:kmeans_profile_radar} visualizza in forma polare gli stessi profili limitandosi alle 8 feature effettivamente usate nel clustering. Anche in questo grafico ciascun asse è normalizzato tra i cluster: la forma rende immediato il confronto relativo tra profili, ma non va letta come confronto delle unità originali o come intensità assoluta della feature.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\textwidth]{capitolo4/img/fig19_kmeans_feature_radar.png}
+    \caption{Radar chart delle medie normalizzate delle 8 feature usate nel clustering K-Means.}
+    \label{fig:kmeans_profile_radar}
+\end{figure}
+
+Dall'esame congiunto delle Figure \ref{fig:kmeans_profile_heatmap} e \ref{fig:kmeans_profile_radar}, oltre che dall'incrocio retrospettivo con i generi originali, ciascun cluster rivela un'identità acustica e funzionale netta:
 \begin{itemize}
     \item \textbf{Cluster 0 — High-Intensity Bass \& Workout ($1.710$ brani campione / $10.583$ catalogo):} È il cluster a massima potenza d'urto: registra i valori medi più elevati in assoluto di \texttt{energy} ($0,86$) e \texttt{loudness} ($-4,83\text{ dB}$), uniti a un \texttt{tempo} sostenuto ($152,40\text{ BPM}$), ma con la più bassa \texttt{danceability} ($0,48$) e una \texttt{valence} scura/aggressiva ($0,24$). Raccoglie in larga misura tracce \textit{Hardstyle}, \textit{Drum and Bass} e \textit{Trap/Trap Metal} ad alto impatto adrenalinico, perfette per playlist di allenamento intenso (\textit{Workout / Gym}).
     \item \textbf{Cluster 1 — Extended Club \& Instrumental Electronic ($1.517$ brani campione / $8.964$ catalogo):} Si distingue in modo inequivocabile per l'altissima \texttt{instrumentalness} media ($0,79$, contro $0,02\text{--}0,23$ degli altri gruppi) e per la durata media estesa (\texttt{duration\_ms} $= 390.803\text{ ms}$, circa $6,5$ minuti), accompagnate da \texttt{energy} elevata ($0,84$), ottima \texttt{danceability} ($0,66$), \texttt{speechiness} minima ($0,06$) e battito regolare da club ($137,52\text{ BPM}$). Cattura i brani \textit{Techno}, \textit{Psytrance}, \textit{Trance} e \textit{Techhouse} pensati per il DJ mixing e per sessioni di \textit{Deep Focus / Clubbing}.
@@ -225,11 +236,11 @@ Dalla Figura \ref{fig:kmeans_silhouette} emerge un valore medio globale di Silho
 \subsubsection{Evoluzione probabilistica di K-Means: Gaussian Mixture Model}
 K-Means assegna ciascun brano a un solo cluster, anche quando le sue caratteristiche sono intermedie tra più profili. Per rappresentare esplicitamente questa sovrapposizione è stato affiancato un \textit{Gaussian Mixture Model} (GMM) con cinque componenti, mantenendo lo stesso campione di $N=6.000$ brani e lo spazio PCA a quattro dimensioni usati nel confronto con K-Means. Il numero di componenti pari a cinque consente un confronto diretto con i cinque archetipi K-Means; non implica che esistano cinque mood naturali e distinti.
 
-Il GMM stima per ogni brano un vettore di probabilità posteriori rispetto ai cinque componenti. Questi valori rappresentano affiliazioni probabilistiche \textit{del modello} nello spazio acustico, non probabilità calibrate che un ascoltatore percepisca un determinato mood. La Figura \ref{fig:gmm_soft} mostra la proiezione dei componenti e la distribuzione dell'affiliazione massima. Sono inoltre considerati candidati a un'affiliazione trasversale i brani per cui la differenza tra le due probabilità più alte non supera $0,15$; la soglia è adottata come criterio esplorativo per selezionare esempi da ispezionare, non come regola universale per assegnare playlist.
+Il GMM stima per ogni brano un vettore di probabilità posteriori rispetto ai cinque componenti. Questi valori rappresentano affiliazioni probabilistiche \textit{del modello} nello spazio acustico, non probabilità calibrate che un ascoltatore percepisca un determinato mood. La Figura \ref{fig:gmm_soft} mostra la proiezione dei componenti e la distribuzione dell'affiliazione massima; la legenda associa a ogni ID un riepilogo del profilo acustico descritto nella Tabella \ref{tab:gmm_profile}. Gli ID GMM sono arbitrari e la numerazione non esprime una gerarchia. Sono inoltre considerati candidati a un'affiliazione trasversale i brani per cui la differenza tra le due probabilità più alte non supera $0,15$; la soglia è adottata come criterio esplorativo per selezionare esempi da ispezionare, non come regola universale per assegnare playlist.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.96\textwidth]{capitolo4/img/fig24_gmm_soft_membership.png}
+    \includegraphics[width=0.98\textwidth]{capitolo4/img/fig24_gmm_soft_membership.png}
     \caption{GMM a cinque componenti nello spazio PCA e distribuzione dell'affiliazione massima per brano.}
     \label{fig:gmm_soft}
 \end{figure}

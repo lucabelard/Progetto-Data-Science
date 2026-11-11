@@ -37,7 +37,8 @@ Progetto-Data-Science/
 │   ├── fig15_tsne_2d_overview.png                           # Proiezione t-SNE 2D colorata per genere Spotify
 │   ├── fig16_kmeans_elbow_wcss.png                          # Metodo del Gomito (WCSS per k da 2 a 11)
 │   ├── fig17_kmeans_tsne_clusters.png                       # Cluster K-Means (k=5) su proiezione t-SNE
-│   ├── fig18_kmeans_feature_profiling.png                   # Heatmap profiling caratteristiche medie per cluster
+│   ├── fig18_kmeans_feature_profiling.png                   # Heatmap delle medie per cluster (10 descrittori, 2 solo post-hoc)
+│   ├── fig19_kmeans_feature_radar.png                       # Radar dei profili sulle 8 feature usate dal clustering
 │   ├── fig19_kmeans_silhouette_plot.png                     # Diagramma Silhouette K-Means per cluster
 │   ├── fig20_dbscan_knn_distance.png                        # Grafico k-NN distance per individuazione di Epsilon
 │   ├── fig21_dbscan_grid_search.png                         # Matrice di tuning griglia (Epsilon x min_samples)
@@ -48,7 +49,8 @@ Progetto-Data-Science/
 │
 ├── scripts/
 │   ├── build_full_project.py                                # Pipeline Python end-to-end
-│   └── generate_notebook.py                                 # Generatore programmatico del Notebook
+│   ├── generate_notebook.py                                 # Generatore programmatico del Notebook
+│   └── regenerate_clustering_profiles.py                   # Rigenera profili K-Means e grafici GMM
 │
 ├── genres_v2.csv                                            # Dataset grezzo iniziale (42.305 righe)
 └── playlists.csv                                            # Metadati playlist Spotify
@@ -91,6 +93,7 @@ Progetto-Data-Science/
 ## 3. Risultati del Clustering Non Supervisionato (Spazio PCA)
 
 * **Selezione delle Feature Continue (8 variabili):** Esclusione delle 3 feature discrete/categoriche (`key`, `mode`, `time_signature`), della variabile collineare `loudness` ($r = 0.70$ con `energy`) e dell'indice di contesto `liveness`.
+  * La heatmap di profiling mostra anche `loudness` e `liveness` soltanto come descrittori post-hoc, dopo l'assegnazione dei cluster; il radar usa unicamente le 8 feature effettive.
 * **PCA (Principal Component Analysis):** Le prime **4 Componenti Principali (`PC1`–`PC4`)** spiegano il **73.96% della varianza cumulativa totale** (`PC1`: 32.00%, `PC2`: 16.54%, `PC3`: 15.21%, `PC4`: 10.22%). Sia K-Means che DBSCAN vengono addestrati direttamente nello spazio PCA a 4 dimensioni.
 * **t-SNE 2D:** Riduzione non lineare con `perplexity=40` impiegata per la visualizzazione topologica bidimensionale affiancata alla proiezione lineare PCA (`PC1` vs `PC2`).
 * **K-Means Clustering ($k = 5$ su 4 PC):**

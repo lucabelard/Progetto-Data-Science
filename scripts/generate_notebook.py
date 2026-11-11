@@ -511,7 +511,7 @@ Il metodo K-Means minimizza la distanza intra-cluster calcolando la varianza int
 Il valore ottimale di $k$ è stato selezionato valutando congiuntamente la curva **WCSS (Elbow Method)** e il **Coefficiente di Silhouette medio** per $k \in [2, 10]$ (**Figura 16**). In corrispondenza di **$k = 5$** si osserva sia il gomito della curva WCSS ($13.981,8$), sia un **massimo locale del Silhouette Score pari a `0.2829`**, prima del netto calo a $k=6$ (`0.2395`).
 
 ### 4.2.2 Analisi dei risultati ottenuti e Profiling delle 5 "Mood Playlists"
-Applicando K-Means con $k=5$ nello spazio PCA 4D e proiettando i cluster sia nel piano lineare PCA (`PC1` vs `PC2` con centroidi) sia sulla mappa t-SNE (**Figura 17**), si ottengono 5 archetipi ben definiti. La **Figura 18** affianca la **Heatmap delle medie reali** e il **Radar Chart** delle impronte acustiche:
+Applicando K-Means con $k=5$ nello spazio PCA 4D e proiettando i cluster sia nel piano lineare PCA (`PC1` vs `PC2` con centroidi) sia sulla mappa t-SNE (**Figura 17**), si ottengono 5 profili acustici. La **Figura 18** riporta la heatmap: le annotazioni sono medie originali, mentre i colori sono riscalati separatamente per feature. La matrice include `loudness` e `liveness` solo come descrittori retrospettivi; non sono input del clustering. Gli ID C0-C4 nella legenda sono accompagnati da nomi sintetici basati sui tratti dominanti.
 * **Cluster 0 — *High-Intensity Bass & Workout* (1.710 brani campione / 10.583 catalogo, 29.50%):** Massima `energy` (`0.86`) e `loudness` (`-4.83 dB`), `tempo` elevato (`152.40 BPM`), bassa `danceability` (`0.48`) e `valence` (`0.24`). Dominato da *Hardstyle, Drum and Bass e Trap*.
 * **Cluster 1 — *Extended Club & Instrumental Electronic* (1.517 brani campione / 8.964 catalogo, 24.99%):** Altissima `instrumentalness` (`0.79`) e durata estesa (`390.803 ms`, ~6.5 min), alta `energy` (`0.84`) e `danceability` (`0.66`), `speechiness` minima (`0.06`). Dominato da *Techno, Psytrance, Trance e Techhouse*.
 * **Cluster 2 — *Acoustic, Chill & Atmospheric* (549 brani campione / 3.189 catalogo, 8.89%):** Massima `acousticness` (`0.49`) e minimi assoluti di `energy` (`0.45`) e `loudness` (`-9.87 dB`). Raccoglie brani acustici, *RnB, Emo e Dark Trap/Lo-Fi* atmosferica.
@@ -519,17 +519,26 @@ Applicando K-Means con $k=5$ nello spazio PCA 4D e proiettando i cluster sia nel
 * **Cluster 4 — *Fast-Flow Rap & High-Tempo Urban* (974 brani campione / 5.787 catalogo, 16.13%):** Massimo `tempo` (`179.12 BPM`), massima `speechiness` (`0.26`) e massima `valence` (`0.55`). Composto da *Underground Rap, Hiphop e Dark Trap* ad alta velocità.
 
 ### 4.2.3 Grafico della Silhouette
-La qualità del partizionamento nello spazio PCA 4D è attestata dal diagramma di Silhouette (**Figura 19**), con valore medio **`0.2829`** e picchi superiori a `0.50` per tutti i 5 cluster.
+La qualità del partizionamento nello spazio PCA 4D è attestata dal diagramma di Silhouette (**Figura 20**), con valore medio **`0.2829`** e picchi superiori a `0.50` per tutti i 5 cluster.
 
 ### 4.2.4 Evoluzione probabilistica con GMM
-K-Means assegna ciascun brano a un solo cluster. Per rappresentare le tracce che condividono più profili acustici, è stato aggiunto un **Gaussian Mixture Model (GMM) a 5 componenti** nello stesso spazio PCA 4D. Per ogni brano il modello stima un vettore di affiliazioni ai componenti. Sul campione, **409 brani (6,82%)** hanno le due affiliazioni maggiori distanti non più di 0,15; la mediana dell'affiliazione massima è 0,883. Fra i 462 punti noise DBSCAN, la mediana dell'affiliazione massima è 0,928 e 39 (8,44%) sono candidati a un’affiliazione trasversale. Le probabilità sono stime del modello, non etichette di mood validate dagli ascoltatori. La **Figura 24** mostra le componenti e la distribuzione dell’affiliazione massima. La scelta di 5 componenti mantiene il confronto con K-Means diretto; il GMM può descrivere covarianze e sovrapposizioni, ma assume componenti gaussiane e non garantisce che ogni componente corrisponda a un mood musicale distinto.
+K-Means assegna ciascun brano a un solo cluster. Per rappresentare le tracce che condividono più profili acustici, è stato aggiunto un **Gaussian Mixture Model (GMM) a 5 componenti** nello stesso spazio PCA 4D. Per ogni brano il modello stima un vettore di affiliazioni ai componenti. Sul campione, **409 brani (6,82%)** hanno le due affiliazioni maggiori distanti non più di 0,15; la mediana dell'affiliazione massima è 0,883. Fra i 462 punti noise DBSCAN, la mediana dell'affiliazione massima è 0,928 e 39 (8,44%) sono candidati a un’affiliazione trasversale. Le probabilità sono stime del modello, non etichette di mood validate dagli ascoltatori. La **Figura 25** mostra le componenti e la distribuzione dell’affiliazione massima, con una legenda che ne riassume i tratti acustici. La scelta di 5 componenti mantiene il confronto con K-Means diretto; il GMM può descrivere covarianze e sovrapposizioni, ma assume componenti gaussiane e non garantisce che ogni componente corrisponda a un mood musicale distinto.
 """))
 
 cells.append(code(r"""
-# Visualizzazione Figure 16, 17, 18, 19 (K-Means nello Spazio PCA)
+# Visualizzazione Figure 16-18: selezione k, mappe cluster e heatmap K-Means
 display(Image(filename='figures/fig16_kmeans_elbow_wcss.png'))
 display(Image(filename='figures/fig17_kmeans_tsne_clusters.png'))
 display(Image(filename='figures/fig18_kmeans_feature_profiling.png'))
+
+"""))
+
+cells.append(md(r"""
+La heatmap rende leggibile il confronto delle medie: C1 è più strumentale e lungo, C2 più acustico e meno energetico, C3 più ballabile e C4 più rapido e vocale. Il radar della **Figura 19** mostra gli stessi profili sulle sole 8 feature usate nel modello; i valori sono normalizzati per asse, quindi si confrontano le forme tra cluster e non le unità assolute.
+"""))
+
+cells.append(code(r"""
+display(Image(filename='figures/fig19_kmeans_feature_radar.png'))
 display(Image(filename='figures/fig19_kmeans_silhouette_plot.png'))
 """))
 
@@ -539,20 +548,20 @@ cells.append(md(r"""
 DBSCAN (*Density-Based Spatial Clustering of Applications with Noise*) raggruppa i punti in base alla densità locale nello spazio PCA a 4 dimensioni. La label `-1` indica che un brano non soddisfa i criteri di densità del modello; non è un giudizio sulla sua qualità musicale.
 
 ### 4.3.1 Scelta dei parametri e tuning ($\epsilon = 0.60, \text{min\_samples} = 5$)
-* Dal grafico delle distanze ordinate 5-NN nello spazio PCA 4D (**Figura 20**), il punto di ginocchio si colloca a **$\epsilon = 0.60$**.
-* La doppia matrice di tuning $(\epsilon \times \text{min\_samples})$ in **Figura 21** mostra il numero di cluster e il Silhouette Score dei punti non-rumore: con $\epsilon = 0.60, \text{min\_samples} = 5$ si identificano **6 cluster** (un macro-cluster centrale ad alta densità di 5.509 brani + 5 micro-cluster periferici) e si marcano come noise **462 brani (7.70% del campione)**.
+* Dal grafico delle distanze ordinate 5-NN nello spazio PCA 4D (**Figura 21**), il punto di ginocchio si colloca a **$\epsilon = 0.60$**.
+* La doppia matrice di tuning $(\epsilon \times \text{min\_samples})$ in **Figura 22** mostra il numero di cluster e il Silhouette Score dei punti non-rumore: con $\epsilon = 0.60, \text{min\_samples} = 5$ si identificano **6 cluster** (un macro-cluster centrale ad alta densità di 5.509 brani + 5 micro-cluster periferici) e si marcano come noise **462 brani (7.70% del campione)**.
 
 ### 4.3.2 Analisi dei risultati ottenuti e Diagnostica del Rumore
-In **Figura 22** è mostrata la distribuzione spaziale DBSCAN su PCA 2D e t-SNE 2D con le 462 tracce noise evidenziate in rosso. I boxplot in **Figura 23** ne descrivono le durate, la `speechiness` e l'`acousticness`; i valori periferici non dimostrano che le tracce siano errori o vadano scartate.
+In **Figura 23** è mostrata la distribuzione spaziale DBSCAN su PCA 2D e t-SNE 2D con le 462 tracce noise evidenziate in rosso. I boxplot in **Figura 24** ne descrivono le durate, la `speechiness` e l'`acousticness`; i valori periferici non dimostrano che le tracce siano errori o vadano scartate.
 
 ### 4.3.3 Evoluzione con HDBSCAN e affiliazioni soft
 La label `-1` di DBSCAN indica bassa densità rispetto ai parametri scelti; non significa che il brano sia privo di valore musicale. **HDBSCAN** è stato aggiunto nello stesso spazio PCA 4D (`min_cluster_size=30`, `min_samples=5`): sul campione trova 10 cluster, ma marca ancora come noise 4.847 brani (80,78%). Nessuno dei 462 punti noise DBSCAN entra in un cluster HDBSCAN con questa configurazione. Questo esito mostra che HDBSCAN non risolve automaticamente il problema e che i risultati dipendono dalla geometria e dai parametri.
 
-Le affiliazioni soft HDBSCAN per quei 462 punti sono deboli: 22 superano il criterio esplorativo adottato per essere ispezionati. Per non escluderli a priori da ogni playlist, sono state quindi considerate anche le affiliazioni GMM ai cinque profili: ogni traccia riceve una proposta di profilo sonoro e, per 39 brani, i due profili più probabili sono vicini. La Figura 25 mostra i cluster HDBSCAN e l'affiliazione GMM massima per i punti noise DBSCAN. Le affiliazioni restano suggerimenti del modello: quando l'affinità è debole o le componenti sono poco interpretabili, il brano va mantenuto come caso periferico, non assegnato forzatamente.
+Le affiliazioni soft HDBSCAN per quei 462 punti sono deboli: 22 superano il criterio esplorativo adottato per essere ispezionati. Per non escluderli a priori da ogni playlist, sono state quindi considerate anche le affiliazioni GMM ai cinque profili: ogni traccia riceve una proposta di profilo sonoro e, per 39 brani, i due profili più probabili sono vicini. La Figura 26 mostra i cluster HDBSCAN e l'affiliazione GMM massima per i punti noise DBSCAN. Le affiliazioni restano suggerimenti del modello: quando l'affinità è debole o le componenti sono poco interpretabili, il brano va mantenuto come caso periferico, non assegnato forzatamente.
 """))
 
 cells.append(code(r"""
-# Visualizzazione Figure 20, 21, 22, 23 (DBSCAN e Diagnostica Outlier nello Spazio PCA)
+# Visualizzazione Figure 21-26: DBSCAN, GMM e HDBSCAN
 display(Image(filename='figures/fig20_dbscan_knn_distance.png'))
 display(Image(filename='figures/fig21_dbscan_grid_search.png'))
 display(Image(filename='figures/fig22_dbscan_tsne_clusters_noise.png'))

@@ -625,38 +625,61 @@ cluster_names_short = {
     3: "C3: Groove, Melodic Urban & Pop",
     4: "C4: Fast-Flow Rap & High-BPM"
 }
+cluster_legend_names = {
+    0: "C0 · Workout / Bass",
+    1: "C1 · Club / Strumentale",
+    2: "C2 · Acustico / Chill",
+    3: "C3 · Groove / Pop-Urban",
+    4: "C4 · Rap / High-BPM"
+}
+cluster_display_order = [cluster_legend_names[i] for i in range(k_opt)]
+cluster_color_map = {
+    cluster_legend_names[i]: plt.cm.tab10(i / 10.0) for i in range(k_opt)
+}
+df_cluster_sample['kmeans_profile'] = df_cluster_sample['kmeans_cluster'].map(cluster_legend_names)
 
 # FIGURA 17: Doppio grafico Cluster K-Means (Proiezione PCA 2D con Centroidi + Mappa t-SNE 2D)
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8.2))
 sns.scatterplot(
-    data=df_cluster_sample, x='pc_1', y='pc_2', hue='kmeans_cluster',
-    palette='tab10', alpha=0.65, s=25, edgecolor=None, ax=ax1
+    data=df_cluster_sample, x='pc_1', y='pc_2', hue='kmeans_profile',
+    hue_order=cluster_display_order, palette=cluster_color_map,
+    alpha=0.65, s=25, edgecolor=None, legend=False, ax=ax1
 )
 centroids_pca = km_final.cluster_centers_
 ax1.scatter(
     centroids_pca[:, 0], centroids_pca[:, 1], c='black', marker='X', s=220,
-    edgecolor='white', linewidth=1.5, zorder=10, label='Centroidi'
+    edgecolor='white', linewidth=1.5, zorder=10
 )
-ax1.set_title('Proiezione Lineare PCA 2D (PC1 vs PC2) con Centroidi', fontsize=13, fontweight='bold')
-ax1.set_xlabel(f'PC1 ({exp_var[0]*100:.1f}% varianza)', fontsize=11)
-ax1.set_ylabel(f'PC2 ({exp_var[1]*100:.1f}% varianza)', fontsize=11)
-ax1.legend(title='Cluster ID', fontsize=9.5)
+ax1.set_title('Proiezione Lineare PCA 2D (PC1 vs PC2) con Centroidi', fontsize=15, fontweight='bold')
+ax1.set_xlabel(f'PC1 ({exp_var[0]*100:.1f}% varianza)', fontsize=13)
+ax1.set_ylabel(f'PC2 ({exp_var[1]*100:.1f}% varianza)', fontsize=13)
 
 sns.scatterplot(
-    data=df_cluster_sample, x='tsne_1', y='tsne_2', hue='kmeans_cluster',
-    palette='tab10', alpha=0.7, s=25, edgecolor=None, ax=ax2
+    data=df_cluster_sample, x='tsne_1', y='tsne_2', hue='kmeans_profile',
+    hue_order=cluster_display_order, palette=cluster_color_map,
+    alpha=0.7, s=25, edgecolor=None, legend=False, ax=ax2
 )
-ax2.set_title('Proiezione Non Lineare t-SNE 2D', fontsize=13, fontweight='bold')
-ax2.set_xlabel('t-SNE Dimensione 1', fontsize=11)
-ax2.set_ylabel('t-SNE Dimensione 2', fontsize=11)
-ax2.legend(title='Cluster ID', fontsize=9.5)
+ax2.set_title('Proiezione Non Lineare t-SNE 2D', fontsize=15, fontweight='bold')
+ax2.set_xlabel('t-SNE Dimensione 1', fontsize=13)
+ax2.set_ylabel('t-SNE Dimensione 2', fontsize=13)
 
-plt.suptitle(f'Partizionamento K-Means (k={k_opt}, Silhouette={sil_kmeans:.3f} nello Spazio PCA e t-SNE', fontsize=14, fontweight='bold')
-plt.tight_layout()
+from matplotlib.lines import Line2D
+cluster_handles = [
+    Line2D([0], [0], marker='o', linestyle='', markersize=8,
+           markerfacecolor=cluster_color_map[name], markeredgecolor='none', label=name)
+    for name in cluster_display_order
+]
+cluster_handles.append(Line2D([0], [0], marker='X', linestyle='', markersize=9,
+                              markerfacecolor='black', markeredgecolor='white', label='Centroidi K-Means'))
+fig.legend(handles=cluster_handles, loc='lower center', ncol=3,
+           title='Profili sonori (ID K-Means con descrizione sintetica)',
+           fontsize=11, title_fontsize=12, bbox_to_anchor=(0.5, 0.005), frameon=True)
+fig.suptitle(f'Partizionamento K-Means (k={k_opt}, Silhouette={sil_kmeans:.3f})', fontsize=14, fontweight='bold')
+fig.tight_layout(rect=[0, 0.13, 1, 0.94])
 plt.savefig('figures/fig17_kmeans_tsne_clusters.png', dpi=300)
 plt.close()
 
-# FIGURA 18: Profiling delle Feature Medie per Cluster (Heatmap + Radar Chart delle "Mood Playlists")
+# FIGURA 18: Matrice delle feature medie per Cluster K-Means
 cluster_means = df_cluster_sample.groupby('kmeans_cluster')[continuous_features].mean()
 cluster_means_norm = (cluster_means - cluster_means.min()) / (cluster_means.max() - cluster_means.min() + 1e-6)
 
@@ -671,47 +694,51 @@ for col in cluster_means.columns:
         else:
             annot_df.loc[idx, col] = f"{val:.2f}"
 
-fig = plt.figure(figsize=(18, 8))
-gs = fig.add_gridspec(1, 2, width_ratios=[1.4, 1], wspace=0.28)
-ax_heat = fig.add_subplot(gs[0])
-ax_radar = fig.add_subplot(gs[1], polar=True)
-
-yticklabels_heat = [cluster_names_short[i] for i in cluster_means.index]
+fig, ax_heat = plt.subplots(figsize=(13, 8))
+yticklabels_heat = [cluster_legend_names[i] for i in cluster_means.index]
 sns.heatmap(
-    cluster_means_norm, annot=annot_df, fmt='', cmap='coolwarm',
-    annot_kws={'size': 9.5, 'weight': 'bold'},
-    yticklabels=yticklabels_heat, cbar_kws={'label': 'Intensità Relativa Min-Max (0-1)'}, ax=ax_heat
+    cluster_means_norm, annot=annot_df, fmt='', cmap='vlag', center=0.5,
+    annot_kws={'size': 13, 'weight': 'bold'},
+    yticklabels=yticklabels_heat,
+    cbar_kws={'label': 'Posizione relativa della media (Min-Max per feature)'}, ax=ax_heat
 )
-ax_heat.set_title('Valori Medi Reali (duration in ms) e Intensità Relativa', fontsize=12.5, fontweight='bold', pad=14)
-ax_heat.set_xlabel('Caratteristiche Sonore', fontsize=11)
+ax_heat.set_title('Medie delle feature per profilo K-Means', fontsize=17, fontweight='bold', pad=16)
+ax_heat.set_xlabel('Feature acustiche (annotazioni: medie originali)', fontsize=13)
 ax_heat.set_ylabel('')
-ax_heat.tick_params(axis='x', rotation=30)
+ax_heat.tick_params(axis='x', rotation=25, labelsize=13)
+ax_heat.tick_params(axis='y', rotation=0, labelsize=13)
+ax_heat.collections[0].colorbar.set_label('Posizione relativa della media (Min-Max per feature)', fontsize=12)
+ax_heat.collections[0].colorbar.ax.tick_params(labelsize=11)
+fig.tight_layout()
+plt.savefig('figures/fig18_kmeans_feature_profiling.png', dpi=300, bbox_inches='tight')
+plt.close()
 
+# FIGURA 19: Radar chart comparativo dei profili acustici K-Means
 radar_feats = clustering_features
 angles = np.linspace(0, 2 * np.pi, len(radar_feats), endpoint=False).tolist()
 angles += angles[:1]
 colors_tab10 = [plt.cm.tab10(i / 10.0) for i in range(k_opt)]
 
+fig, ax_radar = plt.subplots(figsize=(12, 9), subplot_kw={'projection': 'polar'})
 for i in range(k_opt):
     vals = cluster_means_norm.loc[i, radar_feats].values.flatten().tolist()
     vals += vals[:1]
-    ax_radar.plot(angles, vals, linewidth=2, label=cluster_names_short[i], color=colors_tab10[i])
+    ax_radar.plot(angles, vals, linewidth=2.3, label=cluster_legend_names[i], color=colors_tab10[i])
     ax_radar.fill(angles, vals, color=colors_tab10[i], alpha=0.12)
 
 ax_radar.set_theta_offset(np.pi / 2)
 ax_radar.set_theta_direction(-1)
 ax_radar.set_xticks(angles[:-1])
-ax_radar.set_xticklabels(radar_feats, fontsize=9.5, fontweight='bold')
+ax_radar.set_xticklabels(radar_feats, fontsize=13, fontweight='bold')
 ax_radar.set_yticks([0.25, 0.5, 0.75, 1.0])
-ax_radar.set_yticklabels(['0.25', '0.50', '0.75', '1.00'], fontsize=8, color='gray')
-ax_radar.set_title('Impronta Acustica Comparata (Radar Chart)', fontsize=12.5, fontweight='bold', pad=22)
-ax_radar.legend(loc='upper right', bbox_to_anchor=(1.34, 1.10), fontsize=8.5)
-
-plt.suptitle('Profiling Acustico dei Cluster K-Means (Identificazione delle 5 Mood Playlists)', fontsize=15, fontweight='bold', y=0.98)
-plt.savefig('figures/fig18_kmeans_feature_profiling.png', dpi=300, bbox_inches='tight')
+ax_radar.set_yticklabels(['0.25', '0.50', '0.75', '1.00'], fontsize=10, color='gray')
+ax_radar.set_title('Radar dei profili acustici K-Means', fontsize=17, fontweight='bold', pad=27)
+ax_radar.legend(loc='upper left', bbox_to_anchor=(1.10, 1.08), fontsize=11, title='Profilo sonoro', title_fontsize=12)
+fig.subplots_adjust(left=0.06, right=0.78, top=0.88, bottom=0.06)
+plt.savefig('figures/fig19_kmeans_feature_radar.png', dpi=300, bbox_inches='tight')
 plt.close()
 
-# FIGURA 19: Grafico della Silhouette per K-Means nello spazio PCA 4D
+# FIGURA 20: Grafico della Silhouette per K-Means nello spazio PCA 4D
 sil_values_km = silhouette_samples(X_cluster_sample, df_cluster_sample['kmeans_cluster'])
 plt.figure(figsize=(10, 7))
 y_lower = 10
@@ -899,25 +926,43 @@ gmm_component_genres = {
     int(component): group['genre'].value_counts().head(5).to_dict()
     for component, group in df_cluster_sample.groupby('gmm_component')
 }
+gmm_component_display = {
+    0: 'GMM 0 · Energetico / strumentale',
+    1: 'GMM 1 · Acustico / moderato',
+    2: 'GMM 2 · Energetico / vocale',
+    3: 'GMM 3 · Dance / strumentale',
+    4: 'GMM 4 · Urban / vocale'
+}
+gmm_display_order = [gmm_component_display[i] for i in range(k_opt)]
+gmm_color_map = {gmm_component_display[i]: plt.cm.tab10(i / 10.0) for i in range(k_opt)}
+df_cluster_sample['gmm_profile'] = df_cluster_sample['gmm_component'].map(gmm_component_display)
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 8.5))
 sns.scatterplot(
-    data=df_cluster_sample, x='pc_1', y='pc_2', hue='gmm_component',
-    palette='tab10', alpha=0.55, s=22, edgecolor=None, ax=ax1
+    data=df_cluster_sample, x='pc_1', y='pc_2', hue='gmm_profile',
+    hue_order=gmm_display_order, palette=gmm_color_map,
+    alpha=0.55, s=22, edgecolor=None, legend=False, ax=ax1
 )
-ax1.set_title('GMM a 5 componenti nella proiezione PCA 2D', fontweight='bold')
-ax1.set_xlabel(f"PC1 ({exp_var[0] * 100:.1f}% varianza)")
-ax1.set_ylabel(f"PC2 ({exp_var[1] * 100:.1f}% varianza)")
-ax1.legend(title='Componente GMM', fontsize=8)
+ax1.set_title('GMM a 5 componenti nella proiezione PCA 2D', fontsize=15, fontweight='bold')
+ax1.set_xlabel(f"PC1 ({exp_var[0] * 100:.1f}% varianza)", fontsize=13)
+ax1.set_ylabel(f"PC2 ({exp_var[1] * 100:.1f}% varianza)", fontsize=13)
 ax2.hist(gmm_top1, bins=np.linspace(0.2, 1.0, 17), color='#4e79a7', edgecolor='white')
 ax2.axvline(np.median(gmm_top1), color='crimson', linestyle='--', linewidth=2,
             label=f'Mediana = {np.median(gmm_top1):.2f}')
-ax2.set_title('Forza dell’affiliazione più alta per brano', fontweight='bold')
-ax2.set_xlabel('Probabilità stimata del componente più probabile')
-ax2.set_ylabel('Numero di brani')
-ax2.legend()
+ax2.set_title('Forza dell’affiliazione più alta per brano', fontsize=15, fontweight='bold')
+ax2.set_xlabel('Probabilità stimata del componente più probabile', fontsize=13)
+ax2.set_ylabel('Numero di brani', fontsize=13)
+ax2.legend(fontsize=11)
+gmm_handles = [
+    Line2D([0], [0], marker='o', linestyle='', markersize=8,
+           markerfacecolor=gmm_color_map[name], markeredgecolor='none', label=name)
+    for name in gmm_display_order
+]
+fig.legend(handles=gmm_handles, loc='lower center', ncol=2,
+           title='Profili sintetici delle componenti (ID GMM arbitrari)',
+           fontsize=11, title_fontsize=12, bbox_to_anchor=(0.5, 0.0), frameon=True)
 plt.suptitle('GMM: profili musicali con appartenenze probabilistiche', fontsize=14, fontweight='bold')
-plt.tight_layout()
+plt.tight_layout(rect=[0, 0.16, 1, 0.94])
 plt.savefig('figures/fig24_gmm_soft_membership.png', dpi=300)
 plt.close()
 print(
