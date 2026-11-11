@@ -1,0 +1,63 @@
+{
+  "n_train_months": 144,
+  "n_test_months": 36,
+  "train_period": "2011-06 .. 2023-05",
+  "test_period": "2023-06 .. 2026-05",
+  "modelli_top5": {
+    "Baseline Naive": {
+      "RMSE": 2.078,
+      "MAE": 1.877,
+      "MAPE": 5.64
+    },
+    "ARIMA(1,1,1)": {
+      "RMSE": 0.792,
+      "MAE": 0.65,
+      "MAPE": 1.95,
+      "AIC": 274.0,
+      "BIC": 285.8
+    },
+    "Holt-Winters (s=12)": {
+      "RMSE": 0.797,
+      "MAE": 0.625,
+      "MAPE": 1.88,
+      "AIC": -123.7,
+      "BIC": -73.2
+    },
+    "SARIMA(1,1,1)(1,0,1)12": {
+      "RMSE": 0.703,
+      "MAE": 0.476,
+      "MAPE": 1.45,
+      "AIC": 265.4,
+      "BIC": 282.6
+    },
+    "SARIMAX (con esogene)": {
+      "RMSE": 4.024,
+      "MAE": 2.82,
+      "MAPE": 8.49,
+      "AIC": 93.9,
+      "BIC": 125.3
+    }
+  },
+  "diagnostica_ljung_box": {
+    "ljung_box_stat_lag6": NaN,
+    "ljung_box_pval_lag6": NaN,
+    "ljung_box_stat_lag12": NaN,
+    "ljung_box_pval_lag12": NaN,
+    "ljung_box_stat_lag24": NaN,
+    "ljung_box_pval_lag24": NaN
+  },
+  "focus_serie_a": {
+    "sarimax_serie_a": {
+      "RMSE": 0.093,
+      "MAE": 0.069,
+      "MAPE": 1.25,
+      "AIC": -213.8,
+      "BIC": -182.3
+    },
+    "naive_serie_a": {
+      "RMSE": 0.255,
+      "MAE": 0.217,
+      "MAPE": 3.9
+    }
+  }
+}

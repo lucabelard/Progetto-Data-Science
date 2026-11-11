@@ -49,7 +49,7 @@
 \contentsline {subsection}{\numberline {5.3}Sviluppi futuri}{54}{subsection.5.3}%
 \ttl@stoptoc {part1@1}
 \contentsline {section}{Elenco delle figure}{55}{subsection.5.3}%
-\contentsline {section}{Elenco delle tabelle}{55}{subsection.5.3}%
+\contentsline {section}{Elenco delle tabelle}{57}{subsection.5.3}%
 \ttl@starttoc {part2@1}
 \contentsline {section}{\numberline {1}Analisi delle serie storiche sul mercato calcistico: introduzione e dataset}{2}{section.1}%
 \contentsline {subsection}{\numberline {1.1}Struttura del dataset relazionale di Transfermarkt}{3}{subsection.1.1}%
@@ -59,9 +59,18 @@
 \contentsline {subsection}{\numberline {2.2}Anatomia dei tre shock storici: inflazione del 2017, crollo COVID-19 e ciclo post-2023}{13}{subsection.2.2}%
 \contentsline {subsection}{\numberline {2.3}Analisi delle variazioni percentuali mensili, volatilità e identificazione degli outlier}{16}{subsection.2.3}%
 \contentsline {subsection}{\numberline {2.4}Relazione dinamica tra valore delle rose e spese nelle sessioni di calciomercato}{18}{subsection.2.4}%
-\contentsline {section}{\numberline {3}Decomposizione stagionale, stazionarietà e analisi delle autocorrelazioni}{21}{section.3}%
-\contentsline {section}{\numberline {4}Modellazione predittiva, diagnostica dei residui e conclusioni finali}{22}{section.4}%
+\contentsline {section}{\numberline {3}Decomposizione stagionale della serie, test di stazionarietà e autocorrelazione}{21}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Decomposizione STL della serie storica del mercato europeo}{21}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Analisi formale di stazionarietà e operazione di differenziazione}{24}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Analisi della memoria temporale: funzioni di autocorrelazione ACF e PACF}{26}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Modellazione predittiva, focus sulla Serie A e conclusioni}{28}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Protocollo sperimentale, partizione temporale e metriche di valutazione}{28}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Architettura dei modelli in gara: da ARIMA a SARIMAX con esogene di mercato}{30}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Confronto quantitativo delle prestazioni predittive sul set di verifica}{31}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Diagnostica dei residui e verifica del rumore bianco}{35}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Applicazione e focus previsionale sul campionato italiano di Serie A}{37}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Conclusioni della seconda parte e sintesi generale dell'elaborato}{39}{subsection.4.6}%
 \ttl@stoptoc {part2@1}
-\contentsline {section}{Elenco delle figure}{23}{section.4}%
-\contentsline {section}{Elenco delle tabelle}{23}{section.4}%
+\contentsline {section}{Elenco delle figure}{41}{subsection.4.6}%
+\contentsline {section}{Elenco delle tabelle}{41}{subsection.4.6}%
 \contentsfinish 

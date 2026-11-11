@@ -1,9 +1,97 @@
 % =========================================================================
-% CAPITOLO 8: DECOMPOSIZIONE STAGIONALE, STAZIONARIETA E IDENTIFICAZIONE
-% (Da completare nello Step 3)
+% CAPITOLO 8: DECOMPOSIZIONE STAGIONALE, STAZIONARIETA E AUTOCORRELAZIONE
 % =========================================================================
-\section{Decomposizione stagionale, stazionarietà e analisi delle autocorrelazioni}
-\label{sec:stl_stazionarieta}
+\section{Decomposizione stagionale della serie, test di stazionarietà e autocorrelazione}
 
-Il presente capitolo è dedicato all'analisi della struttura temporale della serie mediante \textbf{decomposizione STL} (\textit{Seasonal and Trend decomposition using Loess}) con periodo stagionale annuale ($s = 12$). Vengono illustrati i risultati formali dei test di radice unitaria (\textbf{Augmented Dickey-Fuller} e \textbf{KPSS}) per verificare la \textbf{non stazionarietà} della serie originaria e la sua riconduzione a stazionarietà mediante \textbf{differenziazione prima}. L'analisi è completata dall'ispezione dei correlogrammi di autocorrelazione semplice (\textbf{ACF}) e parziale (\textbf{PACF}) per la selezione rigorosa degli ordini autoregressivi e di media mobile.
+Prima di procedere alla formulazione e alla stima dei modelli predittivi, è indispensabile analizzare la struttura interna della serie storica per comprenderne i meccanismi generatori. Nella teoria delle serie temporali, l'evoluzione di una variabile economica aggregata come il valore patrimoniale delle rose dei cinque maggiori campionati europei (\texttt{top5\_market\_value\_bn}) non può essere trattata direttamente mediante algoritmi di previsione lineare senza aver prima soddisfatto tre passaggi analitici fondamentali: la scomposizione del segnale nelle sue componenti latenti (un trend macroeconomico di lungo periodo, una componente stagionale periodica legata alle scadenze del calendario sportivo e un termine residuale irregolare); la verifica formale della stazionarietà statistica attraverso test di radice unitaria e di livello, determinando l'ordine di integrazione $d$ necessario per stabilizzare la media e la varianza; infine, lo studio delle funzioni di autocorrelazione semplice (\textit{Autocorrelation Function}, ACF) e di autocorrelazione parziale (\textit{Partial Autocorrelation Function}, PACF), che misurano la memoria temporale del processo e guidano la scelta degli ordini autoregressivi e a media mobile. Tutte le procedure matematiche e grafiche discusse nel presente capitolo sono organizzate nel modulo \texttt{src/analysis/stl\_stationarity.py} e orchestrate dallo script \texttt{scripts/03\_run\_stl\_stationarity.py}.
 
+\subsection{Decomposizione STL della serie storica del mercato europeo}
+
+Per isolare in modo rigoroso e non parametrico le componenti strutturali della serie mensile si è applicata la metodologia di decomposizione STL (\textit{Seasonal and Trend decomposition using Loess}), introdotta da Cleveland et al. A differenza dei filtri decompositivi classici basati su medie mobili simmetriche uniformi, l'algoritmo STL utilizza regressioni polinomiali ponderate localmente (\textit{Loess}) che offrono due vantaggi cruciali per il nostro dominio applicativo: consentono alla forma dell'onda stagionale di adattarsi progressivamente ai mutamenti del mercato lungo i quindici anni di osservazione e, grazie alla stima iterativa con pesi di robustezza, impediscono che osservazioni anomale estreme (quali il taglio pandemico dell'aprile 2020) distorcano la stima del trend o del ciclo stagionale.
+
+Fissato il periodo fondamentale a $s = 12$ mesi (corrispondente al ciclo annuale delle stagioni calcistiche e delle sessioni di trasferimento), la serie storica osservata $Y_t$ viene espressa secondo il modello additivo:
+\begin{equation}
+    Y_t = T_t + S_t + R_t
+    \label{eq:decomposizione_stl}
+\end{equation}
+dove $T_t$ rappresenta il livello di trend a lungo termine, $S_t$ indica l'effetto stagionale periodico a media nulla e $R_t$ cattura la componente residuale irregolare. Nella Figura \ref{fig:stl_decomposizione} sono riportati i quattro pannelli sincronizzati della decomposizione STL lungo i 180 mesi compresi tra giugno 2011 e maggio 2026.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{capitolo8/img/fig12_stl_decomposizione_completa.png}
+    \caption{Decomposizione STL additiva della serie storica del valore di mercato delle rose Top-5 con periodo stagionale $s = 12$ mesi e stima robusta agli outlier.}
+    \label{fig:stl_decomposizione}
+\end{figure}
+
+L'esame congiunto dei pannelli della Figura \ref{fig:stl_decomposizione} permette di quantificare il peso relativo di ciascuna componente mediante gli indici di forza proposti in letteratura da Wang, Smith e Hyndman. In particolare, la forza del trend $F_T$ e la forza della stagionalità $F_S$ sono definite come:
+\begin{equation}
+    F_T = \max\left(0, \, 1 - \frac{\mathrm{Var}(R_t)}{\mathrm{Var}(T_t + R_t)}\right), \qquad F_S = \max\left(0, \, 1 - \frac{\mathrm{Var}(R_t)}{\mathrm{Var}(S_t + R_t)}\right)
+    \label{eq:forza_trend_stag}
+\end{equation}
+Sulla serie storica europea, la componente di trend $T_t$ mostra un indice di forza pari a $F_T = 0,992$, un valore prossimo all'unità che attesta come la variabilità complessiva del fenomeno sia dominata dall'espansione strutturale di lungo periodo (dalla fase di crescita moderata del 2011--2016, all'accelerazione post-2017, fino alla flessione del 2020--2022 e alla risalita verso i 34,44 miliardi del 2026). La componente stagionale $S_t$ esibisce un'oscillazione periodica regolare che si amplia gradualmente in valore assoluto al crescere della capitalizzazione complessiva del mercato (passando da un'escursione di circa $\pm 0,2$ miliardi nei primi anni a circa $\pm 0,6$ miliardi nel periodo recente), con una forza globale pari a $F_S = 0,039$ rispetto alla varianza del residuo. Infine, il pannello inferiore dedicato alla componente residuale $R_t$ dimostra l'efficacia della ponderazione robusta dell'algoritmo STL: il residuo si mantiene prossimo allo zero lungo quasi tutto l'orizzonte temporale, isolando nitidamente gli shock esogeni straordinari, tra cui spicca la caduta verticale dell'aprile 2020 generata dalla pandemia da COVID-19.
+
+Per interpretare dal punto di vista economico il ritmo ciclico intra-annuale, nella Figura \ref{fig:stl_profilo_mensile} è stato calcolato l'effetto stagionale medio associato a ciascuno dei dodici mesi dell'anno solare.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{capitolo8/img/fig13_stl_profilo_medio_mensile.png}
+    \caption{Profilo stagionale medio mensile del valore delle rose nei dodici mesi dell'anno solare estratto dalla componente $S_t$.}
+    \label{fig:stl_profilo_mensile}
+\end{figure}
+
+Come evidenziato dalle barre della Figura \ref{fig:stl_profilo_mensile}, l'andamento stagionale medio riflette l'interazione tra le sessioni di compravendita e i calendari di revisione dei listini di Transfermarkt: il contributo stagionale positivo raggiunge il suo massimo in autunno nei mesi di ottobre ($+0,28$ miliardi di euro) e novembre ($+0,15$ miliardi), quando vengono pubblicati gli aggiornamenti generali dei prezzi che recepiscono i valori dei contratti firmati nel mercato estivo e il rendimento iniziale nei campionati e nelle coppe europee, preceduto dai rialzi estivi di luglio ($+0,09$ miliardi) e settembre ($+0,08$ miliardi). Al contrario, i mesi di maggio ($-0,10$ miliardi) e giugno ($-0,12$ miliardi), così come il bimestre invernale gennaio--febbraio ($-0,11$ e $-0,12$ miliardi), registrano un effetto stagionale medio negativo legato alle svalutazioni per l'avanzamento dell'età anagrafica, alle scadenze contrattuali di fine stagione e ai tagli dei calciatori meno impiegati.
+
+\subsection{Analisi formale di stazionarietà e operazione di differenziazione}
+
+La maggior parte dei modelli stocastici lineari per la previsione di serie storiche presuppone che il processo generatore sia debolmente stazionario (ovvero caratterizzato da media costante $\mathbb{E}[Y_t] = \mu$, varianza finita e invariante nel tempo $\mathrm{Var}(Y_t) = \sigma^2$ e funzione di autocovarianza dipendente unicamente dallo sfasamento temporale $k$). Poiché la presenza di un trend così marcato ($F_T = 0,992$) viola palesemente la costanza della media sulla serie originaria in livelli $Y_t$, si è resa necessaria l'applicazione dell'operatore di differenziazione prima:
+\begin{equation}
+    \Delta Y_t = Y_t - Y_{t-1} = (1 - B) Y_t
+    \label{eq:differenziazione_prima}
+\end{equation}
+dove $B$ denota l'operatore di ritardo (\textit{backshift operator}, $B^k Y_t = Y_{t-k}$).
+
+Per accertare con rigore statistico l'ordine di integrazione $d$ della serie, si è adottata una strategia di verifica incrociata sottoponendo sia la serie in livelli $Y_t$ ($d = 0$) sia la serie differenziata prima $\Delta Y_t$ ($d = 1$) a due test ipotetici complementari: il test di Dickey-Fuller Aumentato (ADF, che assume come ipotesi nulla $H_0$ la presenza di una radice unitaria e quindi la non stazionarietà della serie) e il test KPSS di Kwiatkowski, Phillips, Schmidt e Shin (che assume, al contrario, come ipotesi nulla $H_0$ la stazionarietà della serie attorno a un livello deterministico). L'impiego congiunto dei due test consente di evitare conclusioni spurie dovute alla bassa potenza statistica di un singolo test su campioni finiti. I risultati numerici ottenuti sono riassunti nella Tabella \ref{tab:test_stazionarieta}.
+
+\begin{table}[H]
+\centering
+\caption{Risultati formali dei test di stazionarietà Augmented Dickey-Fuller (ADF) e KPSS sulla serie in livelli e sulla serie differenziata prima.}
+\label{tab:test_stazionarieta}
+\begin{tabularx}{\textwidth}{lXXXXX}
+\toprule
+\textbf{Configurazione serie} & \textbf{Statistica ADF} & \textbf{p-value ADF} & \textbf{Statistica KPSS} & \textbf{p-value KPSS} & \textbf{Verdetto congiunto} \\
+\midrule
+Serie in livelli $Y_t$ ($d=0$) & $-0,815$ & 0,8148 & 1,773 & 0,0100 & \textbf{Non stazionaria} \\
+Serie differenziata $\Delta Y_t$ ($d=1$) & $-13,819$ & $< 0,0001$ & 0,140 & 0,1000 & \textbf{Stazionaria} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+I valori riportati nella Tabella \ref{tab:test_stazionarieta} forniscono una risposta inequivocabile. Sulla serie originale in livelli ($d = 0$), la statistica del test ADF è pari a $-0,815$ (ben più alta della soglia critica al 5\% pari a $-2,878$), cui corrisponde un $p$-value di $0,8148$ che non consente di rifiutare l'ipotesi nulla di radice unitaria; simultaneamente, il test KPSS restituisce una statistica pari a $1,773$ (superiore di quasi quattro volte al valore critico al 5\% pari a $0,463$, con $p$-value $\le 0,01$), portando al rifiuto dell'ipotesi di stazionarietà. Entrambi i test certificano dunque che la serie di partenza non è stazionaria ed è integrata di ordine uno, $Y_t \sim I(1)$.
+
+Applicando una singola differenziazione mensile ($d = 1$), il quadro diagnostico si inverte completamente: la statistica ADF scende a $-13,819$ con un $p$-value inferiore a $0,0001$, respingendo con la massima confidenza la presenza di radice unitaria; in parallelo, la statistica KPSS crolla a $0,140$ (ampiamente al di sotto della soglia critica di $0,463$, con $p$-value $\ge 0,10$), confermando che non vi è alcuna evidenza contro l'ipotesi nulla di stazionarietà. La trasformazione $\Delta Y_t$ risulta pertanto pienamente stazionaria, $\Delta Y_t \sim I(0)$, fissando in modo definitivo il parametro di integrazione a $d = 1$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{capitolo8/img/fig14_stazionarieta_confronto_differenziazione.png}
+    \caption{Confronto visivo tra la serie del valore delle rose in livelli (non stazionaria, $d=0$) e la serie differenziata prima $\Delta Y_t$ (stazionaria attorno a zero, $d=1$).}
+    \label{fig:stazionarieta_differenziazione}
+\end{figure}
+
+La Figura \ref{fig:stazionarieta_differenziazione} illustra visivamente l'effetto della trasformazione: mentre il pannello superiore mostra la deriva secolare del livello patrimoniale, il pannello inferiore evidenzia come le differenze prime $\Delta Y_t$ oscillino stabilmente attorno a un livello medio prossimo allo zero all'interno della fascia $\pm 2\sigma$, fatta salva la singola discontinuità impulsiva dell'aprile 2020.
+
+\subsection{Analisi della memoria temporale: funzioni di autocorrelazione ACF e PACF}
+
+Stabilito che la serie differenziata prima $\Delta Y_t$ soddisfa la condizione di stazionarietà, il terzo passo dell'analisi consiste nell'esaminare la struttura di correlazione seriale attraverso i correlogrammi empirici fino a un orizzonte di $k = 36$ ritardi mensili (tre cicli annuali completi). La funzione di autocorrelazione semplice (ACF) misura la dipendenza lineare complessiva tra $\Delta Y_t$ e $\Delta Y_{t-k}$, fornendo indicazioni sull'ordine $q$ (e stagionale $Q$) della componente a media mobile (\textit{Moving Average}, MA); la funzione di autocorrelazione parziale (PACF) isola invece il legame diretto al ritardo $k$ al netto dell'effetto lineare dei ritardi intermedi $1, \dots, k-1$, guidando l'identificazione dell'ordine $p$ (e stagionale $P$) della componente autoregressiva (\textit{Autoregressive}, AR).
+
+Nella Figura \ref{fig:acf_pacf} sono riportati i due correlogrammi impilati a tutta larghezza insieme alle bande di confidenza al 95\% calcolate secondo l'approssimazione asintotica di Bartlett ($\pm 1,96 / \sqrt{N} = \pm 0,146$).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{capitolo8/img/fig15_acf_pacf_serie_differenziata.png}
+    \caption{Funzione di autocorrelazione semplice (ACF) e parziale (PACF) calcolate sulla serie differenziata prima $\Delta Y_t$ fino a 36 ritardi mensili.}
+    \label{fig:acf_pacf}
+\end{figure}
+
+Dall'analisi della Figura \ref{fig:acf_pacf} emergono due evidenze econometriche di primaria importanza per la costruzione dei modelli predittivi del capitolo successivo. In primo luogo, si osserva come ai primi ritardi ($k = 1, 2, 3$) i coefficienti campionari di autocorrelazione sulla serie differenziata grezza risultino fortemente attenuati ($r_{\text{acf}}(1) = -0,041$) e contenuti entro la fascia di Bartlett. Nella letteratura sulle serie storiche, questo fenomeno è noto come effetto di mascheramento da outlier additivo (\textit{outlier masking effect}): la presenza del crollo istantaneo di $-6,14$ miliardi di euro nell'aprile 2020 gonfia la varianza campionaria posta al denominatore della formula di autocorrelazione $\hat{\rho}(k) = \hat{\gamma}(k) / \hat{\gamma}(0)$, schiacciando artificialmente verso lo zero le correlazioni seriali dei mesi ordinari. In secondo luogo, nonostante tale effetto di attenuazione, in corrispondenza del ritardo stagionale $k = 12$ mesi (evidenziato dalla linea verticale tratteggiata arancione) sia l'ACF sia la PACF mostrano un chiaro picco locale positivo ($r_{\text{acf}}(12) = +0,107$, $r_{\text{pacf}}(12) = +0,107$), che testimonia la persistenza del ciclo annuale delle sessioni estive di mercato.
+
+Questa diagnosi conduce a due conclusioni progettuali decisive per il Capitolo 9: da un lato suggerisce di esplorare modelli parsimoniosi della famiglia $\mathrm{SARIMA}(p, 1, q) \times (P, D, Q)_{12}$ con ordini contenuti ($p, q \in \{0, 1, 2\}$ e $P, Q \in \{0, 1\}$); dall'altro dimostra perché un modello puramente endogeno (che guarda solo alla storia passata di $Y_t$) sia strutturalmente svantaggiato rispetto a una formulazione $\mathrm{SARIMAX}$ dotata di regressori esogeni capaci di esplicitare sia gli shock di regime sia il volume reale di spesa delle finestre di calciomercato.
