@@ -21,36 +21,38 @@
 \contentsline {figure}{\numberline {18}{\ignorespaces Mappa 2D generata tramite t-SNE sulle feature acustiche, colorata retrospettivamente per genere Spotify originale.}}{39}{figure.caption.21}%
 \contentsline {figure}{\numberline {19}{\ignorespaces Selezione del parametro $k$ per K-Means nello spazio PCA (4 PC): curva WCSS (a sinistra) e Coefficiente di Silhouette medio (a destra).}}{40}{figure.caption.22}%
 \contentsline {figure}{\numberline {20}{\ignorespaces Partizionamento K-Means ($k=5$) visualizzato nel piano lineare PCA ($\text {PC}_1$ vs $\text {PC}_2$ con centroidi) e sulla mappa non lineare t-SNE 2D.}}{41}{figure.caption.24}%
-\contentsline {figure}{\numberline {21}{\ignorespaces Profiling acustico dei 5 cluster K-Means: Heatmap delle medie reali per feature (a sinistra) e Radar Chart comparativo delle impronte sonore (a destra).}}{42}{figure.caption.25}%
-\contentsline {figure}{\numberline {22}{\ignorespaces Profilo dei coefficienti di Silhouette per ciascun cluster K-Means ($k=5$) calcolato nello spazio PCA a 4 componenti.}}{44}{figure.caption.26}%
-\contentsline {figure}{\numberline {23}{\ignorespaces GMM a cinque componenti nello spazio PCA e distribuzione dell'affiliazione massima per brano.}}{45}{figure.caption.27}%
-\contentsline {figure}{\numberline {24}{\ignorespaces Curva ordinata delle distanze dal 5° vicino più prossimo ($k$-NN) nello spazio PCA a 4 componenti, con ginocchio ottimale in $\epsilon = 0,60$.}}{47}{figure.caption.29}%
-\contentsline {figure}{\numberline {25}{\ignorespaces Griglia di tuning iperparametrica DBSCAN nello spazio PCA 4D: Numero di cluster identificati (a sinistra) e Silhouette Score dei punti assegnati (a destra).}}{48}{figure.caption.30}%
-\contentsline {figure}{\numberline {26}{\ignorespaces Clusterizzazione DBSCAN ($\epsilon =0,60, \texttt {min\_samples}=5$) nello spazio PCA 2D (a sinistra) e t-SNE 2D (a destra), con evidenziazione dei 462 punti noise.}}{49}{figure.caption.31}%
-\contentsline {figure}{\numberline {27}{\ignorespaces Analisi diagnostica dei punti noise DBSCAN: confronto tramite boxplot tra il nucleo denso e i 462 brani periferici.}}{50}{figure.caption.32}%
-\contentsline {figure}{\numberline {28}{\ignorespaces Cluster HDBSCAN e affiliazione GMM massima dei 462 brani noise DBSCAN nella proiezione PCA 2D.}}{51}{figure.caption.33}%
+\contentsline {figure}{\numberline {21}{\ignorespaces Medie delle feature per i cluster K-Means. Le annotazioni riportano le medie originali; il colore è riscalato per colonna.}}{43}{figure.caption.25}%
+\contentsline {figure}{\numberline {22}{\ignorespaces Radar chart delle medie normalizzate delle 8 feature usate nel clustering K-Means.}}{44}{figure.caption.26}%
+\contentsline {figure}{\numberline {23}{\ignorespaces Profilo dei coefficienti di Silhouette per ciascun cluster K-Means ($k=5$) calcolato nello spazio PCA a 4 componenti.}}{46}{figure.caption.27}%
+\contentsline {figure}{\numberline {24}{\ignorespaces Mappa topografica GMM nello spazio PCA 2D con ellissi di dispersione ($1\sigma $ continua, $2\sigma $ tratteggiata) ed evidenziazione dei 409 brani ponte cross-mood (a sinistra), affiancata dalla graduatoria dei corridoi ibridi più frequenti (a destra).}}{47}{figure.caption.28}%
+\contentsline {figure}{\numberline {25}{\ignorespaces Pentagono Baricentrico dei Mood (RadViz Simplex Plot): visualizzazione dello spazio delle probabilità soft GMM con cerchi guida di confidenza e posizionamento delle tracce ponte.}}{48}{figure.caption.29}%
+\contentsline {figure}{\numberline {26}{\ignorespaces Curva ordinata delle distanze dal 5° vicino più prossimo ($k$-NN) nello spazio PCA a 4 componenti, con ginocchio ottimale in $\epsilon = 0,60$.}}{51}{figure.caption.31}%
+\contentsline {figure}{\numberline {27}{\ignorespaces Griglia di tuning iperparametrica DBSCAN nello spazio PCA 4D: Numero di cluster identificati (a sinistra) e Silhouette Score dei punti assegnati (a destra).}}{52}{figure.caption.32}%
+\contentsline {figure}{\numberline {28}{\ignorespaces Clusterizzazione DBSCAN ($\epsilon =0,60, \texttt {min\_samples}=5$) nello spazio PCA 2D (a sinistra) e t-SNE 2D (a destra), con evidenziazione dei 462 punti noise.}}{53}{figure.caption.33}%
+\contentsline {figure}{\numberline {29}{\ignorespaces Raincloud Plot diagnostico per la separazione tra Core denso e Rumore DBSCAN: stima di densità non parametrica (Half-Violin KDE), mediana e IQR (Boxplot) e nuvola di punti reali jitterati (Rain) per le tre feature più discriminanti.}}{54}{figure.caption.34}%
+\contentsline {figure}{\numberline {30}{\ignorespaces Cluster HDBSCAN a densità variabile e affiliazione GMM massima dei 462 brani noise DBSCAN nella proiezione PCA 2D.}}{56}{figure.caption.35}%
 \ttl@stoptoc {part1@1}
 \ttl@starttoc {part2@1}
-\contentsline {figure}{\numberline {1}{\ignorespaces Complementarità stagionale tra la frequenza mensile degli aggiornamenti di valutazione e il volume delle operazioni di calciomercato nei cinque maggiori campionati europei.}}{3}{figure.caption.37}%
-\contentsline {figure}{\numberline {2}{\ignorespaces Confronto tra aggregazione statica e ricostruzione storica dinamica per la Serie A e andamento complessivo della serie storica principale post-ETL sui 180 mesi di osservazione.}}{5}{figure.caption.39}%
-\contentsline {figure}{\numberline {3}{\ignorespaces Evoluzione storica del valore di mercato delle rose nei cinque maggiori campionati europei tra giugno 2011 e maggio 2026.}}{6}{figure.caption.41}%
-\contentsline {figure}{\numberline {4}{\ignorespaces Ripartizione percentuale delle quote di mercato tra le cinque leghe europee sul totale Top-5 (2011--2026).}}{7}{figure.caption.43}%
-\contentsline {figure}{\numberline {5}{\ignorespaces Shock 1: accelerazione del trend di crescita dopo il trasferimento di Neymar nell'agosto 2017.}}{8}{figure.caption.44}%
-\contentsline {figure}{\numberline {6}{\ignorespaces Shock 2: crollo pandemico da COVID-19 nell'aprile 2020 ($-18,17\%$) e tempi di recupero.}}{9}{figure.caption.45}%
-\contentsline {figure}{\numberline {7}{\ignorespaces Shock 3: espansione 2023--2026, nuovo massimo storico e crescita del valore medio per calciatore.}}{9}{figure.caption.46}%
-\contentsline {figure}{\numberline {8}{\ignorespaces Serie storica delle variazioni percentuali mensili con fasce di confidenza $\pm 2\sigma $ e mesi outlier.}}{10}{figure.caption.47}%
-\contentsline {figure}{\numberline {9}{\ignorespaces Distribuzione di densità (KDE) e istogramma delle variazioni percentuali mensili per i Top-5 campionati e la Serie A.}}{10}{figure.caption.48}%
-\contentsline {figure}{\numberline {10}{\ignorespaces Confronto tra le spese mensili nelle sessioni di calciomercato e la crescita del valore delle rose (2011--2026).}}{11}{figure.caption.49}%
-\contentsline {figure}{\numberline {11}{\ignorespaces Matrice di correlazione di Pearson tra il valore delle rose e le metriche di spesa del calciomercato.}}{12}{figure.caption.50}%
-\contentsline {figure}{\numberline {12}{\ignorespaces Decomposizione STL della serie storica del valore delle rose Top-5 con periodo stagionale $s = 12$ mesi.}}{13}{figure.caption.51}%
-\contentsline {figure}{\numberline {13}{\ignorespaces Profilo stagionale medio mensile del valore delle rose nei dodici mesi dell'anno.}}{14}{figure.caption.52}%
-\contentsline {figure}{\numberline {14}{\ignorespaces Confronto tra la serie originale in livelli (non stazionaria, $d=0$) e la serie differenziata prima $\Delta Y_t$ (stazionaria attorno a zero, $d=1$).}}{15}{figure.caption.54}%
-\contentsline {figure}{\numberline {15}{\ignorespaces Grafici di autocorrelazione (ACF) e autocorrelazione parziale (PACF) sulla serie differenziata $\Delta Y_t$ fino a 36 mesi di ritardo.}}{16}{figure.caption.55}%
-\contentsline {figure}{\numberline {16}{\ignorespaces Divisione cronologica della serie storica tra training set (144 mesi, giugno 2011 -- maggio 2023) e test set (36 mesi, giugno 2023 -- maggio 2026).}}{17}{figure.caption.56}%
-\contentsline {figure}{\numberline {17}{\ignorespaces Confronto sul test set (giugno 2023 -- maggio 2026) tra i valori reali e le previsioni di Baseline Naive, ARIMA, SARIMA e SARIMAX.}}{19}{figure.caption.57}%
-\contentsline {figure}{\numberline {18}{\ignorespaces Confronto grafico degli errori RMSE (in miliardi di euro) e MAPE (\%) sul test set tra i cinque modelli.}}{20}{figure.caption.59}%
-\contentsline {figure}{\numberline {19}{\ignorespaces Andamento nel tempo dei residui standardizzati del modello SARIMAX e confronto della loro distribuzione con la curva normale $\mathcal {N}(0, 1)$.}}{20}{figure.caption.60}%
-\contentsline {figure}{\numberline {20}{\ignorespaces Diagramma Q-Q Plot e funzione di autocorrelazione (ACF) dei residui del modello SARIMAX.}}{21}{figure.caption.61}%
-\contentsline {figure}{\numberline {21}{\ignorespaces Focus Serie A (\texttt {IT1}): serie storica e previsione del modello SARIMAX sul triennio di test 2023--2026.}}{22}{figure.caption.63}%
+\contentsline {figure}{\numberline {1}{\ignorespaces Complementarità stagionale tra la frequenza mensile degli aggiornamenti di valutazione e il volume delle operazioni di calciomercato nei cinque maggiori campionati europei.}}{3}{figure.caption.39}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Confronto tra aggregazione statica e ricostruzione storica dinamica per la Serie A e andamento complessivo della serie storica principale post-ETL sui 180 mesi di osservazione.}}{5}{figure.caption.41}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Evoluzione storica del valore di mercato delle rose nei cinque maggiori campionati europei tra giugno 2011 e maggio 2026.}}{6}{figure.caption.43}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Ripartizione percentuale delle quote di mercato tra le cinque leghe europee sul totale Top-5 (2011--2026).}}{7}{figure.caption.45}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Shock 1: accelerazione del trend di crescita dopo il trasferimento di Neymar nell'agosto 2017.}}{8}{figure.caption.46}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Shock 2: crollo pandemico da COVID-19 nell'aprile 2020 ($-18,17\%$) e tempi di recupero.}}{9}{figure.caption.47}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Shock 3: espansione 2023--2026, nuovo massimo storico e crescita del valore medio per calciatore.}}{9}{figure.caption.48}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Serie storica delle variazioni percentuali mensili con fasce di confidenza $\pm 2\sigma $ e mesi outlier.}}{10}{figure.caption.49}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Distribuzione di densità (KDE) e istogramma delle variazioni percentuali mensili per i Top-5 campionati e la Serie A.}}{10}{figure.caption.50}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Confronto tra le spese mensili nelle sessioni di calciomercato e la crescita del valore delle rose (2011--2026).}}{11}{figure.caption.51}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Matrice di correlazione di Pearson tra il valore delle rose e le metriche di spesa del calciomercato.}}{12}{figure.caption.52}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Decomposizione STL della serie storica del valore delle rose Top-5 con periodo stagionale $s = 12$ mesi.}}{13}{figure.caption.53}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Profilo stagionale medio mensile del valore delle rose nei dodici mesi dell'anno.}}{14}{figure.caption.54}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Confronto tra la serie originale in livelli (non stazionaria, $d=0$) e la serie differenziata prima $\Delta Y_t$ (stazionaria attorno a zero, $d=1$).}}{15}{figure.caption.56}%
+\contentsline {figure}{\numberline {15}{\ignorespaces Grafici di autocorrelazione (ACF) e autocorrelazione parziale (PACF) sulla serie differenziata $\Delta Y_t$ fino a 36 mesi di ritardo.}}{16}{figure.caption.57}%
+\contentsline {figure}{\numberline {16}{\ignorespaces Divisione cronologica della serie storica tra training set (144 mesi, giugno 2011 -- maggio 2023) e test set (36 mesi, giugno 2023 -- maggio 2026).}}{17}{figure.caption.58}%
+\contentsline {figure}{\numberline {17}{\ignorespaces Confronto sul test set (giugno 2023 -- maggio 2026) tra i valori reali e le previsioni di Baseline Naive, ARIMA, SARIMA e SARIMAX.}}{19}{figure.caption.59}%
+\contentsline {figure}{\numberline {18}{\ignorespaces Confronto grafico degli errori RMSE (in miliardi di euro) e MAPE (\%) sul test set tra i cinque modelli.}}{20}{figure.caption.61}%
+\contentsline {figure}{\numberline {19}{\ignorespaces Andamento nel tempo dei residui standardizzati del modello SARIMAX e confronto della loro distribuzione con la curva normale $\mathcal {N}(0, 1)$.}}{20}{figure.caption.62}%
+\contentsline {figure}{\numberline {20}{\ignorespaces Diagramma Q-Q Plot e funzione di autocorrelazione (ACF) dei residui del modello SARIMAX.}}{21}{figure.caption.63}%
+\contentsline {figure}{\numberline {21}{\ignorespaces Focus Serie A (\texttt {IT1}): serie storica e previsione del modello SARIMAX sul triennio di test 2023--2026.}}{22}{figure.caption.65}%
 \ttl@stoptoc {part2@1}
 \contentsfinish 

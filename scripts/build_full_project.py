@@ -872,28 +872,60 @@ plt.tight_layout()
 plt.savefig('figures/fig22_dbscan_tsne_clusters_noise.png', dpi=300)
 plt.close()
 
-# FIGURA 23: Analisi diagnostica del rumore DBSCAN (Perché sono considerati outlier?)
-fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 5))
+# FIGURA 23: Analisi diagnostica del rumore DBSCAN (Raincloud Plot: Half-Violin + Boxplot + Jitter)
+from scipy import stats
+import matplotlib.patches as patches
+import shutil
+
 df_cluster_sample['is_noise'] = (df_cluster_sample['dbscan_cluster'] == -1).map(
-    {True: 'Noise DBSCAN (-1)', False: 'Cluster DBSCAN'}
+    {True: 'Rumore / Outlier DBSCAN', False: 'Cluster Core (Densità Ottimale)'}
 )
+df_cluster_sample['duration_min'] = df_cluster_sample['duration_ms'] / 60000.0
 
-sns.boxplot(data=df_cluster_sample, x='is_noise', y='duration_ms', ax=ax1, hue='is_noise', palette='Set1', legend=False)
-ax1.set_title('Durata Brano (ms, scala logaritmica)', fontweight='bold')
-ax1.set_yscale('log')
-ax1.set_xlabel('')
+features_raincloud = [
+    ('duration_min', 'Durata della Traccia (minuti)', [0, 8]),
+    ('speechiness', 'Speechiness (Contenuto Parlato)', [0, 0.8]),
+    ('acousticness', 'Acousticness (Timbrica Naturale vs Sintetica)', [0, 1.0])
+]
 
-sns.boxplot(data=df_cluster_sample, x='is_noise', y='speechiness', ax=ax2, hue='is_noise', palette='Set1', legend=False)
-ax2.set_title('Speechiness (Presenza Parlato)', fontweight='bold')
-ax2.set_xlabel('')
+fig, axes = plt.subplots(1, 3, figsize=(18, 6.5))
+rain_colors = {'Cluster Core (Densità Ottimale)': '#2980b9', 'Rumore / Outlier DBSCAN': '#e74c3c'}
 
-sns.boxplot(data=df_cluster_sample, x='is_noise', y='acousticness', ax=ax3, hue='is_noise', palette='Set1', legend=False)
-ax3.set_title('Acousticness (Natura Acustica)', fontweight='bold')
-ax3.set_xlabel('')
-plt.suptitle('Analisi Diagnostica del Rumore DBSCAN: Caratteristiche Acustiche delle 462 Tracce Outlier', fontsize=14.5, fontweight='bold')
-plt.tight_layout()
-plt.savefig('figures/fig23_dbscan_noise_profiling.png', dpi=300)
+for ax, (feat, feat_label, x_limits) in zip(axes, features_raincloud):
+    for group_idx, (group_name, color) in enumerate(rain_colors.items()):
+        sub_vals = df_cluster_sample[df_cluster_sample['is_noise'] == group_name][feat].dropna().values
+        y_base = group_idx * 1.5
+
+        # 1. Half-KDE (Cloud)
+        kde = stats.gaussian_kde(sub_vals)
+        x_eval = np.linspace(x_limits[0], x_limits[1], 200)
+        kde_vals = kde(x_eval)
+        kde_scaled = (kde_vals / kde_vals.max()) * 0.55
+        ax.fill_between(x_eval, y_base, y_base + kde_scaled, color=color, alpha=0.55, edgecolor=color, lw=1.5)
+
+        # 2. Boxplot minimale
+        q25, q50, q75 = np.percentile(sub_vals, [25, 50, 75])
+        ax.plot([q25, q75], [y_base - 0.12, y_base - 0.12], color=color, lw=4, solid_capstyle='round')
+        ax.scatter([q50], [y_base - 0.12], color='white', edgecolor='#2c3e50', s=45, zorder=4)
+
+        # 3. Jittered scatter (Rain)
+        sample_pts = np.random.choice(sub_vals, size=min(400, len(sub_vals)), replace=False)
+        jitter = np.random.uniform(-0.18, -0.04, size=len(sample_pts))
+        ax.scatter(sample_pts, y_base - 0.2 + jitter, color=color, alpha=0.25, s=12, edgecolors='none')
+
+    ax.set_ylim(-0.5, 2.5)
+    ax.set_xlim(x_limits)
+    ax.set_yticks([0.3, 1.8])
+    ax.set_yticklabels(['Cluster Core', 'Rumore DBSCAN'], fontsize=11, fontweight='bold')
+    ax.set_xlabel(feat_label, fontsize=11.5)
+    ax.set_title(f"Distribuzione di {feat.replace('_min', ' (min)').capitalize()}", fontsize=13, fontweight='bold')
+    ax.grid(axis='x', linestyle=':', alpha=0.5)
+
+fig.suptitle('Raincloud Plot: Diagnosi Acustica della Separazione tra Core e Rumore DBSCAN\n(Half-Violin KDE + Boxplot + Jittered Data Cloud)', fontsize=14.5, fontweight='bold', y=1.03)
+fig.tight_layout()
+plt.savefig('figures/fig23_dbscan_noise_profiling.png', dpi=300, bbox_inches='tight')
 plt.close()
+shutil.copy('figures/fig23_dbscan_noise_profiling.png', 'Relazione/capitolo4/img/fig23_dbscan_noise_profiling.png')
 
 # 4.8 GMM: evoluzione probabilistica dei cinque profili K-Means
 # Si mantiene k=5 per un confronto diretto con K-Means; le probabilita' sono
@@ -937,34 +969,177 @@ gmm_display_order = [gmm_component_display[i] for i in range(k_opt)]
 gmm_color_map = {gmm_component_display[i]: plt.cm.tab10(i / 10.0) for i in range(k_opt)}
 df_cluster_sample['gmm_profile'] = df_cluster_sample['gmm_component'].map(gmm_component_display)
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 8.5))
-sns.scatterplot(
-    data=df_cluster_sample, x='pc_1', y='pc_2', hue='gmm_profile',
-    hue_order=gmm_display_order, palette=gmm_color_map,
-    alpha=0.55, s=22, edgecolor=None, legend=False, ax=ax1
+# FIGURA 24: Mappa Topografica GMM ad Ellissi di Covarianza e Corridoi Ibridi
+fig, (ax_main, ax_side) = plt.subplots(1, 2, figsize=(18, 8.5), gridspec_kw={'width_ratios': [2.2, 1]})
+
+sns.kdeplot(
+    data=df_cluster_sample, x='pc_1', y='pc_2',
+    levels=10, cmap='Blues', alpha=0.3, fill=True, ax=ax_main, thresh=0.03
 )
-ax1.set_title('GMM a 5 componenti nella proiezione PCA 2D', fontsize=15, fontweight='bold')
-ax1.set_xlabel(f"PC1 ({exp_var[0] * 100:.1f}% varianza)", fontsize=13)
-ax1.set_ylabel(f"PC2 ({exp_var[1] * 100:.1f}% varianza)", fontsize=13)
-ax2.hist(gmm_top1, bins=np.linspace(0.2, 1.0, 17), color='#4e79a7', edgecolor='white')
-ax2.axvline(np.median(gmm_top1), color='crimson', linestyle='--', linewidth=2,
-            label=f'Mediana = {np.median(gmm_top1):.2f}')
-ax2.set_title('Forza dell’affiliazione più alta per brano', fontsize=15, fontweight='bold')
-ax2.set_xlabel('Probabilità stimata del componente più probabile', fontsize=13)
-ax2.set_ylabel('Numero di brani', fontsize=13)
-ax2.legend(fontsize=11)
-gmm_handles = [
-    Line2D([0], [0], marker='o', linestyle='', markersize=8,
-           markerfacecolor=gmm_color_map[name], markeredgecolor='none', label=name)
-    for name in gmm_display_order
-]
-fig.legend(handles=gmm_handles, loc='lower center', ncol=2,
-           title='Profili sintetici delle componenti (ID GMM arbitrari)',
-           fontsize=11, title_fontsize=12, bbox_to_anchor=(0.5, 0.0), frameon=True)
-plt.suptitle('GMM: profili musicali con appartenenze probabilistiche', fontsize=14, fontweight='bold')
-plt.tight_layout(rect=[0, 0.16, 1, 0.94])
+
+gmm_palette_5 = ['#2b5c8f', '#27ae60', '#e67e22', '#8e44ad', '#c0392b']
+for i in range(k_opt):
+    sub = df_cluster_sample[(df_cluster_sample['gmm_component'] == i) & (~df_cluster_sample['gmm_cross_mood_candidate'])]
+    ax_main.scatter(
+        sub['pc_1'], sub['pc_2'],
+        c=gmm_palette_5[i], alpha=0.30, s=20, edgecolors='none',
+        label=gmm_display_order[i]
+    )
+
+    # Ellissi di covarianza GMM (1 sigma e 2 sigma)
+    mean_2d = gmm_final.means_[i, :2]
+    cov_2d = gmm_final.covariances_[i][:2, :2]
+    vals, vecs = np.linalg.eigh(cov_2d)
+    order = vals.argsort()[::-1]
+    vals = vals[order]
+    vecs = vecs[:, order]
+    theta = np.degrees(np.arctan2(*vecs[:, 0][::-1]))
+
+    w_1sig, h_1sig = 2 * np.sqrt(vals)
+    ell_1 = patches.Ellipse(
+        xy=mean_2d, width=w_1sig, height=h_1sig, angle=theta,
+        edgecolor=gmm_palette_5[i], facecolor='none', linewidth=2.5, linestyle='-'
+    )
+    ax_main.add_patch(ell_1)
+
+    w_2sig, h_2sig = 2 * np.sqrt(vals * 5.991)
+    ell_2 = patches.Ellipse(
+        xy=mean_2d, width=w_2sig, height=h_2sig, angle=theta,
+        edgecolor=gmm_palette_5[i], facecolor='none', linewidth=1.5, linestyle='--', alpha=0.7
+    )
+    ax_main.add_patch(ell_2)
+
+    ax_main.scatter(mean_2d[0], mean_2d[1], c=gmm_palette_5[i], s=180, marker='X', edgecolors='white', linewidths=2, zorder=6)
+    ax_main.text(mean_2d[0]+0.15, mean_2d[1]+0.15, f'C{i}', fontsize=12, fontweight='bold',
+                 color='#111111', bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.8, edgecolor=gmm_palette_5[i]))
+
+# Brani Cross-Mood evidenziati (Gap <= 0.15)
+cross_tracks = df_cluster_sample[df_cluster_sample['gmm_cross_mood_candidate']]
+ax_main.scatter(
+    cross_tracks['pc_1'], cross_tracks['pc_2'],
+    c='#f1c40f', s=60, marker='D', edgecolors='#2c3e50', linewidths=1.2,
+    zorder=5, label=f'Brani Ponte Cross-Mood (N={len(cross_tracks)})'
+)
+
+if len(cross_tracks) > 15:
+    sample_bridge = cross_tracks.iloc[15]
+    ax_main.annotate(
+        "Brano Ponte Ibrido\n(Affinità bilanciata tra 2 Archetipi)",
+        xy=(sample_bridge['pc_1'], sample_bridge['pc_2']),
+        xytext=(sample_bridge['pc_1'] + 1.2, sample_bridge['pc_2'] - 1.4),
+        arrowprops=dict(facecolor='#d35400', shrink=0.08, width=1.5, headwidth=8),
+        fontsize=10.5, fontweight='bold', color='#a04000',
+        bbox=dict(boxstyle='round,pad=0.4', facecolor='#fef9e7', edgecolor='#f39c12', alpha=0.95)
+    )
+
+ax_main.set_title('Mappa Topografica GMM: Ellissi di Covarianza (1σ e 2σ) e Corridoi Ibridi', fontsize=14, fontweight='bold')
+ax_main.set_xlabel(f"PC1 ({exp_var[0] * 100:.1f}% varianza)", fontsize=11.5)
+ax_main.set_ylabel(f"PC2 ({exp_var[1] * 100:.1f}% varianza)", fontsize=11.5)
+ax_main.legend(loc='upper right', fontsize=9.5, framealpha=0.9)
+ax_main.grid(True, linestyle=':', alpha=0.4)
+
+# Pannello Classifica Corridoi Ibridi
+bridge_pairs = []
+for _, row in cross_tracks.iterrows():
+    affs = row[gmm_membership_columns].to_numpy()
+    top2 = np.argsort(affs)[-2:]
+    pair = tuple(sorted([top2[0], top2[1]]))
+    bridge_pairs.append(pair)
+
+pair_counts = pd.Series(bridge_pairs).value_counts().head(8)
+pair_labels = [f"C{p[0]} ↔ C{p[1]}\n({gmm_display_order[p[0]].split('·')[1].strip()[:10]} / {gmm_display_order[p[1]].split('·')[1].strip()[:10]})" for p in pair_counts.index]
+
+ax_side.barh(range(len(pair_counts)), pair_counts.values, color='#e67e22', edgecolor='#2c3e50', alpha=0.85)
+ax_side.set_yticks(range(len(pair_counts)))
+ax_side.set_yticklabels(pair_labels, fontsize=9.5)
+ax_side.invert_yaxis()
+ax_side.set_xlabel("Numero di Tracce Ponte Condivise", fontsize=11)
+ax_side.set_title("Corridoi Ibridi più Frequenti\n(Opportunità di Playlist Cross-Mood)", fontsize=13, fontweight='bold')
+for i, v in enumerate(pair_counts.values):
+    ax_side.text(v + 1.5, i, f"{v} brani", va='center', fontsize=9.5, fontweight='bold', color='#7e3805')
+ax_side.grid(axis='x', linestyle=':', alpha=0.6)
+
+plt.tight_layout()
 plt.savefig('figures/fig24_gmm_soft_membership.png', dpi=300)
 plt.close()
+shutil.copy('figures/fig24_gmm_soft_membership.png', 'Relazione/capitolo4/img/fig24_gmm_soft_membership.png')
+
+# FIGURA 24b: Pentagono Baricentrico dei Mood (RadViz Simplex)
+fig_rad, ax_rad = plt.subplots(figsize=(11, 10))
+rad_angles = np.linspace(np.pi/2, np.pi/2 + 2*np.pi, 6)[:-1]
+rad_vertices = np.column_stack([np.cos(rad_angles), np.sin(rad_angles)])
+rad_theta_circle = np.linspace(0, 2*np.pi, 200)
+
+for r_guide in [0.25, 0.50, 0.75, 1.0]:
+    ax_rad.plot(r_guide * np.cos(rad_theta_circle), r_guide * np.sin(rad_theta_circle), color='gray', linestyle=':', alpha=0.45)
+    ax_rad.text(0.02, r_guide, f"{int(r_guide*100)}%", fontsize=8.5, color='gray', alpha=0.8)
+
+pent_x = np.append(rad_vertices[:, 0], rad_vertices[0, 0])
+pent_y = np.append(rad_vertices[:, 1], rad_vertices[0, 1])
+ax_rad.plot(pent_x, pent_y, color='#2c3e50', linewidth=2, linestyle='-', alpha=0.7)
+
+for i in range(5):
+    ax_rad.plot([0, rad_vertices[i, 0]], [0, rad_vertices[i, 1]], color='#7f8c8d', linestyle='--', alpha=0.5)
+
+P_rad = np.zeros((len(df_cluster_sample), 2))
+for i in range(5):
+    aff = df_cluster_sample[f'gmm_affinity_{i}'].to_numpy()[:, np.newaxis]
+    P_rad += aff * rad_vertices[i]
+
+df_cluster_sample['radviz_x'] = P_rad[:, 0]
+df_cluster_sample['radviz_y'] = P_rad[:, 1]
+
+for i in range(5):
+    sub = df_cluster_sample[(df_cluster_sample['gmm_component'] == i) & (~df_cluster_sample['gmm_cross_mood_candidate'])]
+    ax_rad.scatter(
+        sub['radviz_x'], sub['radviz_y'],
+        c=gmm_palette_5[i], alpha=0.35, s=22, edgecolors='none',
+        label=gmm_display_order[i]
+    )
+
+cross_rad = df_cluster_sample[df_cluster_sample['gmm_cross_mood_candidate']]
+ax_rad.scatter(
+    cross_rad['radviz_x'], cross_rad['radviz_y'],
+    c='#f1c40f', s=55, marker='D', edgecolors='#2c3e50', linewidths=1.2,
+    zorder=5, label='Tracce Ponte Cross-Mood (Equidistanti)'
+)
+
+rad_labels = [
+    "C0: Energetico / Strumentale\n(Rock / Metal)",
+    "C1: Acustico / Intimo\n(Folk / Classica)",
+    "C2: Energetico / Vocale\n(Pop / Dance-Pop)",
+    "C3: Dance / Elettronico\n(EDM / Techno)",
+    "C4: Urban / Ritmico\n(Rap / Hip-Hop)"
+]
+
+offset_scale = 1.18
+for i in range(5):
+    vx, vy = rad_vertices[i]
+    ax_rad.scatter(vx, vy, c=gmm_palette_5[i], s=240, edgecolors='#2c3e50', linewidths=2.5, zorder=6)
+    align_h = 'center'
+    if vx > 0.2: align_h = 'left'
+    elif vx < -0.2: align_h = 'right'
+    align_v = 'center'
+    if vy > 0.3: align_v = 'bottom'
+    elif vy < -0.3: align_v = 'top'
+
+    ax_rad.text(
+        vx * offset_scale, vy * offset_scale, rad_labels[i],
+        ha=align_h, va=align_v, fontsize=10.5, fontweight='bold',
+        color='#1a252f', bbox=dict(boxstyle='round,pad=0.35', facecolor='white', edgecolor=gmm_palette_5[i], alpha=0.92, lw=1.5)
+    )
+
+ax_rad.set_xlim(-1.55, 1.55)
+ax_rad.set_ylim(-1.45, 1.55)
+ax_rad.set_aspect('equal')
+ax_rad.axis('off')
+ax_rad.set_title("Pentagono Baricentrico dei Mood Musicali (RadViz Simplex)\nVisualizzazione dello Spazio delle Probabilità Soft GMM", fontsize=15, fontweight='bold', pad=20)
+ax_rad.legend(loc='lower center', bbox_to_anchor=(0.5, -0.06), ncol=3, fontsize=9.5, framealpha=0.95)
+
+plt.tight_layout()
+plt.savefig('figures/fig24b_mood_pentagon_radviz.png', dpi=300)
+plt.close()
+shutil.copy('figures/fig24b_mood_pentagon_radviz.png', 'Relazione/capitolo4/img/fig24b_mood_pentagon_radviz.png')
 print(
     f"GMM: candidati a cavallo tra componenti (gap top-2 <= 0.15) "
     f"{int(df_cluster_sample['gmm_cross_mood_candidate'].sum())}/ {sample_size}; "
