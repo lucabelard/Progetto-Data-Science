@@ -236,13 +236,15 @@ def run_eda_single_figures():
     ax.plot(dates_pct, pct_top5, color="#2b5c8f", linewidth=1.9, label="Change % mensile Top-5")
     ax.plot(dates_pct, pct_it1, color="#2ca02c", linewidth=1.3, alpha=0.7, linestyle=":", label="Change % mensile Serie A")
 
-    outliers = df.iloc[1:][(df["pct_change_top5"].iloc[1:].abs() > mu_pct + 2 * sd_pct)]
-    ax.scatter(outliers["date"], outliers["pct_change_top5"], color="#e41a1c", s=50, zorder=5, label="Mesi outlier (|Δ%| > 2σ)")
+    outliers = df.iloc[1:][
+        (pct_top5 > mu_pct + 2 * sd_pct) | (pct_top5 < mu_pct - 2 * sd_pct)
+    ]
+    ax.scatter(outliers["date"], outliers["pct_change_top5"], color="#e41a1c", s=50, zorder=5, label="Mesi outlier (fuori fascia μ±2σ)")
 
     ax.annotate(
         "Crollo COVID-19\n(Apr 2020: -18,17%)",
         xy=(pd.Timestamp("2020-04-01"), -18.17),
-        xytext=(pd.Timestamp("2016-06-01"), -16.5),
+        xytext=(pd.Timestamp("2015-08-01"), -11.5),
         arrowprops=dict(arrowstyle="->", color="#e41a1c", lw=1.5),
         fontsize=9.5,
         fontweight="bold",
@@ -355,9 +357,12 @@ def run_eda_single_figures():
         "slope_post2017_bn_per_year": round(float(slope_post * 12), 2),
         "pct_change_mean_top5": round(mu_pct, 3),
         "pct_change_std_top5": round(sd_pct, 3),
+        "pct_change_std_serie_a": round(float(pct_it1.std()), 3),
         "pct_change_skew_top5": round(float(pct_top5.skew()), 2),
         "pct_change_kurt_top5": round(float(pct_top5.kurtosis()), 2),
         "corr_val_rolling12m_spend": round(float(corr_mat.loc["Valore Top-5", "Spesa mobile 12m"]), 3),
+        "corr_premier_rolling12m_spend": round(float(corr_mat.loc["Valore Premier", "Spesa mobile 12m"]), 3),
+        "corr_serie_a_rolling12m_spend": round(float(corr_mat.loc["Valore Serie A", "Spesa mobile 12m"]), 3),
         "corr_val_serie_a_top5": round(float(corr_mat.loc["Valore Top-5", "Valore Serie A"]), 3),
         "max_monthly_spend_top5_m": round(float(df["transfer_spend_top5_m"].max()), 2),
         "max_monthly_spend_month": str(df.loc[df["transfer_spend_top5_m"].idxmax(), "year_month"]),

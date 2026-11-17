@@ -23,29 +23,29 @@ Per misurare la precisione di ogni modello sui $M = 36$ mesi del test set sono s
     \mathrm{MAPE} = \frac{100}{M} \sum_{t=1}^{M} \left|\frac{Y_t - \hat{Y}_t}{Y_t}\right|
     \label{eq:metriche_errore}
 \end{equation}
-Ai modelli statistici sono stati affiancati anche i criteri informativi \textbf{AIC} e \textbf{BIC} calcolati sul training set (dove valori più bassi indicano un miglior compromesso tra precisione e semplicità del modello).
+Ai modelli della famiglia ARIMA/SARIMA sono stati affiancati anche i criteri informativi \textbf{AIC} e \textbf{BIC} calcolati sul training set (dove valori più bassi indicano un miglior compromesso tra adattamento e parsimonia; i criteri di Holt-Winters su serie in livelli non sono direttamente confrontabili sulla stessa scala dei modelli differenziati con $d = 1$).
 
-\subsection{I cinque modelli in gara}
+\subsection{I cinque modelli in gara e protocollo di previsione}
 
-Per capire il vantaggio portato da ogni componente (trend, stagionalità e variabili esterne di calciomercato), sono stati confrontati cinque modelli di complessità crescente.
+Per quantificare il contributo progressivo di ogni componente (trend, stagionalità e variabili esterne di calciomercato), sono stati addestrati sul solo training set (144 mesi) e confrontati su un \textbf{orizzonte omogeneo multi-step a 36 mesi} cinque modelli di complessità crescente, senza alcun aggiornamento ricorsivo dalle osservazioni reali del test set né smorzamenti euristici a posteriori.
 
-Il primo è la \textbf{Baseline Naive} (modello di persistenza), che prevede per tutti i 36 mesi di test l'ultimo valore osservato a maggio 2023 ($31,01$ miliardi di euro) e serve come punto di riferimento minimo. Il secondo è il modello \textbf{$\mathrm{ARIMA}(1, 1, 1)$} con deriva smorzata, che lavora sulla serie differenziata ($d = 1$) e tiene conto del trend e del mese precedente, ma ignora la stagionalità annuale. Il terzo è il metodo di \textbf{Holt-Winters additivo} ($s = 12$), che usa il livellamento esponenziale per modellare insieme il trend smorzato e il ciclo stagionale dei dodici mesi. Il quarto è il modello \textbf{$\mathrm{SARIMA}(1, 1, 1) \times (1, 0, 1)_{12}$}, che aggiunge all'ARIMA la memoria stagionale a 12 mesi vista nei grafici ACF e PACF del Capitolo 8.
+Il primo è la \textbf{Baseline Naive} (modello di persistenza), che proietta per tutti i 36 mesi di test l'ultimo valore osservato a maggio 2023 ($31,01$ miliardi di euro) e funge da riferimento minimo. Il secondo è il modello \textbf{$\mathrm{ARIMA}(1, 1, 1)$} con componente di deriva (\textit{drift}), che opera sulla serie differenziata ($d = 1$) catturando il trend medio di crescita e la memoria di breve periodo, ma ignora la stagionalità annuale. Il terzo è il metodo di \textbf{Holt-Winters additivo} ($s = 12$), che utilizza il livellamento esponenziale per modellare congiuntamente il trend smorzato e la componente stagionale mensile. Il quarto è il modello \textbf{$\mathrm{SARIMA}(1, 1, 1) \times (1, 0, 1)_{12}$}, che arricchisce l'ARIMA con la componente stagionale annuale a 12 mesi.
 
-Il quinto e più completo è il modello \textbf{$\mathrm{SARIMAX}(1, 1, 1) \times (1, 0, 1)_{12}$ con variabili esogene}, descritto dall'equazione:
+Il quinto modello è il \textbf{$\mathrm{SARIMAX}(1, 1, 1) \times (1, 0, 1)_{12}$ con variabili esogene}, implementato nella formulazione stato-spazio RegARIMA ($Y_t = \beta^\top X_t + \eta_t$, dove $\eta_t$ segue un processo $\mathrm{SARIMA}(1, 1, 1) \times (1, 0, 1)_{12}$) ed equivalente, in forma differenziata, all'equazione:
 \begin{equation}
-    (1 - \phi_1 B)(1 - \Phi_1 B^{12})(1 - B) Y_t = c + \sum_{j=1}^{r} \beta_j (1 - B) X_{j,t} + (1 + \theta_1 B)(1 + \Theta_1 B^{12}) \varepsilon_t
+    (1 - \phi_1 B)(1 - \Phi_1 B^{12})(1 - B) Y_t = c + \sum_{j=1}^{r} \beta_j (1 - \phi_1 B)(1 - \Phi_1 B^{12})(1 - B) X_{j,t} + (1 + \theta_1 B)(1 + \Theta_1 B^{12}) \varepsilon_t
     \label{eq:modello_sarimax}
 \end{equation}
-Oltre a guardare il passato della serie e il ciclo annuale, il modello SARIMAX riceve in ingresso le variabili esterne $X_t$: la \textbf{spesa cumulata nel calciomercato negli ultimi 12 mesi} (\texttt{spesa\_mercato\_12m\_bn}), il \textbf{flusso medio di trasferimenti} (\texttt{flusso\_trasferimenti}), le \textbf{finestre di aggiornamento dei listini} e l'indicatore dello \textbf{shock COVID} (che evita che il crollo di aprile 2020 falsi la stima dei parametri sul training set).
+Le variabili esogene $X_t$ comprendono la \textbf{spesa cumulata nel calciomercato negli ultimi 12 mesi} (\texttt{spesa\_mercato\_12m\_bn}), il \textbf{flusso medio di trasferimenti} (\texttt{flusso\_trasferimenti}), le \textbf{finestre stagionali di revisione dei listini} (\texttt{finestra\_revisione\_listini}) e una variabile di intervento strutturale a gradino per lo \textbf{shock COVID} (\texttt{step\_covid\_apr2020}, attiva da aprile 2020 in poi: dopo differenziazione $d = 1$, tale variabile diventa un impulso unitario esatto sul solo aprile 2020, isolando il crollo senza generare rimbalzi artificiali nei mesi successivi). Sul piano metodologico, il SARIMAX viene qui valutato in regime di \textbf{previsione condizionata ex-post} (fornendo i valori effettivi di spesa esogena osservati nel triennio 2023--2026 per isolare la capacità esplicativa dei fondamentali di mercato); in uno scenario operativo \textit{ex-ante} puro, i regressori dovrebbero invece essere introdotti in forma ritardata ($X_{t-k}$) o previsti tramite un modello ausiliario. Gli intervalli di confidenza al 95\% mostrati nelle figure seguenti sono calcolati analiticamente tramite la varianza predittiva stato-spazio (\texttt{get\_forecast}).
 
 \subsection{Confronto dei risultati sul Test Set}
 
-La Figura \ref{fig:confronto_previsioni} confronta i dati reali osservati tra giugno 2023 e maggio 2026 (linea nera con pallini) con le previsioni dei modelli, mentre la Tabella \ref{tab:confronto_modelli_top5} e la Figura \ref{fig:metriche_errore} riassumono gli errori commessi da ciascun modello.
+La Figura \ref{fig:confronto_previsioni} confronta i dati reali osservati tra giugno 2023 e maggio 2026 (linea nera con pallini) con le curve previsionali dei cinque modelli, mentre la Tabella \ref{tab:confronto_modelli_top5} e la Figura \ref{fig:metriche_errore} riassumono gli errori commessi da ciascun modello.
 
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{capitolo9/img/fig17_confronto_previsioni_modelli.png}
-    \caption{Confronto sul test set (giugno 2023 -- maggio 2026) tra i valori reali e le previsioni di Baseline Naive, ARIMA, SARIMA e SARIMAX.}
+    \caption{Confronto multi-step sul test set (giugno 2023 -- maggio 2026) tra i valori reali e le previsioni dei cinque modelli, con fascia analitica di confidenza al 95\% per SARIMAX.}
     \label{fig:confronto_previsioni}
 \end{figure}
 
@@ -53,23 +53,24 @@ La Figura \ref{fig:confronto_previsioni} confronta i dati reali osservati tra gi
 \centering
 \small
 \setlength{\tabcolsep}{4.5pt}
-\caption{Confronto degli errori di previsione sul test set (36 mesi, 2023--2026) e dei criteri AIC/BIC per i cinque modelli sul mercato Top-5.}
+\caption{Confronto degli errori di previsione multi-step sul test set (36 mesi, 2023--2026) e dei criteri AIC/BIC per i cinque modelli sul mercato Top-5.}
 \label{tab:confronto_modelli_top5}
 \vspace{0.2cm}
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5.4cm} *{5}{>{\centering\arraybackslash}X}}
 \toprule
 \textbf{Modello predittivo} & \textbf{RMSE (Mld)} & \textbf{MAE (Mld)} & \textbf{MAPE (\%)} & \textbf{AIC} & \textbf{BIC} \\
 \midrule
-Baseline Naive (Persistenza) & 2,078 & 1,877 & 5,64\% & -- & -- \\
-$\mathrm{ARIMA}(1, 1, 1)$ & 0,792 & 0,650 & 1,95\% & 274,0 & 285,8 \\
-Holt-Winters additivo ($s = 12$) & 0,797 & 0,625 & 1,88\% & $-123,7$ & $-73,2$ \\
-$\mathrm{SARIMA}(1, 1, 1) \times (1, 0, 1)_{12}$ & 0,703 & 0,476 & 1,45\% & 265,4 & 282,6 \\
-\textbf{$\mathrm{SARIMAX}(1, 1, 1) \times (1, 0, 1)_{12}$ + Esogene} & \textbf{0,524} & \textbf{0,382} & \textbf{1,15\%} & \textbf{131,6} & \textbf{161,1} \\
+Baseline Naive (Persistenza) & \textbf{[post-run]} & \textbf{[post-run]} & \textbf{[post-run]} & -- & -- \\
+$\mathrm{ARIMA}(1, 1, 1)$ & \textbf{[post-run]} & \textbf{[post-run]} & \textbf{[post-run]} & \textbf{[post-run]} & \textbf{[post-run]} \\
+Holt-Winters additivo ($s = 12$) & \textbf{[post-run]} & \textbf{[post-run]} & \textbf{[post-run]} & --$^*$ & --$^*$ \\
+$\mathrm{SARIMA}(1, 1, 1) \times (1, 0, 1)_{12}$ & \textbf{[post-run]} & \textbf{[post-run]} & \textbf{[post-run]} & \textbf{[post-run]} & \textbf{[post-run]} \\
+\textbf{$\mathrm{SARIMAX}(1, 1, 1) \times (1, 0, 1)_{12}$ + Esogene} & \textbf{[post-run]} & \textbf{[post-run]} & \textbf{[post-run]} & \textbf{[post-run]} & \textbf{[post-run]} \\
 \bottomrule
+\multicolumn{6}{>{\raggedright\arraybackslash}p{\dimexpr\textwidth-2\tabcolsep\relax}}{\footnotesize $^*$ Criteri informativi ETS calcolati sui livelli $Y_t$, non direttamente confrontabili sulla stessa scala con la verosimiglianza dei modelli differenziati ($d = 1$).}
 \end{tabularx}
 \end{table}
 
-I risultati mostrano un miglioramento netto ad ogni passaggio: la Baseline Naive resta ferma a 31,01 miliardi e commette un errore alto ($\mathrm{RMSE} = 2,078$ miliardi, $\mathrm{MAPE} = 5,64\%$). Il modello $\mathrm{ARIMA}(1, 1, 1)$ coglie la salita generale riducendo l'errore ($\mathrm{MAPE} = 1,95\%$), ma disegna una curva liscia che non segue i salti stagionali. Aggiungendo la stagionalità di 12 mesi, Holt-Winters scende all'$1,88\%$ di errore e il modello $\mathrm{SARIMA}$ arriva a un $\mathrm{RMSE}$ di $0,703$ miliardi ($\mathrm{MAPE} = 1,45\%$).
+\textbf{[Sezione da aggiornare con i valori esatti di \texttt{modeling\_summary.json} dopo l'esecuzione della pipeline.]}
 
 \begin{figure}[!htbp]
     \centering
@@ -78,11 +79,9 @@ I risultati mostrano un miglioramento netto ad ogni passaggio: la Baseline Naive
     \label{fig:metriche_errore}
 \end{figure}
 
-Il modello vincitore è chiaramente il \textbf{$\mathrm{SARIMAX}$ con variabili esogene}, che ottiene i risultati migliori su tutte le metriche: l'errore $\mathrm{RMSE}$ scende a \textbf{0,524 miliardi di euro} (riducendo l'errore del 74,8\% rispetto alla Baseline Naive), il $\mathrm{MAE}$ scende a \textbf{0,382 miliardi} e l'errore percentuale medio $\mathrm{MAPE}$ arriva appena all'\textbf{1,15\%}. Come si vede dalla linea verde nella Figura \ref{fig:confronto_previsioni}, grazie ai dati sulle spese del calciomercato il modello segue con grande precisione tutti i movimenti reali tra il 2023 e il 2026, che restano sempre all'interno della fascia di confidenza al 95\%.
-
 \subsection{Diagnostica dei residui del modello SARIMAX}
 
-Per confermare che il modello SARIMAX sia statisticamente corretto, bisogna verificare che i suoi errori di stima (\textbf{residui}) siano puro \textbf{rumore bianco}, cioè oscillazioni casuali centrate sullo zero e prive di correlazioni rimaste non spiegate.
+Per verificare l'adeguatezza statistica del modello SARIMAX sul training set, occorre controllare che i residui stimati si comportino come \textbf{rumore bianco}, cioè risultino centrati sullo zero e privi di autocorrelazione residua significativa.
 
 \begin{figure}[!htbp]
     \centering
@@ -91,7 +90,7 @@ Per confermare che il modello SARIMAX sia statisticamente corretto, bisogna veri
     \label{fig:diagnostica_residui}
 \end{figure}
 
-Nella Figura \ref{fig:diagnostica_residui} si vede che i residui oscillano stabilmente attorno a zero senza anomalie sistematiche e seguono bene la forma a campana della distribuzione normale. La Figura \ref{fig:qqplot_acf_residui} mostra inoltre il Q-Q Plot e il grafico di autocorrelazione (ACF) dei residui, dove tutte le barre restano dentro la fascia di confidenza al 95\%.
+Nella Figura \ref{fig:diagnostica_residui} i residui oscillano stabilmente attorno a zero, pur mostrando una distribuzione empirica leggermente leptocurtica (picco centrale più stretto e code più pesanti rispetto alla Gaussiana teorica) dovuta a sporadiche revisioni straordinarie dei listini come quella di gennaio 2018. La Figura \ref{fig:qqplot_acf_residui} affianca al diagramma Q-Q Plot la funzione di autocorrelazione (ACF) dei residui, mentre la verifica formale di assenza di autocorrelazione globale ai ritardi $m = 6, 12, 24$ è affidata al \textbf{test di Ljung-Box} nella Tabella \ref{tab:ljung_box_residui}.
 
 \begin{figure}[!htbp]
     \centering
@@ -99,8 +98,6 @@ Nella Figura \ref{fig:diagnostica_residui} si vede che i residui oscillano stabi
     \caption{Diagramma Q-Q Plot e funzione di autocorrelazione (ACF) dei residui del modello SARIMAX.}
     \label{fig:qqplot_acf_residui}
 \end{figure}
-
-Questa verifica visiva è confermata dal \textbf{test di Ljung-Box} riportato nella Tabella \ref{tab:ljung_box_residui}: a 6, 12 e 24 mesi di ritardo il $p$-value è sempre intorno a $0,57$--$0,59$ (molto più alto della soglia minima di $0,05$), dimostrando che i residui sono del tutto casuali e che il modello ha catturato tutte le informazioni utili della serie.
 
 \begin{table}[!htbp]
 \centering
@@ -113,28 +110,28 @@ Questa verifica visiva è confermata dal \textbf{test di Ljung-Box} riportato ne
 \toprule
 \textbf{Ritardo valutato ($m$)} & \textbf{Statistica $Q(m)$} & \textbf{p-value} & \textbf{Soglia $\alpha$} & \textbf{Esito del test} \\
 \midrule
-Ritardo a 6 mesi ($m = 6$) & 4,812 & 0,5681 & 0,05 & Rumore bianco ($p > 0,05$) \\
-Ritardo a 12 mesi ($m = 12$) & 10,425 & 0,5787 & 0,05 & Rumore bianco ($p > 0,05$) \\
-Ritardo a 24 mesi ($m = 24$) & 21,890 & 0,5858 & 0,05 & Rumore bianco ($p > 0,05$) \\
+Ritardo a 6 mesi ($m = 6$) & \textbf{[post-run]} & \textbf{[post-run]} & 0,05 & \textbf{[post-run]} \\
+Ritardo a 12 mesi ($m = 12$) & \textbf{[post-run]} & \textbf{[post-run]} & 0,05 & \textbf{[post-run]} \\
+Ritardo a 24 mesi ($m = 24$) & \textbf{[post-run]} & \textbf{[post-run]} & 0,05 & \textbf{[post-run]} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{Focus previsionale sulla Serie A}
 
-Lo stesso modello $\mathrm{SARIMAX}(1, 1, 1) \times (1, 0, 1)_{12}$ è stato infine applicato alla serie storica della \textbf{Serie A italiana} (\texttt{serie\_a\_market\_value\_bn}), usando come variabili esogene la spesa cumulata negli ultimi 12 mesi dai club italiani e il numero di trasferimenti del nostro campionato.
+Lo stesso modello $\mathrm{SARIMAX}(1, 1, 1) \times (1, 0, 1)_{12}$ è stato infine applicato alla serie storica della \textbf{Serie A italiana} (\texttt{serie\_a\_market\_value\_bn}), usando come variabili esogene la spesa cumulata negli ultimi 12 mesi dai club italiani, il flusso dei trasferimenti del campionato, le finestre di revisione e lo step pandemico.
 
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{capitolo9/img/fig21_focus_previsione_serie_a.png}
-    \caption{Focus Serie A (\texttt{IT1}): serie storica e previsione del modello SARIMAX sul triennio di test 2023--2026.}
+    \caption{Focus Serie A (\texttt{IT1}): serie storica e previsione multi-step del modello SARIMAX sul triennio di test 2023--2026.}
     \label{fig:focus_serie_a}
 \end{figure}
 
-Come mostra la Figura \ref{fig:focus_serie_a}, la previsione del modello (linea tratteggiata arancione) ricalca molto bene il valore reale della Serie A in tutti i 36 mesi di test. Rispetto alla Baseline Naive (che sulla Serie A ha un $\mathrm{RMSE}$ di $0,255$ miliardi e un $\mathrm{MAPE}$ del $3,90\%$), il modello SARIMAX scende a un \textbf{$\mathrm{RMSE}$ di soli 0,093 miliardi di euro} (93 milioni di euro su un campionato che vale oltre 5,4 miliardi), con un $\mathrm{MAE}$ di \textbf{0,069 miliardi} e un errore percentuale medio \textbf{$\mathrm{MAPE}$ dell'1,25\%}, prevedendo con accuratezza sia i picchi post-mercato del 2024 e 2025 sia il valore finale del maggio 2026.
+La Figura \ref{fig:focus_serie_a} mostra l'andamento reale della Serie A nel triennio di test rispetto alla previsione multi-step ex-post SARIMAX e al relativo intervallo di confidenza analitico al 95\% \textbf{[inserire RMSE, MAE e MAPE aggiornati rispetto alla Baseline Naive dopo l'esecuzione della pipeline]}.
 
 \subsection{Conclusioni}
 
-Il lavoro svolto in questa seconda parte ha permesso di trasformare le tabelle grezze di Transfermarkt in una serie storica mensile completa e coerente, dimostrando quanto sia importante ricostruire il club reale di appartenenza di ogni giocatore mese per mese per evitare gravi errori di sottostima negli anni passati. L'analisi della serie e la sua decomposizione stagionale hanno evidenziato come il mercato calcistico europeo sia guidato da un forte trend di crescita a lungo termine interrotto da grandi shock ben riconoscibili (l'inflazione post-2017, il taglio pandemico del 2020 e l'espansione del 2023--2026) e da un ciclo stagionale legato alle finestre di calciomercato e di revisione dei listini. Sul piano predittivo, la gara tra i modelli sugli ultimi tre anni ha dimostrato che unire la memoria stagionale alla spesa effettiva del calciomercato tramite il modello \textbf{SARIMAX} permette di ottenere previsioni estremamente precise (con errori medi vicini all'1\% sia sul totale europeo sia sulla Serie A).
+Il lavoro svolto in questa seconda parte ha trasformato le tabelle grezze e asincrone di Transfermarkt in una serie storica mensile regolare su 180 mesi, mostrando quanto sia decisivo ricostruire storicamente il club di appartenenza di ogni calciatore per evitare distorsioni di \textit{leakage} negli anni passati. L'analisi esplorativa e la decomposizione STL hanno evidenziato una dinamica guidata da un fortissimo trend di crescita ($F_T = 0,992$) modulato da shock strutturali nitidi (l'inflazione post-Neymar del 2017, il taglio pandemico dell'aprile 2020 e l'espansione del 2023--2026) e da una componente stagionale più contenuta legata alle finestre di mercato. Sul piano modellistico, la scelta di modelli statistici lineari parsimoniosi (ARIMA, Holt-Winters, SARIMA e SARIMAX) rispetto ad architetture di \textit{deep learning} come le reti LSTM risulta metodologicamente appropriata alla dimensione campionaria ($N_{\text{train}} = 144$ osservazioni mensili, insufficiente per addestrare in sicurezza reti ricorrenti ad alta capacità senza sovradattamento), mentre l'integrazione di modelli additivi con \textit{changepoint} multipli come Prophet rappresenta un naturale sviluppo futuro.
 
-Guardando insieme la \textbf{Parte 1 (Spotify)} e la \textbf{Parte 2 (Transfermarkt)}, emerge una lezione comune a tutto il progetto di Data Science: che si tratti di classificare e raggruppare brani musicali o di prevedere l'andamento economico del calcio europeo, i risultati migliori non si ottengono applicando i modelli alla cieca sui dati grezzi, ma curando con attenzione la pulizia dei dati, la costruzione di variabili significative e la scelta del modello più adatto alla struttura reale del problema.
+Guardando insieme la \textbf{Parte 1 (Spotify)} e la \textbf{Parte 2 (Transfermarkt)}, emerge una lezione metodologica comune: che si tratti di classificare e raggruppare brani musicali o di modellare il valore economico del calcio europeo nel tempo, la solidità dei risultati deriva dalla qualità della preparazione dei dati, dalla coerenza tra teoria ed esperimento e dalla verifica rigorosa delle assunzioni statistiche.

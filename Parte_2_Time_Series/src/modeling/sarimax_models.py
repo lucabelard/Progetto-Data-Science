@@ -63,16 +63,19 @@ def calcola_metriche_errore(valori_reali, valori_previsti, aic=None, bic=None):
 
 def prepara_variabili_esogene(df, target="top5"):
     """
-    Prepara la matrice delle variabili esterne (esogene X) che aiutano il modello SARIMAX:
-    1. L'impulso dello shock COVID di aprile 2020 (evita che il crollo di -6,14 Mld distorca i pesi).
+    Prepara la matrice delle variabili esterne (esogene X) per il modello SARIMAX
+    (valutazione condizionata ex-post sull'orizzonte di test; in impiego ex-ante
+    operativo occorrerebbe ritardare X_{t-k} o prevedere i regressori separatamente):
+    1. Variabile di intervento a gradino per lo shock COVID (da aprile 2020 in poi):
+       dopo differenziazione d=1 diventa un impulso unitario esatto su aprile 2020,
+       senza generare rimbalzi artificiali o discontinuità di fine regime.
     2. La spesa cumulata nel calciomercato negli ultimi 12 mesi (in Miliardi EUR).
     3. Il flusso medio di trasferimenti e le finestre di revisione dei listini.
     """
     esogene = pd.DataFrame(index=df.index)
 
-    # 1. Variabili di controllo per lo shock pandemico
-    esogene["shock_covid_apr2020"] = df["shock_covid_cut_apr2020"].astype(float)
-    esogene["regime_post_covid"] = ((df["date"] >= "2020-04-01") & (df["date"] <= "2022-08-01")).astype(float)
+    # 1. Variabile di intervento strutturale a gradino per lo shock pandemico
+    esogene["step_covid_apr2020"] = (df["date"] >= "2020-04-01").astype(float)
 
     if target == "top5":
         # Spesa mobile su 12 mesi in Miliardi EUR e flusso di trasferimenti Top-5
@@ -183,7 +186,7 @@ def addestra_e_confronta_modelli(df, n_train=144):
     risultati_modelli["Baseline Naive"] = calcola_metriche_errore(y_test, pred_naive)
 
     # -------------------------------------------------------------------------
-    # MODELLO 2: ARIMA(1, 1, 1) non stagionale con deriva smorzata
+    # MODELLO 2: ARIMA(1, 1, 1) non stagionale con componente di deriva (drift)
     # -------------------------------------------------------------------------
     mod_arima = SARIMAX(
         y_train,
@@ -192,10 +195,7 @@ def addestra_e_confronta_modelli(df, n_train=144):
         enforce_stationarity=False,
         enforce_invertibility=False,
     ).fit(disp=False)
-    raw_arima = np.asarray(mod_arima.forecast(steps=n_test))
-    steps = np.arange(1, n_test + 1)
-    drift_step = (raw_arima - y_train[-1]) / steps
-    pred_arima = y_train[-1] + drift_step * np.cumsum(0.92 ** steps)
+    pred_arima = np.asarray(mod_arima.forecast(steps=n_test))
     previsioni_test["ARIMA(1,1,1)"] = pred_arima
     risultati_modelli["ARIMA(1,1,1)"] = calcola_metriche_errore(
         y_test, pred_arima, aic=mod_arima.aic, bic=mod_arima.bic
@@ -218,7 +218,7 @@ def addestra_e_confronta_modelli(df, n_train=144):
     )
 
     # -------------------------------------------------------------------------
-    # MODELLO 4: SARIMA(1, 1, 1)x(1, 0, 1)_12 stagionale
+    # MODELLO 4: SARIMA(1, 1, 1)x(1, 0, 1)_12 stagionale (previsione pura multi-step)
     # -------------------------------------------------------------------------
     mod_sarima = SARIMAX(
         y_train,
@@ -228,17 +228,14 @@ def addestra_e_confronta_modelli(df, n_train=144):
         enforce_stationarity=False,
         enforce_invertibility=False,
     ).fit(disp=False)
-    stato_sarima = mod_sarima.apply(y)
-    pred_sarima_1step = np.asarray(stato_sarima.fittedvalues)[n_train:]
-    pred_sarima_dyn = np.asarray(mod_sarima.forecast(steps=n_test))
-    pred_sarima = 0.65 * pred_sarima_1step + 0.35 * pred_sarima_dyn
+    pred_sarima = np.asarray(mod_sarima.forecast(steps=n_test))
     previsioni_test["SARIMA(1,1,1)(1,0,1)12"] = pred_sarima
     risultati_modelli["SARIMA(1,1,1)(1,0,1)12"] = calcola_metriche_errore(
         y_test, pred_sarima, aic=mod_sarima.aic, bic=mod_sarima.bic
     )
 
     # -------------------------------------------------------------------------
-    # MODELLO 5: SARIMAX(1, 1, 1)x(1, 0, 1)_12 con Variabili Esogene (Calciomercato e Shock)
+    # MODELLO 5: SARIMAX(1, 1, 1)x(1, 0, 1)_12 con Variabili Esogene (previsione multi-step ex-post)
     # -------------------------------------------------------------------------
     mod_sarimax = SARIMAX(
         y_train,
@@ -250,14 +247,11 @@ def addestra_e_confronta_modelli(df, n_train=144):
         enforce_invertibility=False,
     ).fit(disp=False)
 
-    stato_sarimax = mod_sarimax.apply(y, exog=esogene)
-    pred_sarimax_1step = np.asarray(stato_sarimax.fittedvalues)[n_train:]
-    pred_sarimax_dyn = np.asarray(mod_sarimax.forecast(steps=n_test, exog=X_test))
-    pred_sarimax = 0.82 * pred_sarimax_1step + 0.18 * pred_sarimax_dyn
-
-    sigma_res = float(np.std(y_test - pred_sarimax))
-    ci_lower = pred_sarimax - 1.96 * sigma_res
-    ci_upper = pred_sarimax + 1.96 * sigma_res
+    fc_sarimax = mod_sarimax.get_forecast(steps=n_test, exog=X_test)
+    pred_sarimax = np.asarray(fc_sarimax.predicted_mean)
+    ci_sarimax = np.asarray(fc_sarimax.conf_int(alpha=0.05))
+    ci_lower = ci_sarimax[:, 0]
+    ci_upper = ci_sarimax[:, 1]
 
     previsioni_test["SARIMAX (con esogene)"] = pred_sarimax
     risultati_modelli["SARIMAX (con esogene)"] = calcola_metriche_errore(
@@ -312,6 +306,14 @@ def addestra_e_confronta_modelli(df, n_train=144):
     )
     ax.plot(
         date_test,
+        previsioni_test["Holt-Winters (s=12)"],
+        color="#9467bd",
+        linestyle=(0, (3, 1, 1, 1)),
+        linewidth=2.0,
+        label=f"Holt-Winters (s=12) (MAPE: {risultati_modelli['Holt-Winters (s=12)']['MAPE']:.2f}%)",
+    )
+    ax.plot(
+        date_test,
         previsioni_test["SARIMA(1,1,1)(1,0,1)12"],
         color="#1f77b4",
         linestyle="-.",
@@ -345,8 +347,16 @@ def addestra_e_confronta_modelli(df, n_train=144):
     )
     ax.set_ylabel("Valore rose Top-5 (Miliardi EUR)", fontweight="bold", fontsize=11.5)
     ax.set_xlabel("Data", fontweight="bold", fontsize=11.5)
-    ax.set_ylim(28.5, 36.2)
-    ax.legend(loc="lower left", ncol=2, frameon=True, fontsize=9.5)
+    valori_y_visibili = [
+        np.asarray(df["top5_market_value_bn"].iloc[idx_start:], dtype=float),
+        ci_lower,
+        ci_upper,
+    ] + [np.asarray(v, dtype=float) for v in previsioni_test.values()]
+    y_min_plot = min(float(np.min(arr)) for arr in valori_y_visibili)
+    y_max_plot = max(float(np.max(arr)) for arr in valori_y_visibili)
+    margine_y = 0.08 * (y_max_plot - y_min_plot)
+    ax.set_ylim(y_min_plot - margine_y, y_max_plot + margine_y)
+    ax.legend(loc="upper left", ncol=2, frameon=True, fontsize=8.8)
 
     salva_figura(fig, "fig17_confronto_previsioni_modelli.png", CAP9_IMG_DIR)
 
@@ -499,17 +509,16 @@ def esegui_focus_serie_a(df, n_train=144):
         enforce_invertibility=False,
     ).fit(disp=False)
 
-    stato_it1 = mod_it1.apply(y_it1, exog=X_it1)
-    pred_it1_1step = np.asarray(stato_it1.fittedvalues)[n_train:]
-    pred_it1_dyn = np.asarray(mod_it1.forecast(steps=len(y_it1_test), exog=X_it1_test))
-    pred_it1 = 0.78 * pred_it1_1step + 0.22 * pred_it1_dyn
+    fc_it1 = mod_it1.get_forecast(steps=len(y_it1_test), exog=X_it1_test)
+    pred_it1 = np.asarray(fc_it1.predicted_mean)
+    ci_it1 = np.asarray(fc_it1.conf_int(alpha=0.05))
+    ci_it1_lower = ci_it1[:, 0]
+    ci_it1_upper = ci_it1[:, 1]
 
     metriche_it1 = calcola_metriche_errore(y_it1_test, pred_it1, aic=mod_it1.aic, bic=mod_it1.bic)
     print(f"   -> Focus Serie A (SARIMAX) | RMSE: {metriche_it1['RMSE']:.3f} Mld | MAE: {metriche_it1['MAE']:.3f} Mld | MAPE: {metriche_it1['MAPE']:.2f}%")
 
     metriche_it1_naive = calcola_metriche_errore(y_it1_test, np.repeat(y_it1_train[-1], len(y_it1_test)))
-
-    sigma_it1 = float(np.std(y_it1_test - pred_it1))
 
     fig, ax = crea_figura(larghezza=11.8, altezza=5.8)
 
@@ -542,8 +551,8 @@ def esegui_focus_serie_a(df, n_train=144):
     )
     ax.fill_between(
         date_test,
-        pred_it1 - 1.96 * sigma_it1,
-        pred_it1 + 1.96 * sigma_it1,
+        ci_it1_lower,
+        ci_it1_upper,
         color="#d95f02",
         alpha=0.20,
         label="Intervallo di confidenza al 95%",
@@ -558,7 +567,10 @@ def esegui_focus_serie_a(df, n_train=144):
     )
     ax.set_ylabel("Valore rose Serie A (Miliardi EUR)", fontweight="bold", fontsize=11.5)
     ax.set_xlabel("Data (Giugno 2011 – Maggio 2026)", fontweight="bold", fontsize=11.5)
-    ax.set_ylim(2.0, 6.6)
+    it1_vals = [np.asarray(y_it1, dtype=float), pred_it1, ci_it1_lower, ci_it1_upper]
+    it1_min = min(float(np.min(arr)) for arr in it1_vals)
+    it1_max = max(float(np.max(arr)) for arr in it1_vals)
+    ax.set_ylim(min(2.0, it1_min - 0.25), max(6.6, it1_max + 0.25))
     ax.legend(loc="upper left", frameon=True, fontsize=10)
 
     salva_figura(fig, "fig21_focus_previsione_serie_a.png", CAP9_IMG_DIR)

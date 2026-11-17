@@ -55,7 +55,7 @@ La \textbf{Serie A} ha seguito un percorso diviso in tre fasi: una crescita lent
 
 L'andamento della serie storica non è lineare, ma presenta \textbf{tre rotture strutturali} molto nette che corrispondono a precisi eventi economici e sportivi.
 
-Il \textbf{primo shock} avviene nell'agosto 2017 (\texttt{2017-08}) con il trasferimento record di \textbf{Neymar} dal Barcellona al Paris Saint-Germain per 222 milioni di euro (pagamento integrale della clausola rescissoria, ad oggi il trasferimento più oneroso della storia del calcio), accompagnato dall'entrata in vigore dei nuovi contratti televisivi europei. Come mostra la Figura \ref{fig:eda_shock_neymar}, questo evento ha innescato una forte inflazione dei prezzi cambiando la pendenza della curva: prima dell'estate 2017 il valore complessivo cresceva in media di \textbf{+1,31 miliardi di euro all'anno}, mentre tra agosto 2017 e inizio 2020 la velocità di crescita è quadruplicata, salendo a \textbf{+5,46 miliardi di euro all'anno}.
+Il \textbf{primo shock} avviene nell'agosto 2017 (\texttt{2017-08}) con il trasferimento record di \textbf{Neymar} dal Barcellona al Paris Saint-Germain per 222 milioni di euro (pagamento integrale della clausola rescissoria, ad oggi il trasferimento più oneroso della storia del calcio), accompagnato dall'entrata in vigore dei nuovi contratti televisivi europei. Come mostra la Figura \ref{fig:eda_shock_neymar}, questo evento ha innescato una forte inflazione dei prezzi cambiando la pendenza della curva: prima dell'estate 2017 il valore complessivo cresceva in media di \textbf{+1,55 miliardi di euro all'anno}, mentre tra agosto 2017 e inizio 2020 la velocità di crescita è quasi quadruplicata ($3{,}78\times$), salendo a \textbf{+5,86 miliardi di euro all'anno}.
 
 \begin{figure}[!htbp]
     \centering
@@ -93,7 +93,7 @@ Per osservare la volatilità mese per mese senza l'effetto del trend di lungo pe
     \label{fig:eda_change_pct}
 \end{figure}
 
-In condizioni normali il valore delle rose cresce in media dello $\mu = +0,66\%$ al mese con una deviazione standard $\sigma = 2,06\%$, restando quasi sempre dentro la fascia $\mu \pm 2\sigma$ ($[-3,46\%, \, +4,78\%]$). I punti che superano questa soglia identificano statisticamente gli eventi anomali del mercato: il rialzo record di \textbf{gennaio 2018 (+9,24\%)}, dovuto all'adeguamento invernale dei listini dopo il caso Neymar, e il crollo estremo di \textbf{aprile 2020 (-18,17\%)}, che si trova a oltre nove deviazioni standard dalla media ($z = -9,14$).
+In condizioni normali il valore delle rose cresce in media dello $\mu = +0,66\%$ al mese con una deviazione standard $\sigma = 2,08\%$, restando quasi sempre dentro la fascia $\mu \pm 2\sigma$ ($[-3,50\%, \, +4,81\%]$). I punti che superano questa soglia identificano statisticamente gli eventi anomali del mercato: il rialzo record di \textbf{gennaio 2018 (+9,24\%)}, dovuto all'adeguamento invernale dei listini dopo il caso Neymar, il crollo estremo di \textbf{aprile 2020 (-18,17\%)}, che si trova a oltre nove deviazioni standard dalla media ($z = -9,07$), e un isolato ribasso invernale a fine 2025.
 
 \begin{figure}[!htbp]
     \centering
@@ -102,7 +102,7 @@ In condizioni normali il valore delle rose cresce in media dello $\mu = +0,66\%$
     \label{fig:eda_distribuzione_kde}
 \end{figure}
 
-Come mostra l'istogramma nella Figura \ref{fig:eda_distribuzione_kde}, quasi tutte le variazioni mensili si concentrano vicino a zero, ma gli shock esterni creano code lunghe e una forte asimmetria negativa (\textit{skewness} pari a $-3,69$). Si nota inoltre che la Serie A ha una volatilità leggermente più alta dell'aggregato europeo ($\sigma_{\text{IT1}} = 2,52\%$), poiché su un singolo campionato le singole sessioni di mercato incidono in modo più diretto.
+Come mostra l'istogramma nella Figura \ref{fig:eda_distribuzione_kde}, quasi tutte le variazioni mensili si concentrano vicino a zero, ma gli shock esterni generano code lunghe (curtosi pari a $39,35$) e una forte asimmetria negativa (\textit{skewness} pari a $-3,77$). Si nota inoltre che la Serie A presenta una distribuzione KDE leggermente più appiattita al centro e con code più ampie rispetto all'aggregato europeo, poiché su un singolo campionato le singole sessioni di mercato incidono in modo più diretto.
 
 \subsection{Relazione tra valore delle rose e spese nel calciomercato}
 
@@ -124,4 +124,4 @@ Dalla Figura \ref{fig:eda_spese_impulsi} si vede chiaramente che la spesa avvien
     \label{fig:eda_matrice_corr}
 \end{figure}
 
-La matrice di correlazione nella Figura \ref{fig:eda_matrice_corr} spiega come usare questo dato nei modelli di previsione: la correlazione con la spesa del singolo mese è bassa ($r = 0,24$) perché per nove mesi all'anno il mercato è chiuso; tuttavia, considerando la \textbf{spesa cumulata negli ultimi 12 mesi} (\texttt{Spesa mobile 12m}), la correlazione con il valore delle rose sale a \textbf{$r = 0,88$} ($r = 0,92$ per la Premier League e $r = 0,80$ per la Serie A). Questo conferma che il volume di denaro investito nell'ultimo anno di mercato è un ottimo predittore esterno per il modello SARIMAX.
+La matrice di correlazione nella Figura \ref{fig:eda_matrice_corr} fornisce l'indicazione operativa per costruire le variabili esterne dei modelli predittivi: la correlazione lineare con la spesa del singolo mese è bassa ($r = 0,22$) perché l'attività di mercato è concentrata in pochi mesi dell'anno; tuttavia, considerando la \textbf{spesa cumulata negli ultimi 12 mesi} (\texttt{Spesa mobile 12m}), la correlazione con il valore patrimoniale delle rose sale a \textbf{$r = 0,91$} ($r = 0,95$ per la Premier League e $r = 0,85$ per la Serie A). Sul piano teorico va precisato che una correlazione elevata tra due serie espresse in livelli non stazionari riflette anzitutto il co-movimento lungo il trend crescente comune e non basta, da sola, a escludere correlazioni spurie; per questo motivo nel Capitolo 9 l'effettivo potere esplicativo della spesa di mercato verrà stimato dopo la differenziazione ($d = 1$) all'interno del modello SARIMAX.

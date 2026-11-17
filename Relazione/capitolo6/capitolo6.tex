@@ -48,7 +48,7 @@ Questa complementarità è visibile nella Figura \ref{fig:etl_complementarita}: 
 
 Il \textbf{secondo problema} riguarda la \textbf{distorsione sul club di appartenenza}. In \texttt{player\_valuations.csv}, la colonna \texttt{current\_club\_id} è un dato statico che indica solo la squadra in cui il giocatore milita nel 2026. Aggregare i valori usando direttamente quel campo significherebbe attribuire tutta la carriera passata di un calciatore al suo club del 2026: chi giocava in Serie A nel 2019 ma oggi gioca all'estero (o si è ritirato) verrebbe escluso dal calcolo storico della Serie A, causando una forte sottostima negli anni passati.
 
-Per risolvere entrambi gli aspetti, la pipeline mostrata nel Listato \ref{lst:etl_ricostruzione} costruisce una griglia mensile regolare di \textbf{180 mesi consecutivi} (da giugno 2011 a maggio 2026, escludendo giugno 2026 perché incompleto nell'estrazione) e ricostruisce mese per mese sia l'ultima valutazione valida del giocatore (con propagazione in avanti \textit{forward-fill} fino a un massimo di 18 mesi per escludere i ritirati), sia la squadra in cui militava realmente in quel mese tramite presenze in campo e trasferimenti.
+Per risolvere entrambi gli aspetti, la pipeline mostrata nel Listato \ref{lst:etl_ricostruzione} costruisce una griglia mensile regolare di \textbf{180 mesi consecutivi} (da giugno 2011 a maggio 2026, escludendo giugno 2026 perché incompleto nell'estrazione), preceduta da una finestra di \textit{warm-up} dal gennaio 2009, e ricostruisce mese per mese sia l'ultima valutazione valida del giocatore (con propagazione puramente causale in avanti \textit{forward-fill} fino a un massimo di 18 mesi per escludere i ritirati), sia la squadra in cui militava realmente in quel mese tramite presenze in campo e trasferimenti; il riempimento iniziale \texttt{bfill()} nel Listato \ref{lst:etl_ricostruzione} agisce esclusivamente per inizializzare l'anagrafica prima della prima presenza registrata, senza sovrascrivere alcun trasferimento successivo né introdurre \textit{look-ahead bias} sui prezzi.
 
 \begin{figure}[!htbp]
 \centering
@@ -106,7 +106,7 @@ transfer\_spend\_top5\_m & Mln EUR & Spesa mensile per acquisti onerosi nei cinq
 transfer\_spend\_serie\_a\_m & Mln EUR & Spesa mensile per acquisti onerosi in Serie A \\
 n\_transfers\_top5 & Intero & Numero di trasferimenti conclusi nel mese \\
 pct\_change\_top5 & Float (\%) & Variazione percentuale mensile del valore delle rose \\
-shock\_covid\_2020 & Binaria [0/1] & Indicatore dello shock pandemico di aprile 2020 \\
+shock\_covid\_2020 & Binaria [0/1] & Indicatore della finestra pandemica (marzo 2020 -- maggio 2021) \\
 \bottomrule
 \end{tabularx}
 \end{table}
