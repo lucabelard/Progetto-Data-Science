@@ -39,7 +39,7 @@ Il \textbf{primo problema} è la diversa cadenza temporale tra aggiornamenti dei
 
 Questa complementarità è visibile nella Figura \ref{fig:etl_complementarita}: i mesi con meno aggiornamenti di listino coincidono esattamente con i picchi del calciomercato (luglio, agosto e gennaio), dove la spesa media mensile supera i \textbf{2.300 milioni di euro} a luglio, i \textbf{1.280 milioni} ad agosto e i \textbf{550 milioni} a gennaio.
 
-\begin{figure}[!htbp]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.88\textwidth]{capitolo6/img/fig01_etl_complementarita_fonti.png}
     \caption{Complementarità stagionale tra la frequenza mensile degli aggiornamenti di valutazione e il volume delle operazioni di calciomercato nei cinque maggiori campionati europei.}
@@ -50,7 +50,7 @@ Il \textbf{secondo problema} riguarda la \textbf{distorsione sul club di apparte
 
 Per risolvere entrambi gli aspetti, la pipeline mostrata nel Listato \ref{lst:etl_ricostruzione} costruisce una griglia mensile regolare di \textbf{180 mesi consecutivi} (da giugno 2011 a maggio 2026, escludendo giugno 2026 perché incompleto nell'estrazione), preceduta da una finestra di \textit{warm-up} dal gennaio 2009, e ricostruisce mese per mese sia l'ultima valutazione valida del giocatore (con propagazione puramente causale in avanti \textit{forward-fill} fino a un massimo di 18 mesi per escludere i ritirati), sia la squadra in cui militava realmente in quel mese tramite presenze in campo e trasferimenti; il riempimento iniziale \texttt{bfill()} nel Listato \ref{lst:etl_ricostruzione} agisce esclusivamente per inizializzare l'anagrafica prima della prima presenza registrata, senza sovrascrivere alcun trasferimento successivo né introdurre \textit{look-ahead bias} sui prezzi.
 
-\begin{figure}[!htbp]
+\begin{figure}[!htb]
 \centering
 \begin{carbonwindow}{01\_etl\_transfermarkt.py}
 # 1. Griglia mensile regolare e propagazione dell'ultima valutazione valida (max 18 mesi)
@@ -77,7 +77,7 @@ comp_hist = club_hist.apply(lambda col: col.map(club_to_comp)).fillna("OTHER")
 
 Il risultato di questa ricostruzione è illustrato nella Figura \ref{fig:etl_confronto}. Nel pannello superiore si vede come l'aggregazione statica basata sul club del 2026 (linea tratteggiata arancione) sottostimi la Serie A per tutto il decennio 2014--2022, perdendo quasi \textbf{un miliardo di euro} nel 2019--2020 rispetto alla ricostruzione storica corretta (linea verde). Nel pannello inferiore è mostrata la serie principale post-ETL dei cinque campionati europei, che presenta zero mesi mancanti e variazioni attive in tutti i 180 mesi.
 
-\begin{figure}[!htbp]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.88\textwidth]{capitolo6/img/fig02_etl_ricostruzione_storica_confronto.png}
     \caption{Confronto tra aggregazione statica e ricostruzione storica dinamica per la Serie A e andamento complessivo della serie storica principale post-ETL sui 180 mesi di osservazione.}

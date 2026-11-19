@@ -4,26 +4,29 @@
 \section{Decomposizione stagionale, test di stazionarietà e autocorrelazione}
 
 Prima di addestrare i modelli di previsione è necessario analizzare la struttura matematica della serie storica (\texttt{top5\_market\_value\_bn}) attraverso tre passaggi: la scomposizione della curva nelle sue componenti di trend, stagionalità e residuo tramite il metodo \textbf{STL}; la verifica della \textbf{stazionarietà} con i test statistici \textbf{ADF} e \textbf{KPSS}; e infine lo studio della memoria temporale con i grafici di autocorrelazione \textbf{ACF} e \textbf{PACF}. Tutte le analisi sono implementate nel modulo \texttt{src/analysis/stl\_stationarity.py} e lanciate dallo script \texttt{03\_run\_stl\_stationarity.py}.
+Prima di costruire i modelli per prevedere il futuro, dobbiamo capire com'è fatta la nostra serie storica (\texttt{top5\_market\_value\_bn}). In questo capitolo facciamo tre controlli molto semplici ma fondamentali: dividiamo la curva nei suoi pezzi principali (\textbf{decomposizione STL}), verifichiamo se la serie è stabile nel tempo (\textbf{stazionarietà} con i test \textbf{ADF} e \textbf{KPSS}) e misuriamo quanto ogni mese dipenda dai mesi precedenti (\textbf{ACF} e \textbf{PACF}). Tutto il codice si trova nel modulo \texttt{src/analysis/stl\_stationarity.py} ed è eseguito tramite lo script \texttt{03\_run\_stl\_stationarity.py}.
 
 \subsection{Decomposizione STL della serie storica}
 
 Per separare le diverse componenti della serie mensile è stato utilizzato il metodo \textbf{STL} (\textit{Seasonal and Trend decomposition using Loess}) con periodo stagionale $s = 12$ mesi. Questo metodo scompone la serie osservata $Y_t$ nella somma di tre elementi:
+Per leggere meglio l'andamento mensile del mercato, abbiamo diviso la serie osservata $Y_t$ in tre parti usando il metodo \textbf{STL} (\textit{Seasonal and Trend decomposition using Loess}) con ciclo annuale di $s = 12$ mesi:
 \begin{equation}
     Y_t = T_t + S_t + R_t
     \label{eq:decomposizione_stl}
 \end{equation}
 dove $T_t$ è il \textbf{trend} di lungo periodo, $S_t$ è la \textbf{stagionalità} che si ripete ogni anno e $R_t$ è il \textbf{residuo} (cioè le oscillazioni impreviste e gli shock). L'uso della stima robusta (\textit{Loess}) evita che eventi estremi come il crollo del 2020 deformino il calcolo del trend o della stagionalità. I quattro pannelli della decomposizione sono mostrati nella Figura \ref{fig:stl_decomposizione}.
+Qui $T_t$ è il \textbf{trend} (la direzione di fondo su più anni), $S_t$ è la \textbf{stagionalità} (il piccolo movimento che si ripete ogni anno negli stessi mesi) e $R_t$ è il \textbf{residuo} (tutto ciò che non è né trend né stagionalità, cioè gli imprevisti e gli shock). I quattro pannelli del risultato sono mostrati nella Figura \ref{fig:stl_decomposizione}.
 
-\begin{figure}[!htbp]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.86\textwidth]{capitolo8/img/fig12_stl_decomposizione_completa.png}
     \caption{Decomposizione STL della serie storica del valore delle rose Top-5 con periodo stagionale $s = 12$ mesi.}
     \label{fig:stl_decomposizione}
 \end{figure}
 
-Dalla Figura \ref{fig:stl_decomposizione} si vede che la serie è guidata soprattutto dal \textbf{trend di lungo periodo} $T_t$, la cui forza statistica ($F_T = 1 - \mathrm{Var}(R_t)/\mathrm{Var}(T_t + R_t)$) è pari a \textbf{$0,992$} (vicinissima al massimo teorico di $1,0$). La \textbf{componente stagionale} $S_t$ mostra un ciclo regolare ogni dodici mesi con ampiezza moderatamente crescente negli ultimi anni, mentre la \textbf{componente residuale} $R_t$ resta vicina a zero per quasi tutto il periodo e isola chiaramente i soli shock imprevisti, in particolare la caduta dell'aprile 2020 per il COVID-19. Sebbene un aumento di ampiezza e varianza lungo il livello possa suggerire in teoria una trasformazione logaritmica o un modello moltiplicativo, si è mantenuta una decomposizione \textbf{STL additiva con opzione \texttt{robust=True}}: lo stimatore locale LOESS si adatta gradualmente alle variazioni di ampiezza nel tempo, la stima robusta impedisce allo shock pandemico di distorcere $T_t$ e $S_t$, e la scala lineare conserva l'immediata interpretabilità economica in miliardi di euro (come il taglio di $-6{,}14$ miliardi dell'aprile 2020).
+Dalla Figura \ref{fig:stl_decomposizione} emerge subito il comportamento della serie: a guidarla è quasi interamente il \textbf{trend di lungo periodo} $T_t$, che spiega quasi tutta la variazione complessiva (forza statistica $F_T = 0,992$ su un massimo di $1,0$). La \textbf{stagionalità} $S_t$ ripete un piccolo ciclo regolare ogni dodici mesi, leggermente più ampio negli ultimi anni man mano che i prezzi del mercato sono cresciuti. Il \textbf{residuo} $R_t$ resta invece vicino allo zero per quasi tutti i quindici anni, isolando in modo netto solo gli eventi imprevisti, primo fra tutti il crollo dell'aprile 2020 dovuto al COVID-19. Anche se l'ampiezza del ciclo cresce leggermente nel tempo, abbiamo scelto una decomposizione \textbf{STL additiva con opzione \texttt{robust=True}}: in questo modo il metodo si adatta gradualmente ai cambiamenti di scala, l'opzione robusta impedisce al crollo del 2020 di falsare il calcolo di $T_t$ e $S_t$, e i valori restano espressi direttamente in miliardi di euro (rendendo immediato leggere il taglio di $-6{,}14$ miliardi dell'aprile 2020).
 
-\begin{figure}[!htbp]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.82\textwidth]{capitolo8/img/fig13_stl_profilo_medio_mensile.png}
     \caption{Profilo stagionale medio mensile del valore delle rose nei dodici mesi dell'anno.}
@@ -31,16 +34,19 @@ Dalla Figura \ref{fig:stl_decomposizione} si vede che la serie è guidata soprat
 \end{figure}
 
 Per capire come si comporta la stagionalità nei vari mesi dell'anno, la Figura \ref{fig:stl_profilo_mensile} riporta l'effetto medio di ciascun mese calcolato sulla componente $S_t$. I mesi con l'effetto positivo più alto sono \textbf{ottobre (+0,28 miliardi di euro)} e \textbf{novembre (+0,15 miliardi)}, quando Transfermarkt aggiorna i listini di tutti i campionati tenendo conto degli acquisti estivi e dell'inizio delle coppe, seguiti dai rialzi estivi di \textbf{luglio (+0,09 miliardi)} e \textbf{settembre (+0,08 miliardi)}. Al contrario, i mesi di fine stagione (\textbf{maggio e giugno}, con $-0,10$ e $-0,12$ miliardi) e l'inizio dell'anno (\textbf{gennaio e febbraio}, $-0,11$ e $-0,12$ miliardi) segnano in media una lieve flessione legata alle scadenze dei contratti e ai ribassi dei giocatori meno utilizzati.
+La Figura \ref{fig:stl_profilo_mensile} mostra l'effetto medio di ogni singolo mese dell'anno sulla componente stagionale $S_t$. I mesi in cui il valore delle rose sale di più sono \textbf{ottobre (+0,28 miliardi di euro)} e \textbf{novembre (+0,15 miliardi)}, cioè subito dopo la chiusura del mercato estivo e l'avvio delle coppe europee, quando Transfermarkt aggiorna i listini; seguono i rialzi estivi di \textbf{luglio (+0,09 miliardi)} e \textbf{settembre (+0,08 miliardi)}. Al contrario, a fine stagione (\textbf{maggio e giugno}, con $-0,10$ e $-0,12$ miliardi) e a inizio anno (\textbf{gennaio e febbraio}, $-0,11$ e $-0,12$ miliardi) si nota in media un leggero calo legato alle scadenze dei contratti e ai ribassi dei giocatori meno impiegati.
 
 \subsection{Test di stazionarietà e differenziazione della serie}
 
 I modelli previsionali della famiglia ARIMA richiedono che la serie sia \textbf{stazionaria}, cioè che non salga o scenda all'infinito ma oscilli attorno a una media costante. Poiché la serie originale $Y_t$ ha un forte trend di crescita, è stata calcolata la \textbf{serie differenziata prima} ($d = 1$), che misura di quanto il valore sale o scende rispetto al mese precedente:
+I modelli statistici della famiglia ARIMA funzionano bene solo se la serie è \textbf{stazionaria}, cioè se oscilla attorno a un livello stabile invece di salire o scendere all'infinito. Poiché il valore delle rose Top-5 cresce nel tempo, la serie originale $Y_t$ non è stazionaria. Per stabilizzarla abbiamo calcolato la \textbf{differenza prima} ($d = 1$), che invece del valore assoluto guarda semplicemente di quanto il mercato è salito o sceso rispetto al mese precedente:
 \begin{equation}
     \Delta Y_t = Y_t - Y_{t-1}
     \label{eq:differenziazione_prima}
 \end{equation}
 
 Per verificare matematicamente la stazionarietà prima e dopo questa trasformazione, sono stati eseguiti due test complementari: il \textbf{test ADF} (\textit{Augmented Dickey-Fuller}, per il quale la serie è stazionaria se il $p$-value è minore di $0,05$) e il \textbf{test KPSS} (che funziona all'opposto: la serie è stazionaria se il $p$-value è maggiore di $0,05$). I risultati sono riportati nella Tabella \ref{tab:test_stazionarieta}.
+Per essere sicuri che la trasformazione funzioni, abbiamo eseguito due test statistici complementari: il \textbf{test ADF} (dove la serie è stazionaria se il $p$-value è minore di $0,05$) e il \textbf{test KPSS} (dove vale l'opposto: la serie è stazionaria se il $p$-value è maggiore di $0,05$). I numeri sono riassunti nella Tabella \ref{tab:test_stazionarieta}.
 
 \begin{table}[!htbp]
 \centering
@@ -62,8 +68,9 @@ Serie differenziata $\Delta Y_t$ ($d=1$) & $-13,819$ & $< 0,0001$ & $0,140$ & $0
 \end{table}
 
 I due test concordano pienamente: la serie originale ($d = 0$) \textbf{non è stazionaria} (ADF $p = 0,8148 > 0,05$ e KPSS $p = 0,0100 < 0,05$). Basta però applicare una sola differenza mensile ($d = 1$) perché la serie diventi \textbf{perfettamente stazionaria} (ADF $p < 0,0001$ e KPSS $p = 0,1000$). Questo fissa il parametro di differenziazione dei nostri modelli a \textbf{$d = 1$}.
+Entrambi i test danno lo stesso verdetto: la serie originale ($d = 0$) \textbf{non è stazionaria} (ADF $p = 0,8148 > 0,05$ e KPSS $p = 0,0100 < 0,05$). Basta però fare una sola differenza mensile ($d = 1$) perché la serie diventi \textbf{stazionaria} (ADF $p < 0,0001$ e KPSS $p = 0,1000$). Questo fissa subito a \textbf{$d = 1$} il parametro di differenziazione per i modelli del Capitolo 9.
 
-\begin{figure}[!htbp]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.86\textwidth]{capitolo8/img/fig14_stazionarieta_confronto_differenziazione.png}
     \caption{Confronto tra la serie originale in livelli (non stazionaria, $d=0$) e la serie differenziata prima $\Delta Y_t$ (stazionaria attorno a zero, $d=1$).}
@@ -71,16 +78,18 @@ I due test concordano pienamente: la serie originale ($d = 0$) \textbf{non è st
 \end{figure}
 
 La Figura \ref{fig:stazionarieta_differenziazione} mostra chiaramente questa differenza: mentre la curva in alto sale continuamente nel tempo, la serie differenziata in basso oscilla stabilmente attorno allo zero.
+La Figura \ref{fig:stazionarieta_differenziazione} mostra in modo visivo l'effetto della differenziazione. Nel pannello in alto ($d = 0$) vediamo la serie originale: il valore parte da circa 11 miliardi di euro nel 2011 e sale fino a oltre 34 miliardi nel 2026, quindi la curva cambia continuamente livello e non è stazionaria. Nel pannello in basso ($d = 1$) guardiamo invece soltanto la variazione da un mese all'altro ($\Delta Y_t = Y_t - Y_{t-1}$): eliminando la crescita di lungo periodo, la curva si stabilizza e oscilla sempre attorno allo zero (con l'unico grande picco negativo nell'aprile 2020, corrispondente al crollo di $-6{,}14$ miliardi dovuto al COVID-19).
 
 \subsection{Analisi delle autocorrelazioni ACF e PACF}
 
 Una volta resa stazionaria la serie con $d = 1$, sono stati calcolati i grafici di \textbf{autocorrelazione (ACF)} e \textbf{autocorrelazione parziale (PACF)} fino a 36 mesi di ritardo (\textit{lag}) per capire da quanti mesi passati dipenda il valore attuale e scegliere i parametri $p$ (autoregressivo) e $q$ (media mobile).
+Una volta resa stazionaria la serie con $d = 1$, abbiamo disegnato i grafici \textbf{ACF} (autocorrelazione) e \textbf{PACF} (autocorrelazione parziale) fino a 36 mesi di distanza (\textit{lag}). Questi due grafici servono a capire quanto il valore di un mese dipenda dai mesi passati e aiutano a scegliere i parametri $p$ e $q$ dei modelli ARIMA.
 
-\begin{figure}[!htbp]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.84\textwidth]{capitolo8/img/fig15_acf_pacf_serie_differenziata.png}
     \caption{Grafici di autocorrelazione (ACF) e autocorrelazione parziale (PACF) sulla serie differenziata $\Delta Y_t$ fino a 36 mesi di ritardo.}
     \label{fig:acf_pacf}
 \end{figure}
 
-Dalla Figura \ref{fig:acf_pacf} emergono due indicazioni pratiche molto chiare per il Capitolo 9. In primo luogo, nei primi ritardi ($k = 1, 2$) le barre restano contenute perché il fortissimo salto negativo del COVID nell'aprile 2020 alza la varianza campionaria della serie differenziata e attenua le normali correlazioni da un mese all'altro, suggerendo di impiegare ordini non stagionali parsimoniosi ($p = 1, q = 1$). In secondo luogo, al \textbf{ritardo stagionale $k = 12$ mesi} (linea tratteggiata arancione) si osserva un picco positivo ($+0,107$), che tuttavia resta contenuto all'interno della banda di confidenza al 95\% ($\pm 0,146$): questo dato conferma in modo coerente che la componente stagionale pura dell'aggregato Top-5 è debole rispetto al trend ($F_S = 0,039$). Per questo motivo, nel Capitolo 9 l'inserimento di ordini stagionali parsimoniosi $(P = 1, Q = 1)_{12}$ verrà testato e confrontato empiricamente con un ARIMA non stagionale sulla base del calendario calcistico e in combinazione con le variabili esogene di mercato e l'intervento strutturale per lo shock del 2020.
+Nella Figura \ref{fig:acf_pacf} la fascia colorata ($\pm 0,146$) rappresenta la zona di ``rumore casuale'': finché le barre restano dentro questa fascia, significa che tra un mese e quelli precedenti non c'è un legame forte. Guardando il grafico emergono due indicazioni pratiche molto semplici per il Capitolo 9. Primo: nei primi mesi ($k = 1, 2$) le barre restano basse perché il grande crollo del COVID nell'aprile 2020 domina la variabilità della serie e nasconde i piccoli legami da un mese all'altro; conviene quindi usare modelli semplici con pochi parametri ($p = 1, q = 1$). Secondo: esattamente a \textbf{12 mesi di distanza} ($k = 12$, linea tratteggiata arancione) si nota una barretta positiva ($+0,107$), che però resta dentro la fascia casuale ($\pm 0,146$). Questo conferma che la stagionalità pura è debole rispetto al trend ($F_S = 0,039$): nel Capitolo 9 testeremo comunque i parametri stagionali $(P = 1, Q = 1)_{12}$ per seguire il calendario del calcio, confrontandoli direttamente con un ARIMA semplice e con l'aggiunta delle spese di calciomercato.

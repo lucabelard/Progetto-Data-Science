@@ -9,7 +9,7 @@ Nell'ultimo capitolo della seconda parte vengono addestrati e messi a confronto 
 
 Nelle serie storiche non è possibile dividere i dati in modo casuale perché i mesi seguono un ordine cronologico preciso e non si possono usare informazioni future per prevedere il passato. La serie di 180 mesi è stata quindi divisa in modo cronologico con proporzione \textbf{80\% / 20\%}, come mostrato nella Figura \ref{fig:split_train_test}: i primi \textbf{144 mesi} (12 anni completi, da giugno 2011 a maggio 2023) formano il \textbf{training set} usato per addestrare i modelli, mentre gli ultimi \textbf{36 mesi} (3 anni completi, da giugno 2023 a maggio 2026) formano il \textbf{test set} usato per valutare le previsioni.
 
-\begin{figure}[!htbp]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.85\textwidth]{capitolo9/img/fig16_split_train_test_serie.png}
     \caption{Divisione cronologica della serie storica tra training set (144 mesi, giugno 2011 -- maggio 2023) e test set (36 mesi, giugno 2023 -- maggio 2026).}
@@ -42,7 +42,7 @@ Le variabili esogene $X_t$ comprendono la \textbf{spesa cumulata nel calciomerca
 
 La Figura \ref{fig:confronto_previsioni} confronta i dati reali osservati tra giugno 2023 e maggio 2026 (linea nera con pallini) con le curve previsionali dei cinque modelli, mentre la Tabella \ref{tab:confronto_modelli_top5} e la Figura \ref{fig:metriche_errore} riassumono gli errori commessi da ciascun modello.
 
-\begin{figure}[!htbp]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.85\textwidth]{capitolo9/img/fig17_confronto_previsioni_modelli.png}
     \caption{Confronto multi-step sul test set (giugno 2023 -- maggio 2026) tra i valori reali e le previsioni dei cinque modelli, con fascia analitica di confidenza al 95\% per SARIMAX.}
@@ -72,7 +72,7 @@ $\mathrm{SARIMA}(1, 1, 1) \times (1, 0, 1)_{12}$ & \textbf{[post-run]} & \textbf
 
 \textbf{[Sezione da aggiornare con i valori esatti di \texttt{modeling\_summary.json} dopo l'esecuzione della pipeline.]}
 
-\begin{figure}[!htbp]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.85\textwidth]{capitolo9/img/fig18_metriche_errore_modelli.png}
     \caption{Confronto grafico degli errori RMSE (in miliardi di euro) e MAPE (\%) sul test set tra i cinque modelli.}
@@ -83,7 +83,7 @@ $\mathrm{SARIMA}(1, 1, 1) \times (1, 0, 1)_{12}$ & \textbf{[post-run]} & \textbf
 
 Per verificare l'adeguatezza statistica del modello SARIMAX sul training set, occorre controllare che i residui stimati si comportino come \textbf{rumore bianco}, cioè risultino centrati sullo zero e privi di autocorrelazione residua significativa.
 
-\begin{figure}[!htbp]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.84\textwidth]{capitolo9/img/fig19_diagnostica_residui_sarimax.png}
     \caption{Andamento nel tempo dei residui standardizzati del modello SARIMAX e confronto della loro distribuzione con la curva normale $\mathcal{N}(0, 1)$.}
@@ -92,7 +92,7 @@ Per verificare l'adeguatezza statistica del modello SARIMAX sul training set, oc
 
 Nella Figura \ref{fig:diagnostica_residui} i residui oscillano stabilmente attorno a zero, pur mostrando una distribuzione empirica leggermente leptocurtica (picco centrale più stretto e code più pesanti rispetto alla Gaussiana teorica) dovuta a sporadiche revisioni straordinarie dei listini come quella di gennaio 2018. La Figura \ref{fig:qqplot_acf_residui} affianca al diagramma Q-Q Plot la funzione di autocorrelazione (ACF) dei residui, mentre la verifica formale di assenza di autocorrelazione globale ai ritardi $m = 6, 12, 24$ è affidata al \textbf{test di Ljung-Box} nella Tabella \ref{tab:ljung_box_residui}.
 
-\begin{figure}[!htbp]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.84\textwidth]{capitolo9/img/fig20_qqplot_acf_residui_sarimax.png}
     \caption{Diagramma Q-Q Plot e funzione di autocorrelazione (ACF) dei residui del modello SARIMAX.}
@@ -121,7 +121,7 @@ Ritardo a 24 mesi ($m = 24$) & \textbf{[post-run]} & \textbf{[post-run]} & 0,05 
 
 Lo stesso modello $\mathrm{SARIMAX}(1, 1, 1) \times (1, 0, 1)_{12}$ è stato infine applicato alla serie storica della \textbf{Serie A italiana} (\texttt{serie\_a\_market\_value\_bn}), usando come variabili esogene la spesa cumulata negli ultimi 12 mesi dai club italiani, il flusso dei trasferimenti del campionato, le finestre di revisione e lo step pandemico.
 
-\begin{figure}[!htbp]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.85\textwidth]{capitolo9/img/fig21_focus_previsione_serie_a.png}
     \caption{Focus Serie A (\texttt{IT1}): serie storica e previsione multi-step del modello SARIMAX sul triennio di test 2023--2026.}

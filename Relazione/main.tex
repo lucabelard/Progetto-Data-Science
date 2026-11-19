@@ -20,6 +20,11 @@
 \usepackage{geometry}
 \usepackage[plainpages=false,pdfpagelabels=true]{hyperref}
 \usepackage{float}
+% Evita pagine con sole immagini e favorisce il posizionamento insieme al testo
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.75}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage[table]{xcolor}
@@ -56,15 +61,15 @@
 \definecolor{TableLineColor}{RGB}{203, 213, 225}   % Linee di separazione sottili
 
 % =========================================================================
-% TAVOLOZZA CARBON: SOLO BIANCO E TONI CALDI (ARANCIONE/GIALLO SOLO PER DEF/TIPI/PARENTESI)
+% TAVOLOZZA CARBON: ARMONIZZATA CON DEEP NAVY & STEEL BLUE DELLA RELAZIONE
 % =========================================================================
-\definecolor{CarbonBg}{RGB}{0, 34, 53}             % #002235 - Blu petrolio profondo esatto dello sfondo
-\definecolor{CarbonFg}{RGB}{255, 255, 255}         % #ffffff - Bianco puro per variabili, testo e tutto il resto
-\definecolor{CarbonNumber}{RGB}{72, 114, 142}      % Numeri di riga discreti
-\definecolor{CarbonDef}{RGB}{255, 175, 40}         % #ffaf28 - Arancione/Ambra caldo per def/class/lambda
-\definecolor{CarbonTypes}{RGB}{255, 205, 80}       % #ffcd50 - Giallo caldo per tipi, interi, booleani (True, False, int, float, str)
-\definecolor{CarbonDelim}{RGB}{255, 185, 60}       % #ffb93c - Arancione dorato per parentesi ed operatori
-\definecolor{CarbonComment}{RGB}{160, 160, 160}     % Grigio chiaro neutro per commenti
+\definecolor{CarbonBg}{RGB}{15, 32, 54}             % #0F2036 - Blu notte profondo armonizzato con NavyBlueTheme
+\definecolor{CarbonFg}{RGB}{241, 245, 249}         % #F1F5F9 - Bianco ghiaccio morbido per testo e identificatori
+\definecolor{CarbonNumber}{RGB}{100, 128, 156}     % #64809C - Grigio-azzurro discreto per numeri di riga e titolo
+\definecolor{CarbonDef}{RGB}{96, 165, 250}         % #60A5FA - Azzurro Steel chiaro per parole chiave (def, class, import, ...)
+\definecolor{CarbonTypes}{RGB}{125, 211, 252}      % #7DD3FC - Ciano ghiaccio per numeri, booleani e tipi
+\definecolor{CarbonString}{RGB}{167, 243, 208}     % #A7F3D0 - Verde menta tenue per stringhe
+\definecolor{CarbonComment}{RGB}{130, 155, 180}    % #829BB4 - Grigio ardesia azzurrato per commenti
 \definecolor{CarbonDotRed}{RGB}{255, 95, 86}       % Pallino rosso Mac
 \definecolor{CarbonDotYellow}{RGB}{255, 189, 46}   % Pallino giallo Mac
 \definecolor{CarbonDotGreen}{RGB}{39, 201, 63}     % Pallino verde Mac
@@ -139,7 +144,7 @@
 
 % =========================================================================
 % CONFIGURAZIONE LISTATI DI CODICE STILE CARBON
-% Il bianco è predominante per quasi tutto il codice. Solo def/class e booleani/interi in arancio/giallo soft.
+% Palette fredda coordinata (bianco ghiaccio, azzurro steel, ciano e menta tenue)
 % =========================================================================
 \lstdefinestyle{carbonstyle}{
     language=Python,
@@ -152,9 +157,9 @@
     keywordstyle=[1]\color{CarbonDef}\bfseries,
     keywordstyle=[2]\color{CarbonTypes}\bfseries,
     morekeywords=[1]{def,class},
-    morekeywords=[2]{True,False},
+    morekeywords=[2]{True,False,None},
     commentstyle=\color{CarbonComment}\itshape,
-    stringstyle=\color{CarbonFg},
+    stringstyle=\color{CarbonString},
     showstringspaces=false,
     tabsize=4,
     xleftmargin=1.8em,
@@ -274,16 +279,16 @@
 \newpage
 
 \input{capitolo1/capitolo1.tex}
-\newpage
+\clearpage
 \input{capitolo2/capitolo2.tex}
-\newpage
+\clearpage
 \input{capitolo3/capitolo3.tex}
-\newpage
+\clearpage
 \input{capitolo4/capitolo4.tex}
-\newpage
+\clearpage
 \input{capitolo5/capitolo5.tex}
 
-\newpage
+\clearpage
 \phantomsection
 \addcontentsline{toc}{section}{Elenco delle figure}
 \stoplist[part1]{lof}
@@ -325,14 +330,14 @@
 \newpage
 
 \input{capitolo6/capitolo6.tex}
-\newpage
+\clearpage
 \input{capitolo7/capitolo7.tex}
-\newpage
+\clearpage
 \input{capitolo8/capitolo8.tex}
-\newpage
+\clearpage
 \input{capitolo9/capitolo9.tex}
 
-\newpage
+\clearpage
 \phantomsection
 \addcontentsline{toc}{section}{Elenco delle figure}
 \stoplist[part2]{lof}
