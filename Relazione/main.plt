@@ -5,7 +5,7 @@
 \contentsline {table}{\numberline {2}{\ignorespaces Quota di varianza spiegata individuale e cumulativa per ciascuna Componente Principale (PCA sulle 8 feature acustiche selezionate).}}{36}{table.caption.18}%
 \contentsline {table}{\numberline {3}{\ignorespaces Matrice dei Loadings (pesi lineari) delle prime 4 Componenti Principali rispetto alle 8 feature acustiche standardizzate.}}{37}{table.caption.20}%
 \contentsline {table}{\numberline {4}{\ignorespaces Distribuzione numerica e percentuale dei brani nei 5 cluster K-Means (campione di analisi e intero catalogo deduplicato).}}{41}{table.caption.23}%
-\contentsline {table}{\numberline {5}{\ignorespaces Sintesi descrittiva delle componenti GMM sul campione di 6.000 brani. I generi sono riportati solo come interpretazione a posteriori.}}{50}{table.caption.30}%
+\contentsline {table}{\numberline {5}{\ignorespaces Sintesi descrittiva delle componenti GMM sul campione di 6.000 brani. I generi sono riportati solo come interpretazione a posteriori.}}{49}{table.caption.30}%
 \ttl@stoptoc {part1@1}
 \ttl@starttoc {part2@1}
 \contentsline {table}{\numberline {1}{\ignorespaces Riepilogo delle cinque tabelle del dataset di Transfermarkt utilizzate nella pipeline.}}{2}{table.caption.38}%
