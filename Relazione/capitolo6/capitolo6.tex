@@ -1,19 +1,20 @@
 % =========================================================================
-% CAPITOLO 6: INTRODUZIONE, DATASET E PROCESSO DI ETL (TRANSFERMARKT)
+% CAPITOLO 6 (SEZIONE 1 PARTE 2): INTRODUZIONE, DATASET E PROCESSO DI ETL
 % =========================================================================
 \section{Analisi delle serie storiche sul mercato calcistico: introduzione e dataset}
+\label{sec:p2_etl}
 
 Negli ultimi quindici anni il calcio europeo si è trasformato in un vero e proprio \textbf{mercato finanziario globale}, caratterizzato da investimenti miliardari, cicli stagionali legati alle finestre di compravendita e una forte sensibilità agli shock economici esterni. A differenza dei mercati azionari tradizionali, dove i prezzi variano in modo continuo ogni giorno, il mercato calcistico segue due meccanismi complementari: le stime del valore dei singoli giocatori vengono aggiornate periodicamente dagli analisti durante la stagione, mentre gli acquisti reali avvengono nelle due \textbf{sessioni ufficiali di calciomercato} (a gennaio e tra luglio e agosto).
 
-L'obiettivo di questa seconda parte dell'elaborato è ricostruire, analizzare e prevedere la \textbf{serie storica mensile} del valore di mercato delle rose dei cinque maggiori campionati europei (\textbf{Serie A}, \textbf{Premier League}, \textbf{LaLiga}, \textbf{Bundesliga} e \textbf{Ligue 1}) tra il 2011 e il 2026, dedicando un focus specifico al campionato italiano e valutando come le spese effettive di calciomercato possano migliorare le previsioni dei modelli statistici.
+L'obiettivo di questa seconda parte dell'elaborato è ricostruire, analizzare e prevedere la \textbf{serie storica mensile} del valore di mercato delle rose dei cinque maggiori campionati europei (\textbf{Serie A}, \textbf{Premier League}, \textbf{LaLiga}, \textbf{Bundesliga} e \textbf{Ligue 1}) tra giugno 2013 e maggio 2026, dedicando un approfondimento specifico al campionato italiano e verificando in modo rigoroso se le spese effettive per acquisti sul calciomercato migliorino davvero le previsioni dei modelli statistici.
 
 \subsection{Struttura del dataset relazionale di Transfermarkt}
 
-I dati provengono dal repository pubblico \textit{Football Data from Transfermarkt} su Kaggle. La fonte non fornisce una serie storica già pronta, ma un \textbf{database relazionale} composto da dodici tabelle in formato \texttt{.csv}. Per ricostruire l'andamento mensile del valore delle squadre e dei volumi di spesa sono state integrate le \textbf{cinque tabelle principali} riassunte nella Tabella \ref{tab:tabelle_transfermarkt}.
+I dati provengono dal repository pubblico \textit{Football Data from Transfermarkt} su Kaggle. La fonte non fornisce una serie storica già pronta, ma un \textbf{database relazionale} composto da dodici tabelle in formato \texttt{.csv}. Per ricostruire l'andamento mensile del valore delle squadre e dei volumi di acquisto senza introdurre distorsioni di copertura sono state integrate le \textbf{sette tabelle principali} riassunte nella Tabella \ref{tab:tabelle_transfermarkt}.
 
 \begin{table}[!htbp]
 \centering
-\caption{Riepilogo delle cinque tabelle del dataset di Transfermarkt utilizzate nella pipeline.}
+\caption{Riepilogo delle sette tabelle del dataset di Transfermarkt utilizzate nella pipeline di ETL.}
 \label{tab:tabelle_transfermarkt}
 \vspace{0.2cm}
 \begin{tabularx}{\textwidth}{l>{\raggedleft\arraybackslash}p{2.2cm}X}
@@ -21,92 +22,111 @@ I dati provengono dal repository pubblico \textit{Football Data from Transfermar
 \textbf{File sorgente} & \textbf{Record} & \textbf{Ruolo nella ricostruzione della serie storica} \\
 \midrule
 \texttt{player\_valuations.csv} & 656.301 & Storico delle valutazioni di mercato in euro (\texttt{market\_value\_in\_eur}) \\
-\texttt{transfers.csv} & 175.165 & Trasferimenti tra club e costo dei cartellini (\texttt{transfer\_fee}) \\
+\texttt{transfers.csv} & 175.165 & Trasferimenti tra club e costo degli acquisti (\texttt{transfer\_fee}) \\
 \texttt{appearances.csv} & 1.894.350 & Presenze in partita per verificare il club effettivo mese per mese \\
-\texttt{clubs.csv} & 796 & Anagrafica delle squadre e associazione al campionato nazionale \\
-\texttt{competitions.csv} & 65 & Codici identificativi dei cinque maggiori campionati europei \\
+\texttt{games.csv} & 88.958 & Calendario gare per associare ogni club al campionato della singola stagione \\
+\texttt{clubs.csv} & 796 & Anagrafica delle squadre \\
+\texttt{competitions.csv} & 65 & Codici dei cinque campionati maggiori e filtro delle gare per Nazionali \\
+\texttt{national\_teams.csv} & 124 & Anagrafica delle selezioni Nazionali da escludere dalle presenze di club \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-La tabella principale è \texttt{player\_valuations.csv}, che registra lo storico delle quotazioni individuali (\texttt{market\_value\_in\_eur}) associate a ciascun calciatore (\texttt{player\_id}) in una data specifica. Questa è stata incrociata con \texttt{transfers.csv} (che traccia i cambi di squadra e le spese di acquisto), con \texttt{appearances.csv} (che attesta in quale club il giocatore è sceso in campo) e con le tabelle anagrafiche \texttt{clubs.csv} e \texttt{competitions.csv} per filtrare i cinque massimi campionati europei: \textbf{Serie A} (\texttt{IT1}), \textbf{Premier League} (\texttt{GB1}), \textbf{LaLiga} (\texttt{ES1}), \textbf{Bundesliga} (\texttt{L1}) e \textbf{Ligue 1} (\texttt{FR1}).
+La tabella principale è \texttt{player\_valuations.csv}, che registra lo storico delle quotazioni individuali (\texttt{market\_value\_in\_eur}) associate a ciascun calciatore (\texttt{player\_id}) in una data specifica. Questa è stata incrociata con \texttt{transfers.csv} (cambi di squadra e corrispettivi pagati), \texttt{appearances.csv} (presenze ufficiali in campo), \texttt{games.csv} (gare disputate stagione per stagione) e le anagrafiche \texttt{clubs.csv}, \texttt{competitions.csv} e \texttt{national\_teams.csv} per isolare i cinque massimi campionati europei: \textbf{Serie A} (\texttt{IT1}), \textbf{Premier League} (\texttt{GB1}), \textbf{LaLiga} (\texttt{ES1}), \textbf{Bundesliga} (\texttt{L1}) e \textbf{Ligue 1} (\texttt{FR1}).
 
-\subsection{Processo di ETL e ricostruzione storica mensile}
+\subsection{Processo di ETL, ricostruzione causale e controllo di copertura}
 
-Per trasformare i record grezzi in una serie storica mensile regolare senza buchi o distorsioni, lo script \texttt{01\_etl\_transfermarkt.py} risolve \textbf{due problemi strutturali} presenti nei dati di partenza.
+Per trasformare i record grezzi in una serie storica mensile regolare priva di buchi o artefatti di composizione, lo script \texttt{01\_etl\_transfermarkt.py} risolve \textbf{tre problemi strutturali} presenti nei dati di partenza.
 
-Il \textbf{primo problema} è la diversa cadenza temporale tra aggiornamenti dei listini e calciomercato. Nel file \texttt{player\_valuations.csv}, le revisioni dei prezzi avvengono soprattutto a marzo, giugno, ottobre e dicembre, mentre sono molto rare a gennaio, luglio e agosto perché la redazione attende la chiusura delle trattative. Proprio in quei mesi, però, il file \texttt{transfers.csv} registra il picco di acquisti e cessioni che modificano il valore delle squadre. 
-
-Questa complementarità è visibile nella Figura \ref{fig:etl_complementarita}: i mesi con meno aggiornamenti di listino coincidono esattamente con i picchi del calciomercato (luglio, agosto e gennaio), dove la spesa media mensile supera i \textbf{2.300 milioni di euro} a luglio, i \textbf{1.280 milioni} ad agosto e i \textbf{550 milioni} a gennaio.
+Il \textbf{primo problema} è la diversa cadenza temporale tra aggiornamenti dei listini e calciomercato. Nel file \texttt{player\_valuations.csv}, le revisioni dei prezzi si concentrano soprattutto a marzo, giugno, ottobre e dicembre, mentre sono molto rare a gennaio, luglio e agosto perché la redazione attende la chiusura delle trattative. Proprio in quei mesi, però, \texttt{transfers.csv} registra il picco di trasferimenti in entrata che modificano la composizione delle squadre. Questa complementarità è visibile nella Figura \ref{fig:etl_complementarita}: la spesa media mensile per soli acquisti nei cinque campionati raggiunge i \textbf{2,18 miliardi di euro} a luglio (2.176 milioni) e gli \textbf{1,21 miliardi} ad agosto (1.205 milioni), seguiti da \textbf{547 milioni} a gennaio e 276 milioni a settembre.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.88\textwidth]{capitolo6/img/fig01_etl_complementarita_fonti.png}
-    \caption{Complementarità stagionale tra la frequenza mensile degli aggiornamenti di valutazione e il volume delle operazioni di calciomercato nei cinque maggiori campionati europei.}
+    \caption{Complementarità stagionale tra la frequenza mensile degli aggiornamenti di valutazione e il volume degli acquisti nei cinque maggiori campionati europei.}
     \label{fig:etl_complementarita}
 \end{figure}
 
-Il \textbf{secondo problema} riguarda la \textbf{distorsione sul club di appartenenza}. In \texttt{player\_valuations.csv}, la colonna \texttt{current\_club\_id} è un dato statico che indica solo la squadra in cui il giocatore milita nel 2026. Aggregare i valori usando direttamente quel campo significherebbe attribuire tutta la carriera passata di un calciatore al suo club del 2026: chi giocava in Serie A nel 2019 ma oggi gioca all'estero (o si è ritirato) verrebbe escluso dal calcolo storico della Serie A, causando una forte sottostima negli anni passati.
+Il \textbf{secondo problema} riguarda la \textbf{doppia distorsione statica} presente nelle tabelle anagrafiche e il calendario delle transizioni stagionali. Da un lato, in \texttt{player\_valuations.csv} la colonna \texttt{current\_club\_id} indica soltanto la squadra in cui il giocatore milita al momento dell'estrazione (2026); dall'altro, in \texttt{clubs.csv} il campo \texttt{domestic\_competition\_id} fotografa soltanto l'ultima categoria del club. Usare direttamente questi campi manterrebbe in Serie A club retrocessi da anni (o attribuirebbe alla massima serie squadre neopromosse negli anni in cui militavano in serie inferiori). Inoltre, \texttt{appearances.csv} include anche le presenze con le selezioni Nazionali (Europei, Mondiali, Coppa d'Africa), dove \texttt{player\_club\_id} riporta l'identificativo della Nazionale invece del club: filtrarle tramite \texttt{competitions.csv} (\texttt{type == "national\_\allowbreak team\_\allowbreak competition"}) e \texttt{national\_teams.csv} evita la sparizione temporanea dei giocatori impegnati in tali tornei. Infine, l'associazione tra mese e stagione calcistica segue il calendario ufficiale (luglio--giugno) ma applica una correzione fattuale ricavata direttamente da \texttt{games.csv} su \textbf{luglio 2020}, mese in cui furono disputate 211 gare ufficiali della stagione 2019/2020 prolungata a causa della pandemia.
 
-Per risolvere entrambi gli aspetti, la pipeline mostrata nel Listato \ref{lst:etl_ricostruzione} costruisce una griglia mensile regolare di \textbf{180 mesi consecutivi} (da giugno 2011 a maggio 2026, escludendo giugno 2026 perché incompleto nell'estrazione), preceduta da una finestra di \textit{warm-up} dal gennaio 2009, e ricostruisce mese per mese sia l'ultima valutazione valida del giocatore (con propagazione puramente causale in avanti \textit{forward-fill} fino a un massimo di 18 mesi per escludere i ritirati), sia la squadra in cui militava realmente in quel mese tramite presenze in campo e trasferimenti; il riempimento iniziale \texttt{bfill()} nel Listato \ref{lst:etl_ricostruzione} agisce esclusivamente per inizializzare l'anagrafica prima della prima presenza registrata, senza sovrascrivere alcun trasferimento successivo né introdurre \textit{look-ahead bias} sui prezzi.
+Il \textbf{terzo problema} riguarda il rischio di ``buchi'' artificiali nel numero di calciatori conteggiati tra una stagione e l'altra. Per calcolare il valore totale delle rose di un campionato nel mese $t$, dobbiamo sapere due cose: \textbf{in quale squadra milita} ogni giocatore in quel mese e \textbf{qual è la sua valutazione}. Se guardassimo soltanto alle partite giocate nel singolo mese (\texttt{appearances.csv}), a luglio (quando i campionati sono fermi) o durante un infortunio il giocatore sparirebbe dal conteggio; per evitarlo si usa il \textit{forward fill} (\texttt{ffill}), cioè si mantiene valido l'ultimo dato passato noto \textbf{senza mai usare informazioni future} (zero \texttt{bfill}, evitando ogni \textit{look-ahead bias}\footnote{Distorsione che si verifica quando la preparazione dei dati o un modello utilizza informazioni future non ancora disponibili al momento temporale analizzato.} e ogni \textit{survivorship bias}\footnote{Distorsione che si verifica quando un archivio storico include solo i soggetti rimasti attivi o registrati dopo una certa data, sottostimando gli anni precedenti.}).
+
+Tuttavia, applicare questa regola in modo ingenuo crea due distorsioni pratiche, facili da capire con un \textbf{esempio concreto}:
+\begin{enumerate}
+    \item \textbf{Il caso dei club neopromossi:} \texttt{appearances.csv} inizia solo da luglio 2012 e registra \textbf{esclusivamente i campionati di prima divisione} (escludendo Serie B, Championship, 2.\ Bundesliga, Segunda e Ligue 2). Immaginiamo un calciatore acquistato da un club di Serie B nell'estate 2023: per tutta la stagione 2023/2024 gioca in Serie B, quindi non compare mai in \texttt{appearances.csv}. Quando a \textbf{luglio 2024} quel club viene promosso in Serie A (prima dell'esordio di agosto), se ci basassimo solo sulle presenze degli ultimi 12 mesi il giocatore risulterebbe ``inesistente'' e il valore della rosa a luglio crollerebbe artificialmente.
+    \item \textbf{Il picco dei prestiti al 30 giugno:} nella tabella \texttt{transfers.csv}, migliaia di rientri gratuiti da prestito sono datati \textbf{30 giugno}; conteggiarli già nel mese di giugno genera una sovrapposizione artificiale con la stagione appena conclusa.
+\end{enumerate}
+
+Per risolvere entrambi i problemi in modo strettamente causale sono state adottate tre regole:
+\begin{itemize}
+    \item \textbf{Orizzonte di 156 mesi (giugno 2013 -- maggio 2026) e finestra presenze di 12 mesi (\texttt{ffill(limit=11)}):} partendo da giugno 2013 si ha già alle spalle un anno intero di presenze (da luglio 2012); ogni presenza resta valida per 12 mesi, coprendo pause estive e infortuni.
+    \item \textbf{Trasferimenti validi fino a 36 mesi (\texttt{ffill(\allowbreak limit=35)}) e valutazioni fino a 15 mesi (\texttt{ffill(limit=15)}):} per assegnare il club al giocatore si sceglie sempre l'evento più recente tra presenza e trasferimento (partendo dal \textit{warm-up} 2009). Tenere valido l'ultimo trasferimento fino a \textbf{36 mesi} (la durata media di un contratto) risolve proprio l'esempio del club neopromosso: anche dopo una o due stagioni in Serie B senza presenze registrate, il trasferimento al club resta attivo e il giocatore viene regolarmente conteggiato già a luglio. Tenere valide le valutazioni per \textbf{15 mesi} (un anno più tre mesi di margine) evita invece che un giocatore attivo sparisca solo perché Transfermarkt ha aggiornato il listino con 13--14 mesi di distanza, impedendo al contempo di trascinare giocatori ormai ritirati. Quando un ritiro (\texttt{Retired}) o una cessione verso un altro campionato è registrato in \texttt{transfers.csv}, il giocatore esce immediatamente dal conteggio; nei casi di ritiro non tracciati come trasferimento (lo stato \texttt{Retired} compare 184 volte), il limite di 12--15 mesi rappresenta il miglior compromesso causale possibile per non confondere un ritiro con un infortunio di lungo corso senza guardare al futuro (con impatto economico comunque trascurabile, data la bassa quotazione dei calciatori a fine carriera).
+    \item \textbf{Rientri da prestito spostati dal 30 giugno al 1° luglio:} i \textbf{15.591 rientri gratuiti da prestito} datati 30 giugno (il 92,6\% dei trasferimenti di giugno) vengono posticipati di un solo giorno al 1° luglio, facendo coincidere il cambio di maglia con l'inizio effettivo della nuova stagione.
+\end{itemize}
 
 \begin{figure}[!htb]
 \centering
 \begin{carbonwindow}{01\_etl\_transfermarkt.py}
-# 1. Griglia mensile regolare e propagazione dell'ultima valutazione valida (max 18 mesi)
-grid_months = pd.period_range("2009-01", "2026-05", freq="M")
-target_months = pd.period_range("2011-06", "2026-05", freq="M")  # 180 mesi (15 anni)
+# 1. Valutazioni mensili con propagazione causale in avanti (max 15 mesi)
+val_m = vals_sub.groupby(["player_id", "year_month"])["market_value_in_eur"].last().unstack(0)
+val_ff = val_m.reindex(val_grid).ffill(limit=15)
 
-val_m = vals_sub.groupby(["player_id", "year_month"])["market_value_in_eur"].last().unstack(level=0)
-val_ff = val_m.reindex(grid_months).ffill(limit=18)
+# 2. Club storico: evento piu' recente tra presenze (12m, no Nazionali) e trasferimenti (36m, 30/6->1/7)
+use_tr = (td >= ad) & (td > 0)
+use_app = (ad > td) & (ad > 0)
+club_hist = pd.DataFrame(np.where(use_tr, tc, np.where(use_app, ac, np.nan)),
+                         index=target_months, columns=val_ff.columns)
 
-# 2. Ricostruzione del club storico mese per mese da presenze e trasferimenti
-app_club_m = app_sub.groupby(["player_id", "year_month"])["player_club_id"].last()
-tr_club_m = tr_sub.groupby(["player_id", "year_month"])["to_club_id"].last()
-
-club_events = pd.concat([app_club_m, tr_club_m]).groupby(level=[0, 1]).last().unstack(level=0)
-club_events = club_events.reindex(index=grid_months, columns=val_ff.columns)
-club_hist = club_events.ffill().bfill().fillna(val_club_m)
-
-# 3. Mappatura dal club storico alla rispettiva lega nazionale (IT1, GB1, ES1, L1, FR1)
-comp_hist = club_hist.apply(lambda col: col.map(club_to_comp)).fillna("OTHER")
+# 3. Mappa (stagione, club_id) -> campionato Top-5 da games.csv (con override fattuale 2020-07 -> 2019)
+rose = long_club.merge(long_val, on=["year_month", "player_id"], how="inner")
+rose["season"] = stagione_da_mese(rose["year_month"], override_stagione)
+rose = rose.merge(mappa_club_stagione, on=["season", "club_id"], how="left")
+rose = rose[rose["league"].isin(TOP5_CODES)]
 \end{carbonwindow}
-\captionof{lstlisting}{Ricostruzione storica mensile del valore di mercato e del club di appartenenza nello script \texttt{01\_etl\_transfermarkt.py}.}
+\captionof{lstlisting}{Ricostruzione causale mensile delle valutazioni, dei club attivi e dei campionati stagione per stagione in \texttt{01\_etl\_transfermarkt.py}.}
 \label{lst:etl_ricostruzione}
 \end{figure}
 
-Il risultato di questa ricostruzione è illustrato nella Figura \ref{fig:etl_confronto}. Nel pannello superiore si vede come l'aggregazione statica basata sul club del 2026 (linea tratteggiata arancione) sottostimi la Serie A per tutto il decennio 2014--2022, perdendo quasi \textbf{un miliardo di euro} nel 2019--2020 rispetto alla ricostruzione storica corretta (linea verde). Nel pannello inferiore è mostrata la serie principale post-ETL dei cinque campionati europei, che presenta zero mesi mancanti e variazioni attive in tutti i 180 mesi.
+In sintesi, un calciatore entra nel conteggio di un campionato Top-5 nel mese $t$ solo se soddisfa tre condizioni simultanee: avere una valutazione aggiornata entro 15 mesi, risultare attivo nel club secondo la ricostruzione causale del Listato \ref{lst:etl_ricostruzione} ed essere in un club effettivamente iscritto a quel campionato in quella stagione secondo \texttt{games.csv}. Per quanto riguarda invece le spese di calciomercato (\texttt{transfer\_spend\_top5\_m} e \texttt{transfer\_spend\_serie\_a\_m}), sommiamo esclusivamente i \textbf{trasferimenti in entrata} (\texttt{to\_league}) nei club dei cinque campionati, escludendo le cessioni verso leghe esterne (come la Saudi Pro League). La somma mobile sugli ultimi 12 mesi viene calcolata partendo dalla griglia estesa 2011--2026, così che anche il primo anno della serie (2013/2014) disponga già di un anno intero di acquisti alle spalle.
+
+La Figura \ref{fig:etl_confronto} verifica la qualità di questa ricostruzione su due fronti:
+\begin{itemize}
+    \item \textbf{Pannello superiore (a) -- Dinamica vs statica sulla Serie A:} l'aggregazione statica basata sull'etichetta del 2026 (linea arancione tratteggiata) sbaglia sistematicamente rispetto alla ricostruzione dinamica (linea verde). Da un lato sovrastima molti periodi perché include club oggi in Serie A ma allora in Serie B e giocatori inattivi; dall'altro sottostima il picco del 2019--2020 (fino a \textbf{0,34 miliardi di euro} in meno nell'ottobre 2019) perché perde i calciatori poi trasferiti all'estero o ritirati.
+    \item \textbf{Pannello inferiore (b) -- Stabilità della copertura:} il numero di calciatori attivi rimane stabile lungo tutti i 13 anni senza derive artificiali. Sui Top-5 si contano in media \textbf{2.695 calciatori} (oscillazione tra 2.298 e 2.871), pari a \textbf{27,6 giocatori per club} su una media effettiva di \textbf{97,55 club} (98 fino al 2022/2023 e 96 dal 2023/2024 per la riduzione della Ligue 1 a 18 squadre); in Serie A la media è di \textbf{582 calciatori} (29,1 per club).
+\end{itemize}
+Restano soltanto due limiti strutturali della fonte Kaggle di cui si terrà conto nei capitoli successivi: una registrazione meno capillare dei trasferimenti in uscita in \texttt{transfers.csv} nelle prime stagioni (2012/2013--2014/2015) e l'assenza delle seconde divisioni in \texttt{appearances.csv}, che lascia ancora una lieve flessione estiva sui calciatori cresciuti nei vivai dei club neopromossi fino all'inizio del campionato ad agosto (comunque ridotta di circa il 70\% rispetto a una finestra fissa di 12 mesi senza spostamento del 30 giugno).
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.88\textwidth]{capitolo6/img/fig02_etl_ricostruzione_storica_confronto.png}
-    \caption{Confronto tra aggregazione statica e ricostruzione storica dinamica per la Serie A e andamento complessivo della serie storica principale post-ETL sui 180 mesi di osservazione.}
+    \caption{Confronto tra ricostruzione dinamica e aggregazione statica per la Serie A e controllo di copertura mensile dei calciatori attivi per campionato.}
     \label{fig:etl_confronto}
 \end{figure}
 
-Le variabili principali salvate nel file finale \texttt{market\_monthly.csv} sono sintetizzate nella Tabella \ref{tab:schema_market_monthly}.
+La Tabella \ref{tab:schema_market_monthly} riassume infine le variabili principali salvate nel file \texttt{market\_monthly.csv}: 156 osservazioni mensili regolari, zero mesi mancanti e una sola variazione nulla al quarto decimale nell'aprile 2026.
 
 \begin{table}[!htbp]
 \centering
 \small
 \setlength{\tabcolsep}{4.5pt}
-\caption{Variabili principali del dataset mensile elaborato \texttt{market\_monthly.csv} (180 osservazioni).}
+\caption{Variabili principali del dataset mensile elaborato \texttt{market\_monthly.csv} (156 osservazioni).}
 \label{tab:schema_market_monthly}
 \vspace{0.2cm}
-\begin{tabularx}{\textwidth}{>{\ttfamily\small}p{4.8cm}p{2.3cm}X}
+\begin{tabularx}{\textwidth}{>{\ttfamily\small}p{5.45cm}p{2.1cm}X}
 \toprule
-\textbf{\rmfamily Variabile} & \textbf{Unità / Tipo} & \textbf{Descrizione del contenuto} \\
+\textbf{\rmfamily Variabile} & \textbf{Unità / tipo} & \textbf{Descrizione del contenuto} \\
 \midrule
-year\_month, date & Data mensile & Indice temporale mensile regolare (giugno 2011 -- maggio 2026) \\
+year\_month, date & Data mensile & Indice temporale regolare (giugno 2013 -- maggio 2026) \\
 top5\_market\_value\_bn & Mld EUR & Valore totale delle rose dei cinque campionati europei \\
 serie\_a\_market\_value\_bn & Mld EUR & Valore totale delle rose della Serie A (\texttt{IT1}) \\
-<lega>\_market\_value\_bn & Mld EUR & Valore delle rose di Premier, LaLiga, Bundesliga, Ligue 1 \\
-mean\_player\_value\_m & Mln EUR & Valore di mercato medio per calciatore attivo \\
-transfer\_spend\_top5\_m & Mln EUR & Spesa mensile per acquisti onerosi nei cinque campionati \\
-transfer\_spend\_serie\_a\_m & Mln EUR & Spesa mensile per acquisti onerosi in Serie A \\
-n\_transfers\_top5 & Intero & Numero di trasferimenti conclusi nel mese \\
+<lega>\_market\_value\_bn & Mld EUR & Valore delle rose di Premier, LaLiga, Bundesliga e Ligue 1 \\
+active\_players\_top5 & Intero & Numero di calciatori attivi conteggiati nei cinque campionati \\
+mean\_player\_value\_m & Mln EUR & Valore di mercato medio per calciatore attivo (e mediano) \\
+transfer\_spend\_top5\_m & Mln EUR & Spesa mensile per soli acquisti in entrata nei Top-5 \\
+transfer\_spend\_top5\_12m\_bn & Mld EUR & Spesa cumulata mobile su 12 mesi per acquisti Top-5 (e Serie A) \\
+n\_incoming\_top5 & Intero & Numero di trasferimenti in entrata conclusi nel mese \\
 pct\_change\_top5 & Float (\%) & Variazione percentuale mensile del valore delle rose \\
-shock\_covid\_2020 & Binaria [0/1] & Indicatore della finestra pandemica (marzo 2020 -- maggio 2021) \\
+step\_covid\_apr2020 & Binaria [0/1] & Intervento a gradino attivo da aprile 2020 in poi \\
 \bottomrule
 \end{tabularx}
 \end{table}

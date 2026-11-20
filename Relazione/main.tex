@@ -18,7 +18,6 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{geometry}
-\usepackage[plainpages=false,pdfpagelabels=true]{hyperref}
 \usepackage{float}
 % Evita pagine con sole immagini e favorisce il posizionamento insieme al testo
 \renewcommand{\topfraction}{0.9}
@@ -35,6 +34,7 @@
 \usepackage{titletoc}
 \usepackage{tcolorbox}
 \tcbuselibrary{listings,skins}
+\usepackage[hypertexnames=false,plainpages=false,pdfpagelabels=true]{hyperref}
 
 \onehalfspacing
 
@@ -253,7 +253,7 @@
         
         \vspace{0.7cm}
         \rule{\linewidth}{0.8pt}\\[0.25cm]
-        {\sffamily\bfseries\small ANNO ACCADEMICO 2024--2025}
+        {\sffamily\bfseries\small ANNO ACCADEMICO 2026/2027}
         \vspace*{-0.5cm}
     \end{titlepage}
 }
@@ -308,11 +308,14 @@
 % =========================================================================
 % PARTE 2: TIME SERIES ANALYSIS (TRANSFERMARKT)
 % =========================================================================
-\newpage
-% Reset numerazione per renderla indipendente
+\clearpage
+% Reset numerazione per renderla indipendente (con hypertexnames=false ogni ancora PDF resta univoca)
 \setcounter{section}{0}
 \setcounter{figure}{0}
 \setcounter{table}{0}
+\setcounter{equation}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
 \setcounter{page}{1}
 
 \makePartTitlePage%

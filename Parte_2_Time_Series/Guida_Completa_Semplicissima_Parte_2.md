@@ -1,228 +1,111 @@
-# Guida Completa e Semplicissima alla Parte 2 (Time Series - Transfermarkt)
+# Guida Completa e Semplicissima alla Parte 2 (Time Series – Transfermarkt)
 
-> **Obiettivo di questo documento**: Spiegare **tutto** quello che è stato fatto nella Parte 2 del progetto di Data Science, passo dopo passo, con parole così semplici ed esempi così chiari che anche un ragazzino delle scuole medie (o chiunque non abbia mai studiato le serie storiche) possa capire ogni singolo grafico, formula, tabella e scelta progettuale — ed essere prontissimo a spiegarlo all'esame!
-
----
-
-## Indice della Guida
-1. [L'idea di base: cosa stiamo studiando e perché?](#1-lidea-di-base-cosa-stiamo-studiando-e-perché)
-2. [Capitolo 6: Dai dati grezzi alla serie storica pulita (Il processo di ETL)](#2-capitolo-6-dai-dati-grezzi-alla-serie-storica-pulita-il-processo-di-etl)
-3. [Capitolo 7: Esploriamo la storia del calcio e i 3 grandi "terremoti" (EDA)](#3-capitolo-7-esploriamo-la-storia-del-calcio-e-i-3-grandi-terremoti-eda)
-4. [Capitolo 8: Apriamo il motore della serie (Decomposizione STL, Stazionarietà e Memoria)](#4-capitolo-8-apriamo-il-motore-della-serie-decomposizione-stl-stazionarietà-e-memoria)
-5. [Capitolo 9: La gara tra i modelli predittivi, il focus Serie A e le conclusioni](#5-capitolo-9-la-gara-tra-i-modelli-predittivi-il-focus-serie-a-e-le-conclusioni)
-6. [Come è organizzato il codice Python (per spiegarlo al volo ai professori)](#6-come-è-organizzato-il-codice-python-per-spiegarlo-al-volo-ai-professori)
-7. [Domande tipiche d'esame con la risposta pronta](#7-domande-tipiche-desame-con-la-risposta-pronta)
+> **Obiettivo di questo documento:** spiegare in modo chiaro, discorsivo e fedele al 100% alla relazione definitiva (`Relazione/main.pdf`) e al codice Python tutto il lavoro della Parte 2 (Transfermarkt), con i numeri reali verificati e le risposte pronte per l'esame orale.
 
 ---
 
-## 1. L'idea di base: cosa stiamo studiando e perché?
+## 1. L'idea di base: cosa studiamo e perché?
 
-### Cos'è una "Serie Storica" (*Time Series*)?
-Immagina di avere l'album delle figurine dei calciatori, ma invece di guardare solo quanto vale un giocatore *oggi*, tieni un **diario mensile** per 15 anni di fila (da **giugno 2011** a **maggio 2026**, cioè **180 mesi**):
-- Il 1° giugno 2011 sommi il prezzo di tutti i giocatori dei 5 campionati più importanti d'Europa (**Serie A** italiana, **Premier League** inglese, **LaLiga** spagnola, **Bundesliga** tedesca, **Ligue 1** francese) e scrivi il totale sul diario.
-- Il 1° luglio 2011 fai la stessa cosa.
-- Vai avanti così, mese dopo mese, senza saltare neanche un mese, fino a maggio 2026.
+Costruiamo una **serie storica mensile regolare** di **156 mesi consecutivi** (13 cicli annuali completi, da **giugno 2013 a maggio 2026**, zero mesi mancanti) del **valore di mercato complessivo delle rose** dei cinque maggiori campionati europei (**Premier League**, **LaLiga**, **Serie A**, **Bundesliga**, **Ligue 1**), affiancata da un focus sulla **Serie A** e dai volumi reali di spesa per **soli acquisti in entrata**.
 
-Questa fila ordinata di 180 numeri (uno per ogni mese) è una **serie storica**.
-
-### Perché abbiamo scelto il "Valore delle Rose" (e le spese di mercato) invece dei gol o degli spettatori allo stadio?
-All'inizio ci eravamo chiesti se studiare gli spettatori allo stadio o i gol segnati. Seguendo le indicazioni del dott. Buratti, abbiamo scelto di concentrarci **in verticale sul valore di mercato delle rose e sul calciomercato** per un motivo matematico fondamentale:
-- **Le partite e gli spettatori si fermano d'estate**: a giugno e luglio non si gioca! Quindi la serie degli spettatori avrebbe dei "buchi" ogni estate (oppure una sola partita strana di recupero, come Atalanta-Fiorentina giocata il 2 giugno 2024, farebbe sembrare che a giugno 2024 gli stadi fossero pienissimi!). Inoltre, durante il COVID gli stadi sono rimasti a **zero spettatori per 14 mesi di fila**.
-- **Il valore economico delle rose invece esiste 12 mesi su 12**: una squadra di calcio ha un valore patrimoniale sia a dicembre (mentre gioca), sia a luglio e agosto (mentre compra e vende giocatori al calciomercato). Così otteniamo una serie storica **continua, senza buchi e lunga esattamente 180 mesi**.
+**Perché il valore delle rose invece di gol o spettatori?**
+- **Gol e cartellini:** quasi costanti nel tempo (serie piatta, rumore bianco).
+- **Spettatori allo stadio:** buco estivo a giugno–luglio, anomalie di calendario e **14 mesi consecutivi a zero** durante il COVID-19.
+- **Valore di mercato delle rose:** esiste tutti i 12 mesi dell'anno, ha una dinamica economica ricca (quasi triplicata in 13 anni) e si presta perfettamente all'analisi con STL, test di stazionarietà e modelli ARIMA/SARIMA/SARIMAX.
 
 ---
 
-## 2. Capitolo 6: Dai dati grezzi alla serie storica pulita (Il processo di ETL)
+## 2. Sezione 1 (`capitolo6.tex`): ETL causale e controllo di copertura
 
-Il dataset scaricato da Kaggle (*Football Data from Transfermarkt*) **non è** una tabella già pronta mese per mese. È un database diviso in 12 file `.csv` diversi. Noi abbiamo usato i **5 file fondamentali** (riassunti nella **Tabella 1** della relazione):
+Il dataset Kaggle (*Football Data from Transfermarkt*) è un database relazionale di 12 CSV. La pipeline [01_etl_transfermarkt.py](scripts/01_etl_transfermarkt.py) integra **7 tabelle** (`player_valuations.csv` 656.301 righe, `transfers.csv` 175.165, `appearances.csv` 1.894.350, `games.csv` 88.958, `clubs.csv` 796, `competitions.csv` 65, `national_teams.csv` 124) risolvendo tre problemi chiave in modo **puramente causale** (zero `bfill`, zero *look-ahead bias*):
 
-1. `player_valuations.csv` (**656.301 righe**): ogni riga dice *"Il giorno X, il calciatore Y è stato valutato Z euro"*.
-2. `transfers.csv` (**175.165 righe**): ogni riga dice *"Il giorno X, il calciatore Y è passato dalla squadra A alla squadra B per W milioni di euro"*.
-3. `appearances.csv` (**1.894.350 righe**): ogni riga è una presenza in campo di un giocatore in una partita, con scritto per quale squadra stava giocando in quel giorno preciso.
-4. `clubs.csv` (**796 squadre**): dice a quale campionato appartiene ogni squadra.
-5. `competitions.csv` (**65 competizioni**): ci serve per prendere solo i 5 campionati Top (`IT1` Serie A, `GB1` Premier, `ES1` Liga, `L1` Bundesliga, `FR1` Ligue 1).
-
-### I 2 grandi "trabocchetti" dei dati grezzi (e come li abbiamo risolti nell'ETL)
-Se avessimo semplicemente sommato i numeri di `player_valuations.csv` mese per mese, sarebbe uscito un disastro per colpa di **due trabocchetti nascosti**:
-
-#### Trabocchetto 1: "I listini non vengono aggiornati tutti i mesi!" (`Figura 1`)
-- Gli esperti di Transfermarkt non cambiano il prezzo di tutti i 3.500 giocatori ogni singolo mese: fanno i grandi aggiornamenti dei prezzi a **marzo, giugno, ottobre e dicembre**.
-- E a **luglio, agosto e gennaio**? In quei mesi fanno pochissimi aggiornamenti di listino perché aspettano che finisca il calciomercato! Però proprio a luglio, agosto e gennaio i club comprano e vendono migliaia di giocatori (spendendo in media **2,3 miliardi a luglio**, **1,28 miliardi ad agosto** e **550 milioni a gennaio**, come si vede nella **Figura 1**).
-- **La nostra soluzione**:
-  1. Per ogni giocatore in attività, manteniamo valido il suo ultimo prezzo conosciuto da un mese all'altro (operazione chiamata *forward-fill*, con un limite massimo di 18 mesi così se un giocatore si ritira dal calcio smette automaticamente di essere contato).
-  2. Contemporaneamente, ogni mese aggiorniamo le squadre con i giocatori appena comprati o venduti nel calciomercato (`transfers.csv`). Così la nostra serie si muove in modo realistico **in tutti i 180 mesi**!
-
-#### Trabocchetto 2: "L'errore della macchina del tempo (`current_club_id`)" (`Figura 2` e `Listato 1`)
-- Dentro `player_valuations.csv` c'è una colonna chiamata `current_club_id` (squadra attuale).
-- **Attenzione**: quella colonna non dice in quale squadra giocava il calciatore nel 2015 o nel 2019, ma dice **solo in quale squadra gioca oggi nel 2026**!
-- *Esempio pratico*: se un campione giocava nella Juventus o nell'Inter nel 2019, ma nel 2023 è andato a giocare in Arabia Saudita o si è ritirato, la colonna `current_club_id` dice "Arabia Saudita". Se facessimo la somma usando quella colonna, **tutti i suoi milioni del 2019 sparirebbero dalla Serie A!**
-- **La nostra soluzione (`Listato 1`)**: Abbiamo incrociato mese per mese le partite giocate (`appearances.csv`) e i trasferimenti (`transfers.csv`) per ricostruire **la vera squadra in cui ogni giocatore militava in quel mese preciso**.
-- **La prova visiva (`Figura 2`)**: Nel grafico superiore della Figura 2 mostriamo la differenza tra il calcolo "ingenuo" (linea arancione tratteggiata) e la nostra ricostruzione storica (linea verde): il calcolo ingenuo perdeva per strada quasi **1 miliardo di euro** di valore della Serie A nel 2019–2020!
-
-### Perché ci siamo fermati a Maggio 2026 (180 mesi)?
-Il dataset è stato estratto a metà giugno 2026 (`12 giugno 2026`): il mese di giugno 2026 era quindi incompleto e conteneva già le scadenze automatiche dei contratti del 30 giugno. Fermandoci a **maggio 2026** otteniamo **180 mesi perfetti** (da `2011-06` a `2026-05`), cioè **15 anni esatti** ($15 \times 12 = 180$), senza neanche un dato mancante (**Tabella 2**).
+1. **Complementarità tra listini e mercato (`Figura 1`):** gli aggiornamenti dei prezzi si concentrano a marzo, giugno, ottobre e dicembre, mentre gli acquisti reali avvengono a **luglio (2.176 Mln €/mese in media)**, **agosto (1.205 Mln €)** e **gennaio (547 Mln €)**. Le valutazioni individuali vengono quindi propagate in avanti (`ffill`) per un massimo di **15 mesi**.
+2. **Eliminazione della doppia distorsione statica (`Figura 2`):**
+   - `current_club_id` (in `player_valuations.csv`) e `domestic_competition_id` (in `clubs.csv`) fotografano solo il 2026: usarli distorce il passato (per la Serie A fino a **0,34 miliardi di euro** di sottostima nell'ottobre 2019).
+   - Ricostruiamo il club mese per mese prendendo l'evento cronologicamente più recente tra **presenze di club** (valide **12 mesi**, dopo aver escluso le gare per Nazionali tramite `competitions.csv` e `national_teams.csv`) e **trasferimenti** (validi fino a **36 mesi**, partendo dal *warm-up* 2009 per preservare le rose dei club neopromossi non coperti in seconda divisione da `appearances.csv`).
+   - Il campionato effettivo del club nella singola stagione è ricavato da `games.csv` (gestendo promozioni, retrocessioni e l'override fattuale di **luglio 2020** nella stagione 2019/2020, in cui furono giocate 211 gare post-lockdown).
+3. **Stabilità di copertura (`Figura 2b`):** i **15.591 rientri gratuiti da prestito** del 30 giugno vengono posticipati di un giorno al 1° luglio (nuova stagione) per evitare il picco artificiale di fine giugno. La copertura rimane stabile su tutti i 13 anni senza derive: in media **2.695 calciatori attivi** sui Top-5 (**27,6 giocatori per club** su una media effettiva di 97,55 club, tenendo conto del passaggio della Ligue 1 da 20 a 18 squadre dal 2023/2024) e **582 in Serie A** (29,1 per club).
 
 ---
 
-## 3. Capitolo 7: Esploriamo la storia del calcio e i 3 grandi "terremoti" (EDA)
+## 3. Sezione 2 (`capitolo7.tex`): Analisi esplorativa, shock e correlazione spuria
 
-Una volta ottenuta la tabella pulita (`market_monthly.csv`), nel Capitolo 7 guardiamo cosa è successo in questi 15 anni con **9 figure grandi e nitide** (`fig03` .. `fig11`).
-
-### A. Il confronto tra i 5 campionati: la fuga della Premier League (`Figura 3`, `Figura 4`, `Tabella 3`)
-In 15 anni il valore totale delle rose dei 5 campionati è passato da **11,12 miliardi di euro** (giugno 2011) a **34,44 miliardi di euro** (maggio 2026), crescendo del **+209,7%** (più del triplo!). Ma chi è cresciuto di più?
-- **Nel 2011 erano tutti vicini**:
-  - **Premier League**: 3,15 miliardi (il **28,3%** della torta europea)
-  - **LaLiga**: 2,58 miliardi (23,2%)
-  - **Serie A**: 2,30 miliardi (**20,7%**)
-  - **Bundesliga**: 1,65 miliardi (14,9%)
-  - **Ligue 1**: 1,45 miliardi (13,0%)
-- **Nel 2026 la Premier League ha fatto il vuoto (`Figura 4`)**:
-  - Grazie ai diritti TV venduti in tutto il mondo a cifre enormi, la Premier League è cresciuta del **+330,6%**, arrivando a **13,55 miliardi** (con un picco di **13,87 miliardi** a novembre 2025): oggi da sola vale quasi il **40% (39,3%)** di tutto il calcio europeo!
-  - **E la Serie A?** È rimasta quasi ferma tra il 2011 e il 2015 (intorno a 2,3–2,9 miliardi), poi è cresciuta tantissimo tra il 2016 e il marzo 2020 toccando il suo **record storico di 6,08 miliardi di euro**. Dopo la botta del COVID si è stabilizzata: a maggio 2026 vale **5,40 miliardi** (+134,9% rispetto al 2011, pari al **15,7%** della torta europea), al 3° posto dietro Premier (13,55 Mld) e Liga spagnola (5,72 Mld) e davanti alla Bundesliga (5,29 Mld).
-
-### B. I 3 grandi "terremoti" (Shock storici) della serie
-Guardando la curva non si vede una linea dritta, ma si vedono **3 svolte clamorose**:
-
-1. **Shock 1 – Agosto 2017: L'"Effetto Neymar" (`Figura 5`)**
-   - Nell'estate 2017 il Paris Saint-Germain paga la clausola record di **222 milioni di euro** al Barcellona per comprare Neymar (e subito dopo il Barcellona spende quei soldi per Dembélé e Coutinho, mentre il PSG prende anche Mbappé per 180 milioni).
-   - Quella pioggia di denaro ha "gonfiato" i prezzi di tutti i giocatori d'Europa: prima di agosto 2017 il valore totale saliva piano (**+1,31 miliardi all'anno**); dopo agosto 2017 la pendenza si impenna a **+5,46 miliardi all'anno** (4 volte più veloce!).
-
-2. **Shock 2 – Aprile 2020: Il crollo del COVID-19 (`Figura 6`)**
-   - A marzo 2020 scoppia la pandemia, si fermano tutti i campionati e chiudono gli stadi.
-   - Ad **aprile 2020** Transfermarkt decide una misura mai vista nella storia: taglia a tavolino il prezzo di quasi tutti i calciatori del mondo (-20% per i giocatori normali, -10% per i giovanissimi), facendo **4.379 ribassi in un mese solo**.
-   - Il valore europeo crolla in 30 giorni da 33,79 a 27,65 miliardi: **persi 6,14 miliardi di euro in un mese (-18,17%)**! Anche la Serie A perde il **-18,34%** (da 6,08 a 4,97 miliardi).
-   - Quanto tempo ci è voluto per riprendersi da quella botta? Esattamente **55 mesi** (4 anni e mezzo!): il tetto dei 33,79 miliardi è stato superato di nuovo solo nell'**ottobre 2024** (33,83 miliardi).
-
-3. **Shock 3 – 2023–2026: L'Arabia Saudita, la nuova Champions e i super-campioni (`Figura 7`)**
-   - Dall'estate 2023 entrano nel mercato i ricchissimi club della **Saudi Pro League** (che comprano giocatori dall'Europa a caro prezzo, dando ai club europei soldi freschi da reinvestire) e nel 2024/2025 parte la nuova **Champions League a 36 squadre** con premi UEFA più alti.
-   - Il mercato tocca il massimo storico di **34,44 miliardi** a maggio 2026, e il prezzo medio di un singolo calciatore (`mean_player_value_m`), che fino al 2017 era di circa 3 milioni, schizza a **11,01 milioni di euro**!
-
-### C. Le variazioni percentuali mese per mese e gli "Outlier" (`Figura 8` e `Figura 9`)
-Se invece di guardare i miliardi totali guardiamo **di quale percentuale ($\Delta\%$) cambia il mercato ogni mese**:
-- In un mese normale il mercato sale in media dello **+0,66%** ($\mu$), oscillando quasi sempre tra **-3,46% e +4,78%** (le due linee tratteggiate della fascia $\mu \pm 2\sigma$).
-- I pallini rossi fuori da questa fascia sono i **mesi anomali (*outlier*)**:
-  - Il picco positivo più alto è **gennaio 2018 (+9,24%)**, quando i listini vengono adeguati al rialzo dopo l'estate di Neymar.
-  - Il picco negativo più estremo è **aprile 2020 (-18,17%)**, che dista più di 9 deviazioni standard dalla media ($z = -9,14$).
-- Nella **Figura 9** (l'istogramma con la curva di densità KDE) questo crollo crea una "coda lunga" a sinistra (in statistica si chiama **asimmetria negativa**, *skewness* $= -3,69$) e un picco molto stretto al centro con code pesanti (**leptocurtosi**, *kurtosis* $= 35,48$).
-
-### D. Più i club spendono al calciomercato, più sale il valore delle rose? (`Figura 10` e `Figura 11`)
-- In 15 anni i club dei 5 campionati hanno fatto **31.000 trasferimenti**, spendendo in totale **65,82 miliardi di euro** (di cui **14,68 miliardi** spesi dalla Serie A, cioè il 22,3% di tutta la spesa europea!).
-- Nella **Figura 10** vediamo che i soldi vengono spesi quasi tutti in estate (**luglio e agosto**, con il record storico di **4,46 miliardi spesi nel solo luglio 2025**) e un po' a **gennaio**.
-- Nella **Figura 11 (Matrice di correlazione)** facciamo una scoperta preziosissima per il Capitolo 9:
-  - Se confrontiamo il valore delle rose con la spesa di *quel singolo mese*, la correlazione è bassa (**0,24**), perché per 9 mesi all'anno il mercato è chiuso e la spesa è zero mentre le rose continuano a valere più di 30 miliardi!
-  - Se invece sommiamo **la spesa degli ultimi 12 mesi (`Spesa mobile 12m`)**, la correlazione col valore delle rose vola a **0,88 (88%)**!
-  - *Cosa significa?* Che i soldi veri spesi nel calciomercato nell'ultimo anno sono il "carburante" che fa salire il valore delle squadre. Ecco perché nel Capitolo 9 useremo questa variabile per aiutare il modello SARIMAX!
+- **Crescita 2013–2026 (`Figure 3–4`, `Tabella 3`):** il mercato Top-5 passa da **11,69** a **33,19 miliardi di euro** (**+183,9%**); il valore medio per calciatore attivo sale da **4,42** a **12,62 milioni** (+185,6%) e il mediano triplica da **2,00** a **6,00 milioni**.
+  - **Premier League:** da 3,40 a **12,67 Mld** (**+272,9%**, picco 12,78 Mld a ottobre 2025; quota di mercato dal **29,1%** al **38,2%**).
+  - **Serie A:** da 2,25 al picco storico di **5,57 Mld** (marzo 2020), poi **5,33 Mld** a maggio 2026 (**+137,3%**, quota dal **19,2%** al **16,1%**, terzo posto dietro Premier e LaLiga 5,64 Mld).
+- **Tre fasi storiche (`Figure 5–7`):**
+  1. **Accelerazione 2017–2020 (effetto Neymar, `Figura 5`):** la pendenza lineare passa da **+1,13 Mld/anno** (2013–2017) a **+5,47 Mld/anno** (2017–2020, $4{,}84\times$).
+  2. **Shock COVID-19 (`Figura 6`):** l'8 aprile 2020 Transfermarkt taglia i listini del $-20\%$ ($-10\%$ per gli under-22): i Top-5 perdono **$-18,59\%$** (**$-5,71$ Mld**, da 30,69 a 24,99 Mld), la Serie A perde **$-18,93\%$** (da 5,57 a 4,52 Mld). Il livello pre-COVID viene recuperato per la prima volta dopo **60 mesi esatti** (marzo 2025, 30,75 Mld) e consolidato stabilmente dall'agosto 2025 (30,81 Mld, 65 mesi).
+  3. **Espansione 2023–2026 (`Figura 7`):** liquidità Saudi Pro League + nuova Champions League a 36 squadre portano il massimo a **33,19 Mld** (maggio 2026).
+- **Variazioni mensili e outlier (`Figure 8–9`):** media $+0,71\%$, $\sigma = 2,49\%$; mediana $+0,28\%$, $\mathrm{MAD}_n = 1,01\%$; skewness $-2,26$, curtosi in eccesso $24,27$. Aprile 2020 ($-18,59\%$) dista $-7,75\sigma$ classici e **$-18,67$ unità MAD** robuste. Il massimo rialzo reale di mercato è **gennaio 2018 ($+10,28\%$)**; i due picchi del 2015 (maggio $-4,58\%$, agosto $+8,26\%$) sono invece spiegati onestamente come oscillazioni residue di copertura della fonte nei primi anni (minore densità di `transfers.csv` nel 2012–2014 e assenza delle seconde divisioni in `appearances.csv`).
+- **Spese per acquisti e correlazione spuria (`Figure 10–11`):** in 156 mesi si registrano **16.201 acquisti in entrata** (4.950 onerosi) per **56,40 Mld €** totali (**10,61 Mld** in Serie A, 18,8%; picco luglio 2025 con 3,65 Mld).
+  - **Sui livelli** la spesa cumulata 12 mesi correla altissimo col valore rose (**$r = 0,89$** su Top-5 e Serie A), ma è **correlazione spuria** dovuta al trend crescente comune!
+  - **Sulle differenze prime $\Delta$** la correlazione crolla letteralmente a zero: **$r = 0,00$** sui Top-5 e **$r = 0,03$** sulla Serie A (mentre resta forte la correlazione tra $\Delta$ valore aggregato e $\Delta$ valore medio per giocatore, $r = 0,66$).
 
 ---
 
-## 4. Capitolo 8: Apriamo il motore della serie (Decomposizione STL, Stazionarietà e Memoria)
+## 4. Sezione 3 (`capitolo8.tex`): STL, stazionarietà e ACF/PACF (solo Training Set!)
 
-Prima di dare i dati in pasto ai modelli predittivi, dobbiamo "prepararli" matematicamente. Il Capitolo 8 fa tre operazioni fondamentali (`fig12` .. `fig15`).
+Tutte le diagnostiche di identificazione sono svolte **esclusivamente sul Training Set (primi 120 mesi, giugno 2013 – maggio 2023)** per evitare *data leakage*:
 
-### Passo 1: Smontiamo la curva in 3 pezzi con la Decomposizione STL (`Figura 12` e `Figura 13`)
-La tecnica **STL** prende la nostra curva $Y_t$ e la divide nella somma di 3 pezzi ($Y_t = T_t + S_t + R_t$):
-1. **Trend ($T_t$)**: è la salita di fondo negli anni. Ha una forza pari a **$F_T = 0,992$** (il massimo possibile è 1,0!): significa che il 99% del movimento di lungo periodo è guidato dalla grande crescita economica del calcio.
-2. **Stagionalità ($S_t$)**: è il battito che si ripete ogni 12 mesi ($s = 12$). Guardando la **Figura 13** (la media di ogni mese dell'anno), scopriamo quali sono i mesi "ricchi" e quelli "magri":
-   - **Ottobre (+0,28 miliardi)** e **Novembre (+0,15 miliardi)** sono i mesi più alti, perché dopo la chiusura del mercato estivo Transfermarkt aggiorna i listini di tutti i campionati rialzando i nuovi acquisti e i protagonisti delle coppe, preceduti da **Luglio (+0,09 Mld)** e **Settembre (+0,08 Mld)**.
-   - **Maggio (-0,10 Mld)** e **Giugno (-0,12 Mld)** (così come gennaio/febbraio) hanno invece un effetto medio negativo perché i giocatori invecchiano di un anno e scadono i contratti a fine stagione.
-3. **Residuo ($R_t$)**: è tutto ciò che non è né crescita normale né stagione. Infatti nella Figura 12 il residuo sta quasi sempre piatto sullo zero, tranne quando c'è il "buco" improvviso del COVID ad aprile 2020!
-
-### Passo 2: La serie "sta ferma"? I test ADF e KPSS e la Differenziazione (`Figura 14` e `Tabella 4`)
-- **Il problema**: I modelli matematici come ARIMA non possono lavorare su una curva che sale sempre verso l'alto (da 11 a 34 miliardi). Hanno bisogno di una serie **stazionaria**, cioè che oscilla su e giù attorno a una linea orizzontale (come le onde del mare attorno al livello zero).
-- **Come lo dimostriamo ai professori?** Usiamo due test statistici famosissimi che fanno da "giudici" (**Tabella 4**):
-  1. **Test ADF (Augmented Dickey-Fuller)**: fa il tifo per la *non-stazionarietà*. Dice che la serie è stazionaria solo se il suo `p-value` è **piccolissimo ($< 0,05$)**.
-  2. **Test KPSS**: funziona esattamente al contrario! Dice che la serie è stazionaria solo se il suo `p-value` è **grande ($> 0,05$)**.
-- **Il verdetto dei due giudici**:
-  - Sulla **serie originale ($d = 0$)**: ADF dà `p-value = 0,8148` (troppo alto!) e KPSS dà `p-value = 0,0100` (troppo basso!). Entrambi dicono: **"Bocciata! Non è stazionaria"**.
-  - Allora facciamo un trucco semplicissimo chiamato **Differenziazione prima ($d = 1$)**: invece di prendere il valore totale del mese, calcoliamo **la differenza rispetto al mese scorso** ($\Delta Y_t = Y_t - Y_{t-1}$, cioè di quanto è salito o sceso in quel mese).
-  - Sulla **serie differenziata ($d = 1$)**: ADF dà `p-value < 0,0001` e KPSS dà `p-value = 0,1000`. Entrambi i giudici dicono: **"Promossa! Ora è stazionaria!"** (come si vede nel pannello verde in basso della **Figura 14**).
-  - *Risultato*: nei modelli ARIMA metteremo il parametro **$d = 1$**.
-
-### Passo 3: Quanta "memoria" ha il mercato? I grafici ACF e PACF (`Figura 15`)
-Ora che abbiamo la serie differenziata che sta ferma attorno allo zero, ci chiediamo: *per indovinare il mese prossimo, a quanti mesi indietro dobbiamo guardare?*
-Costruiamo due grafici a bastoncini fino a 36 mesi indietro (**Figura 15**):
-- **ACF (Autocorrelazione)** e **PACF (Autocorrelazione Parziale)**.
-- Cosa notiamo?
-  1. Nei primi mesi (ritardo 1, 2, 3) i bastoncini sono bassi perché l'enorme salto del COVID (-6,14 miliardi in un solo mese) "schiaccia" matematicamente la correlazione dei mesi normali (*effetto di mascheramento dell'outlier*). Questo ci dice di usare ordini piccoli e semplici per il breve periodo ($p = 1, q = 1$).
-  2. Al **ritardo 12 (linea tratteggiata arancione a 12 mesi)** c'è un chiaro picco positivo (`+0,107`): quello che succede in un mese somiglia a quello che è successo **nello stesso mese dell'anno precedente**! Questo conferma che serve un modello stagionale con ciclo di 12 mesi ($s = 12$).
+1. **Decomposizione STL robusta (`Figure 12–13`, $s = 12$):**
+   - Forza del trend: **$F_T = 0,987$** (in scala log: $0,992$).
+   - Forza della stagionalità: **$F_S = 0,115$** ($0,128$ senza aprile 2020; in log: $0,193$).
+   - Profilo mensile medio: negativo a **giugno ($-0,30$ Mld)** e **luglio ($-0,46$ Mld)** (scadenze, retrocessioni e ingresso graduale dei vivai neopromossi), positivo da **settembre ($+0,19$)** e **ottobre ($+0,20$)** fino a **febbraio ($+0,18$)**.
+2. **Stazionarietà ADF e KPSS (`Tabella 4`, `Figura 14`):**
+   - Livelli ($d = 0$, con costante e trend): **non stazionari** (ADF $p = 0,9115$, KPSS $p \le 0,01$).
+   - Differenze prime $\Delta Y_t$ ($d = 1$): **stazionarie** (ADF $-10,848, p < 0,0001$; KPSS $0,162, p \ge 0,10$), confermato anche in logaritmi e sull'intera serie. (Nota fine: depurando aprile 2020 il KPSS conferma $d = 1$ con $p \ge 0,10$, mentre l'ADF perde potenza per la coesistenza di stagionalità e cambio di regime 2017–2020; si evita $D = 1$ per non sovra-differenziare su 10 cicli.)
+3. **ACF e PACF (`Figura 15`, $N = 119$, soglia $\pm 0,180$):**
+   - **Lag 1 nullo** ($\mathrm{ACF}(1) = -0,020$ depurata) $\rightarrow$ base parsimoniosa $p = 0, q = 0$.
+   - **Lag 2 moderato** ($+0,236$ depurata), verificato in sensibilità con un $\mathrm{AR}(2)$.
+   - **Lag 12 mascherato dal COVID:** sulla serie grezza $\mathrm{ACF}(12) = +0,114$, ma neutralizzando il solo aprile 2020 emerge il picco stagionale significativo **$\mathrm{ACF}(12) = +0,252$** $\rightarrow$ struttura parsimoniosa $\mathrm{SARIMA/SARIMAX}(0, 1, 0) \times (1, 0, 0)_{12}$.
 
 ---
 
-## 5. Capitolo 9: La gara tra i modelli predittivi, il focus Serie A e le conclusioni
+## 5. Sezione 4 (`capitolo9.tex`): Gara tra modelli, ablazione pura, diagnostica e Serie A
 
-Siamo arrivati al gran finale: mettere alla prova i modelli matematici per vedere chi indovina meglio il valore del mercato!
+- **Split cronologico (`Figura 16`):** Training Set = **120 mesi** (giugno 2013 – maggio 2023, 76,9%); Test Set = **36 mesi** (giugno 2023 – maggio 2026, 23,1%).
+- **Doppio protocollo:** Holdout unico multi-step a 36 mesi + **Rolling-origin CV** ($h = 1, 6, 12$ mesi su 36, 31 e 25 origini) su tutti i 7 modelli, con test di **Diebold-Mariano** (modelli non annidati) e **Clark-West (2007)** (modelli annidati).
+- **Ablazione pura e 100% convergenza MLE:** usiamo lo stesso ordine parsimonioso $(0, 1, 0) \times (1, 0, 0)_{12}$ sia per SARIMA sia per SARIMAX (evitando la mancata convergenza e la cancellazione AR/MA di ordini sovraparametrizzati come $(1,1,1)(1,0,1)_{12}$): **0 mancate convergenze su tutti i fit**.
 
-### A. Come si fa una gara onesta tra modelli? La divisione 80/20 (`Figura 16`)
-Non possiamo barare facendo vedere ai modelli i dati del 2025 prima di chiedergli di indovinare il 2025! Quindi tagliamo i nostri 180 mesi in due pezzi ordinati nel tempo (**Figura 16**):
-1. **Training Set (I primi 144 mesi = 12 anni esatti, da giugno 2011 a maggio 2023, l'80%)**: sono i "libri di scuola" su cui i modelli studiano e imparano le regole del mercato.
-2. **Test Set (Gli ultimi 36 mesi = 3 anni esatti, da giugno 2023 a maggio 2026, il 20%)**: li teniamo nascosti, chiediamo ai modelli di prevederli e poi confrontiamo le loro previsioni con i dati veri!
+### Risultati Top-5 (`Tabella 5`, `Figure 17–18`)
 
-### B. Come diamo i voti ai modelli? Le 3 metriche di errore
-Per sapere di quanto sbaglia un modello sui 36 mesi del Test Set, calcoliamo:
-- **MAE (Errore Assoluto Medio)**: di quanti miliardi di euro sbaglia in media ogni mese (più è vicino a 0, più è bravo).
-- **RMSE (Errore Quadratico Medio)**: simile al MAE, ma siccome eleva gli errori al quadrato prima di fare la media, "punisce" severamente chi fa anche solo uno o due errori grossi.
-- **MAPE (Errore Percentuale Medio)**: di quale **percentuale (%)** sbaglia in media (es. sbagliare dell'1% su 33 miliardi è pochissimo!).
+| Modello | Holdout 36m RMSE | Holdout MAPE | AIC | BIC | CV $h=1$ | CV $h=6$ | CV $h=12$ |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Baseline Naive | 2,602 | 7,18% | -- | -- | 0,454 | 1,050 | 1,670 |
+| Seasonal Naive ($s=12$) | 3,239 | 9,52% | -- | -- | 1,598 | 1,632 | 1,670 |
+| Random Walk + drift | 0,580 | 1,52% | 244,7 | 250,2 | 0,433 | 0,577 | **0,525** |
+| Holt-Winters ($s=12$) | 1,225 | 3,03% | -- | -- | **0,394** | 0,764 | 1,162 |
+| **$\mathrm{SARIMA}(0,1,0)(1,0,0)_{12}$** | **0,563** | **1,46%** | 245,2 | 253,5 | 0,418 | 0,567 | 0,559 |
+| $\mathrm{SARIMAX}$ + step COVID | 1,204 | 3,47% | **114,2** | **125,3** | 0,406 | **0,559** | 0,705 |
+| $\mathrm{SARIMAX}$ + COVID + Spesa | 1,209 | 3,49% | 116,2 | 130,1 | 0,407 | 0,560 | 0,707 |
 
-### C. I 5 modelli in gara e chi vince (`Figura 17`, `Figura 18`, `Tabella 5`)
-Abbiamo messo in gara 5 modelli dal più semplice al più intelligente:
-
-| Posizione | Modello in gara | Come ragiona (spiegato semplice) | Errore RMSE (Mld €) | Errore MAE (Mld €) | Errore MAPE (%) |
-| :---: | :--- | :--- | :---: | :---: | :---: |
-| 5° | **Baseline Naive** | *Il modello pigro*: dice che da giugno 2023 al 2026 il valore resterà sempre fermo a quello di maggio 2023 (31,01 Mld). | 2,078 | 1,877 | **5,64%** |
-| 4° | **ARIMA(1, 1, 1)** | Capisce che il mercato sale nel tempo e guarda il mese precedente, ma **non conosce le stagioni** (tira una curva liscia). | 0,792 | 0,650 | **1,95%** |
-| 3° | **Holt-Winters ($s=12$)** | Usa medie pesate (smoothing esponenziale) per seguire sia la salita sia il ciclo dei 12 mesi. | 0,797 | 0,625 | **1,88%** |
-| 2° | **SARIMA(1,1,1)$\times$(1,0,1)$_{12}$** | Unisce l'ARIMA al ciclo annuale di 12 mesi: segue bene le onde stagionali ma guarda solo il passato dei prezzi. | 0,703 | 0,476 | **1,45%** |
-| 🏆 **1°** | **SARIMAX + Esogene** | **Il campione**: oltre a tutto quello che ha il SARIMA, legge anche **quanti soldi veri i club hanno speso nel calciomercato negli ultimi 12 mesi**, il flusso di trasferimenti e lo shock COVID! | **0,524** | **0,382** | **1,15%** |
-
-Guardando la **Figura 17** e la **Figura 18**:
-- Passare dal modello pigro (Naive, errore 5,64%) al **SARIMAX con le spese di calciomercato** abbatte l'errore di quasi il **75%**, scendendo a un errore percentuale medio di appena l'**1,15%**!
-- Nella Figura 17 si vede che la linea verde del SARIMAX segue passo passo tutti i saliscendi della linea nera reale dal 2023 al 2026.
-
-### D. Il controllo qualità: i residui e il Test di Ljung-Box (`Figura 19`, `Figura 20`, `Tabella 6`)
-Dopo che un modello ha vinto, un bravo data scientist fa un ultimo controllo: guarda gli **errori rimasti** (chiamati **residui**, cioè la differenza tra realtà e modello) per verificare che siano **Rumore Bianco (*White Noise*)**.
-- *Cosa vuol dire Rumore Bianco?* Vuol dire che i piccoli errori che il modello commette sono puramente casuali (come il lancio di una moneta), centrati sullo zero e con la forma a campana della curva Normale (**Figura 19** e **Figura 20**). Se non fossero casuali, vorrebbe dire che il modello si è dimenticato qualche regola importante!
-- **Il Test di Ljung-Box (`Tabella 6`)**: è il test matematico che controlla se i residui sono davvero casuali. Qui la regola è: **il `p-value` deve essere maggiore di 0,05 ($p > 0,05$)**.
-- Nel nostro modello SARIMAX, a 6, 12 e 24 mesi il `p-value` è sempre altissimo (**tra 0,56 e 0,59**, molto sopra 0,05): **esame superato a pieni voti!**
-
-### E. Il Focus sulla Serie A italiana (`Figura 21`)
-Infine, abbiamo preso il nostro modello campione **SARIMAX** e lo abbiamo applicato solo alla **Serie A italiana** (usando come aiuto esterno i soldi spesi nel calciomercato dai club di Serie A e il numero di acquisti in Italia):
-- La previsione arancione tratteggiata nella **Figura 21** ricalca quasi alla perfezione la curva nera reale della Serie A dal 2023 al 2026!
-- L'errore medio scende a un **MAPE dell'1,25%** (contro il 3,90% della Baseline Naive), che corrisponde a un errore medio assoluto (**MAE**) di appena **69 milioni di euro** (0,069 miliardi) su un campionato che vale più di 5.400 milioni di euro!
+### Le 4 conclusioni chiave da dire all'esame orale
+1. **Le spese di calciomercato NON migliorano le previsioni (risultato negativo onesto e rigoroso):**
+   - Sui **Top-5**: $\hat{\beta}_{\mathrm{spesa}} = -0,014$ ($p = 0,843$, nullo!), peggiora AIC (`114,2 -> 116,2`) e BIC (`125,3 -> 130,1`), e non migliora l'errore su nessun orizzonte neppure *ex-post* (Clark-West $p = 0,910$ a $h = 1$, $p = 0,874$ a $h = 6$).
+   - Sulla **Serie A (`Tabella 7`, `Figura 21`)**: stessa identica conclusione — $\hat{\beta}_{\mathrm{spesa}} = +0,032$ ($p = 0,526$, non significativo), peggiora AIC (`-218,3 -> -216,7`) e BIC (`-207,2 -> -202,8`), e sull'holdout 36 mesi / CV $h=6, 12$ vince il **Random Walk con drift** (`RMSE = 0,093`, `MAPE = 1,39%`), mentre a $h = 1$ i modelli stagionali scendono a `0,092–0,094`.
+2. **Il crollo dell'AIC viene unicamente dallo step COVID-19:** isolare il crollo di aprile 2020 ($\hat{\beta}_{\mathrm{COVID}} = -5,82$ Mld, $p < 0,0001$) porta l'AIC da `245,2` a `114,2`, libera la stagionalità reale ($\hat{\Phi}_1 = 0,260, p = 0,0046$), batte significativamente il Random Walk + drift a $h = 1$ (Clark-West $p = 0,0209$) e vince a $h = 6$ (`0,559`).
+3. **Perché sul lungo periodo (36 mesi) `SARIMA` batte `SARIMAX + COVID` (`0,563` vs `1,204`)?** Senza la dummy COVID, il crollo $-5,71$ Mld abbassa il drift medio 2013–2023 da `+0,187` a `+0,138 Mld/mese`, che coincide quasi con la crescita più moderata del 2023–2026 (`+0,142 Mld/mese`). Depurando il COVID emerge invece il drift storico più alto (trainato dal boom 2017–2020), che sovrastima il triennio di test.
+4. **Diagnostica onesta dei residui (`Tabella 6`, `Figure 19–20`):**
+   - Nei modelli **senza dummy COVID** (`SARIMA`), il Ljung-Box grezzo (`p = 0,78–0,98`) è mascherato dal residuo pandemico ($z = -8,44$): togliendolo scende a `0,022` (lag 6) e `0,010` (lag 12).
+   - Nei **SARIMAX con drift costante**, Ljung-Box passa al lag 24 (`p = 0,141–0,147`), mentre resta lieve autocorrelazione a breve raggio (`p = 0,012–0,023`) dovuta al cambio di pendenza 2017–2020 vs 2021–2022; **Holt-Winters**, adattando localmente la pendenza, supera Ljung-Box su tutti i lag anche senza aprile 2020 (`p = 0,259 / 0,559 / 0,835`) e vince a $h = 1$ (`0,394`).
+   - Tutti i modelli hanno **residui non normali** (Jarque-Bera $p < 10^{-12}$) per la natura a scatti delle revisioni Transfermarkt.
 
 ---
 
-## 6. Come è organizzato il codice Python (per spiegarlo al volo ai professori)
-
-Se all'esame ti chiedono *"Come avete strutturato il codice della Parte 2?"*, puoi mostrare con orgoglio che non avete fatto un file unico confuso, ma un **package Python modulare e pulito** dentro `Parte_2_Time_Series/`:
+## 6. Struttura del codice Python
 
 ```text
 Parte_2_Time_Series/
-├── src/                               # IL MOTORE MODULARE (Funzioni riutilizzabili)
-│   ├── config.py                      # Tutte le cartelle, le date e i colori in un posto solo
-│   ├── plotting.py                    # Funzioni per salvare i grafici HD a 300 DPI con font grandi
-│   ├── analysis/
-│   │   └── stl_stationarity.py        # Funzioni per STL, test ADF/KPSS e grafici ACF/PACF (Cap. 8)
-│   └── modeling/
-│       └── sarimax_models.py          # Funzioni per Naive, ARIMA, Holt-Winters, SARIMA, SARIMAX e Serie A (Cap. 9)
-│
-├── scripts/                           # GLI SCRIPT DA LANCIARE
-│   ├── 01_etl_transfermarkt.py        # Pulisce i CSV grezzi e crea market_monthly.csv (Cap. 6)
-│   ├── 02_eda_e_shock.py              # Crea i grafici esplorativi e degli shock (Cap. 7)
-│   ├── 03_run_stl_stationarity.py     # Lancia i calcoli e i grafici del Capitolo 8
-│   ├── 04_run_modeling.py             # Lancia i modelli e i grafici del Capitolo 9
-│   └── run_all_pipeline.py            # UNICO COMANDO che esegue tutto in automatico!
+├── src/
+│   ├── config.py                      # Percorsi portabili (relativi al repo), date split, colori
+│   ├── plotting.py                    # Stile 600 DPI e doppio salvataggio figures/ + Relazione/
+│   ├── analysis/stl_stationarity.py   # STL, ADF/KPSS (grezzi + verifica COVID/D=1), ACF/PACF
+│   └── modeling/sarimax_models.py     # 7 modelli Top-5, Rolling CV, DM + Clark-West, Diagnostica, Serie A
+└── scripts/
+    ├── 01_etl_transfermarkt.py        # ETL causale + fig01..fig02
+    ├── 02_eda_e_shock.py              # EDA, shock, correlazioni livelli vs Δ + fig03..fig11
+    ├── 03_run_stl_stationarity.py     # Runner Cap. 8 / Sez. 3 + fig12..fig15
+    ├── 04_run_modeling.py             # Runner Cap. 9 / Sez. 4 + fig16..fig21
+    └── run_all_pipeline.py            # Esegue l'intera pipeline in un solo comando
 ```
-
----
-
-## 7. Domande tipiche d'esame con la risposta pronta
-
-1. **"Perché non avete aggregato direttamente `player_valuations.csv` usando la colonna `current_club_id`?"**
-   - *Risposta*: Perché `current_club_id` è un campo statico che riporta solo il club in cui il giocatore milita nel 2026. Usandolo direttamente avremmo attribuito tutta la carriera passata di un giocatore al suo campionato del 2026, sottostimando ad esempio la Serie A del 2019–2020 di quasi 1 miliardo di euro. Per evitarlo abbiamo ricostruito il vero club storico mese per mese incrociando `appearances.csv` e `transfers.csv`.
-
-2. **"Perché avete usato sia il test ADF sia il test KPSS per la stazionarietà?"**
-   - *Risposta*: Perché hanno ipotesi nulle opposte e si completano a vicenda: l'ADF ha come ipotesi nulla la *non-stazionarietà* (radice unitaria), mentre il KPSS ha come ipotesi nulla la *stazionarietà*. Quando entrambi concordano (come sulla nostra serie differenziata prima con $d = 1$, dove ADF ha $p < 0,0001$ e KPSS ha $p = 0,10$), siamo certi al 100% che la serie è stazionaria.
-
-3. **"Perché il modello SARIMAX batte il modello SARIMA normale?"**
-   - *Risposta*: Perché il valore delle rose non si muove solo per inerzia del passato, ma risponde agli investimenti reali dei club e agli shock esterni. Aggiungendo come variabili esogene la spesa cumulata mobile a 12 mesi nel calciomercato (che ha una correlazione di $r = 0,88$ col valore delle rose) e il controllo per lo shock COVID di aprile 2020, l'errore MAPE scende dall'1,45% del SARIMA all'1,15% del SARIMAX (e all'1,25% sulla Serie A).
-

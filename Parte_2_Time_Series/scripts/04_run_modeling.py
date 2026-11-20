@@ -1,14 +1,15 @@
 """
 ========================================================================================
-Runner 04: Modellazione Predittiva, Valutazione Errori e Focus Serie A (Capitolo 9)
+Runner 04: Modellazione Predittiva, Validazione Rolling-Origin e Focus Serie A (Cap. 9)
 ========================================================================================
-Questo script esegue l'intero flusso del Capitolo 9 della Relazione usando il modulo src:
-1. Carica la serie storica mensile post-ETL (180 mesi).
-2. Disegna la partizione temporale 80/20 (144 mesi Train vs 36 mesi Test) -> fig16.
-3. Addestra i 5 modelli (Baseline Naive, ARIMA, Holt-Winters, SARIMA, SARIMAX) -> fig17, fig18.
-4. Esegue la diagnostica dei residui e il test di Ljung-Box -> fig19, fig20.
-5. Esegue il focus previsionale dedicato alla Serie A italiana -> fig21.
-6. Salva tutte le metriche numeriche in modeling_summary.json.
+Esegue l'intero flusso del Capitolo 9 usando il modulo src/modeling/sarimax_models.py:
+1. Carica market_monthly.csv (156 mesi, Giu 2013 – Mag 2026).
+2. Disegna la partizione temporale Training (120 mesi) / Test (36 mesi) -> fig16.
+3. Addestra e confronta i 7 modelli sul mercato Top-5 -> fig17.
+4. Esegue la validazione rolling-origin (h = 1, 6, 12 mesi) + Diebold-Mariano -> fig18.
+5. Esegue la diagnostica dei residui (Ljung-Box con model_df e Jarque-Bera) -> fig19, fig20.
+6. Esegue il focus previsionale sulla Serie A italiana -> fig21.
+7. Esporta tutte le metriche e i parametri in modeling_summary.json.
 ========================================================================================
 """
 
@@ -17,15 +18,15 @@ import sys
 import json
 import pandas as pd
 
-# Permette di importare i moduli interni da src
 CARTELLA_PARTE2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if CARTELLA_PARTE2 not in sys.path:
     sys.path.insert(0, CARTELLA_PARTE2)
 
-from src.config import MARKET_MONTHLY_CSV, DATA_PROCESSED_DIR
+from src.config import MARKET_MONTHLY_CSV, DATA_PROCESSED_DIR, N_TRAIN_MONTHS
 from src.modeling.sarimax_models import (
     disegna_split_train_test,
     addestra_e_confronta_modelli,
+    valuta_rolling_origin,
     esegui_diagnostica_residui,
     esegui_focus_serie_a,
 )
@@ -33,7 +34,7 @@ from src.modeling.sarimax_models import (
 
 def main():
     print("========================================================================================")
-    print(" AVVIO MODELLAZIONE CAPITOLO 9: BASELINE, ARIMA, HOLT-WINTERS, SARIMA E SARIMAX")
+    print(" AVVIO MODELLAZIONE CAPITOLO 9: BASELINE, HOLT-WINTERS, SARIMA, SARIMAX E ROLLING CV")
     print("========================================================================================")
 
     if not os.path.exists(MARKET_MONTHLY_CSV):
@@ -42,27 +43,34 @@ def main():
 
     df = pd.read_csv(MARKET_MONTHLY_CSV)
     df["date"] = pd.to_datetime(df["date"])
+    n_train = N_TRAIN_MONTHS
+    n_test = len(df) - n_train
 
-    # 1. Visualizzazione split temporale 144 mesi Train / 36 mesi Test (fig16)
-    disegna_split_train_test(df, n_train=144)
+    # 1. Split temporale (fig16)
+    disegna_split_train_test(df, n_train=n_train)
 
-    # 2. Addestramento dei 5 modelli e confronto previsioni su Test Set (fig17, fig18)
-    risultati_modelli, mod_sarimax, _ = addestra_e_confronta_modelli(df, n_train=144)
+    # 2. Confronto 7 modelli multi-step 36 mesi (fig17)
+    risultati_top5, mod_sarima, mod_hw, mod_cov, mod_full, dettagli = addestra_e_confronta_modelli(df, n_train=n_train)
 
-    # 3. Diagnostica dei residui del modello SARIMAX e test di Ljung-Box (fig19, fig20)
-    diagnostica = esegui_diagnostica_residui(df, mod_sarimax, n_train=144)
+    # 3. Validazione rolling-origin CV h=1, 6, 12 + Diebold-Mariano / Clark-West (fig18)
+    rolling_cv, test_accuratezza = valuta_rolling_origin(df, risultati_top5, n_train=n_train)
 
-    # 4. Focus previsionale dedicato alla Serie A italiana (fig21)
-    focus_it1 = esegui_focus_serie_a(df, n_train=144)
+    # 4. Diagnostica residui con correzione model_df e verifica outlier COVID (fig19, fig20)
+    diagnostica = esegui_diagnostica_residui(df, mod_sarima, mod_hw, mod_cov, mod_full, n_train=n_train)
 
-    # 5. Esportazione del riepilogo JSON con tutti i numeri per la tabella LaTeX
+    # 5. Focus Serie A (fig21)
+    focus_it1 = esegui_focus_serie_a(df, n_train=n_train)
+
     sommario_modelli = {
-        "n_train_months": 144,
-        "n_test_months": 36,
-        "train_period": "2011-06 .. 2023-05",
-        "test_period": "2023-06 .. 2026-05",
-        "modelli_top5": risultati_modelli,
-        "diagnostica_ljung_box": diagnostica,
+        "n_train_months": int(n_train),
+        "n_test_months": int(n_test),
+        "train_period": f"{df['year_month'].iloc[0]} .. {df['year_month'].iloc[n_train - 1]}",
+        "test_period": f"{df['year_month'].iloc[n_train]} .. {df['year_month'].iloc[-1]}",
+        "modelli_top5_holdout_36m": risultati_top5,
+        "rolling_origin_cv": rolling_cv,
+        "test_accuratezza": test_accuratezza,
+        "dettagli_stima_top5": dettagli,
+        "diagnostica_residui": diagnostica,
         "focus_serie_a": focus_it1,
     }
 
@@ -78,4 +86,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

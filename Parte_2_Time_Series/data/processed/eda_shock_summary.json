@@ -1,12 +1,139 @@
 {
-  "slope_pre2017_bn_per_year": 1.55,
-  "slope_post2017_bn_per_year": 5.86,
-  "pct_change_mean_top5": 0.656,
-  "pct_change_std_top5": 2.076,
-  "pct_change_skew_top5": -3.77,
-  "pct_change_kurt_top5": 39.35,
-  "corr_val_rolling12m_spend": 0.905,
-  "corr_val_serie_a_top5": 0.989,
-  "max_monthly_spend_top5_m": 4457.95,
-  "max_monthly_spend_month": "2025-07"
+  "n_months": 156,
+  "horizon": "2013-06 .. 2026-05",
+  "tabella_leghe": {
+    "Premier League": {
+      "2013-06": 3.4,
+      "2017-07": 5.43,
+      "2020-03": 9.77,
+      "2020-04": 7.92,
+      "2026-05": 12.67,
+      "delta_covid_pct": -18.99,
+      "delta_totale_pct": 272.9,
+      "max_bn": 12.78,
+      "max_month": "2025-10"
+    },
+    "LaLiga": {
+      "2013-06": 2.65,
+      "2017-07": 3.61,
+      "2020-03": 6.35,
+      "2020-04": 5.16,
+      "2026-05": 5.64,
+      "delta_covid_pct": -18.78,
+      "delta_totale_pct": 112.9,
+      "max_bn": 6.35,
+      "max_month": "2020-03"
+    },
+    "Serie A": {
+      "2013-06": 2.25,
+      "2017-07": 3.01,
+      "2020-03": 5.57,
+      "2020-04": 4.52,
+      "2026-05": 5.33,
+      "delta_covid_pct": -18.93,
+      "delta_totale_pct": 137.3,
+      "max_bn": 5.57,
+      "max_month": "2020-03"
+    },
+    "Bundesliga": {
+      "2013-06": 1.99,
+      "2017-07": 2.7,
+      "2020-03": 5.1,
+      "2020-04": 4.18,
+      "2026-05": 5.17,
+      "delta_covid_pct": -17.98,
+      "delta_totale_pct": 159.7,
+      "max_bn": 5.17,
+      "max_month": "2026-05"
+    },
+    "Ligue 1": {
+      "2013-06": 1.41,
+      "2017-07": 1.71,
+      "2020-03": 3.9,
+      "2020-04": 3.21,
+      "2026-05": 4.38,
+      "delta_covid_pct": -17.59,
+      "delta_totale_pct": 211.8,
+      "max_bn": 4.38,
+      "max_month": "2026-05"
+    },
+    "Totale Top-5": {
+      "2013-06": 11.69,
+      "2017-07": 16.45,
+      "2020-03": 30.69,
+      "2020-04": 24.99,
+      "2026-05": 33.19,
+      "delta_covid_pct": -18.59,
+      "delta_totale_pct": 183.9,
+      "max_bn": 33.19,
+      "max_month": "2026-05"
+    }
+  },
+  "quote_mercato_pct": {
+    "premier_start": 29.1,
+    "premier_end": 38.2,
+    "serie_a_start": 19.2,
+    "serie_a_end": 16.1
+  },
+  "slope_pre2017_bn_per_year": 1.13,
+  "slope_post2017_bn_per_year": 5.47,
+  "slope_ratio": 4.84,
+  "covid_drop_top5_pct": -18.59,
+  "covid_drop_top5_bn": -5.71,
+  "covid_recovery_month": "2025-03",
+  "covid_recovery_months": 60,
+  "covid_recovery_value_bn": 30.75,
+  "covid_recovery_sustained": {
+    "month": "2025-08",
+    "months_from_mar2020": 65,
+    "value_bn": 30.81
+  },
+  "mean_player_value_start_m": 4.42,
+  "mean_player_value_end_m": 12.62,
+  "mean_player_value_growth_pct": 185.6,
+  "median_player_value_start_m": 2.0,
+  "median_player_value_end_m": 6.0,
+  "pct_change_mean_top5": 0.708,
+  "pct_change_std_top5": 2.491,
+  "pct_change_median_top5": 0.281,
+  "pct_change_mad_norm_top5": 1.011,
+  "pct_change_std_serie_a": 3.211,
+  "pct_change_skew_top5": -2.26,
+  "pct_change_excess_kurt_top5": 24.27,
+  "z_covid_classic": -7.75,
+  "z_covid_robust_mad": -18.67,
+  "max_pos_pct_month": "2018-01",
+  "max_pos_pct_value": 10.28,
+  "n_outliers_2sigma": 4,
+  "outliers_2sigma": [
+    {
+      "year_month": "2015-05",
+      "pct_change": -4.58
+    },
+    {
+      "year_month": "2015-08",
+      "pct_change": 8.26
+    },
+    {
+      "year_month": "2018-01",
+      "pct_change": 10.28
+    },
+    {
+      "year_month": "2020-04",
+      "pct_change": -18.59
+    }
+  ],
+  "corr_levels_top5_spend12m": 0.89,
+  "corr_levels_top5_spend_monthly": 0.14,
+  "corr_levels_premier_spend12m": 0.93,
+  "corr_levels_serie_a_spend12m_it1": 0.89,
+  "corr_diff_top5_spend12m": 0.0,
+  "corr_diff_serie_a_spend12m_it1": 0.03,
+  "max_monthly_spend_top5_m": 3651.77,
+  "max_monthly_spend_month": "2025-07",
+  "max_monthly_spend_serie_a_m": 811.52,
+  "max_monthly_spend_serie_a_month": "2019-07",
+  "total_spend_top5_bn": 56.4,
+  "total_spend_serie_a_bn": 10.61,
+  "serie_a_spend_share_pct": 18.8
 }
