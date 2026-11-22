@@ -2,11 +2,11 @@
 ========================================================================================
 Modulo di Analisi: Decomposizione STL, Test di Stazionarietà e Autocorrelazione
 ========================================================================================
-Questo modulo contiene le funzioni per:
-1. Decomporre la serie in Trend, Stagionalità e Residuo (STL).
-2. Eseguire i test matematici di stazionarietà (ADF e KPSS).
-3. Calcolare i grafici di memoria della serie (ACF e PACF).
-Tutti i calcoli e i grafici sono spiegati con commenti semplici e in italiano.
+Tutte le analisi diagnostiche di identificazione del modello vengono eseguite sul solo
+Training Set (primi 120 mesi, Giugno 2013 – Maggio 2023) per evitare data leakage dal
+Test Set nelle scelte di differenziazione e di ordine (p, d, q)(P, D, Q)_12.
+Si verifica inoltre la coerenza dei risultati anche in scala logaritmica e sull'intera
+serie storica (salvati nel riepilogo JSON).
 ========================================================================================
 """
 
@@ -23,281 +23,300 @@ from ..plotting import crea_figura, salva_figura
 warnings.filterwarnings("ignore")
 
 
-def esegui_decomposizione_stl(serie, date):
+def _forza_stl(trend, stagionalita, residuo):
+    var_r = float(np.var(residuo))
+    ft = max(0.0, 1.0 - var_r / float(np.var(trend + residuo)))
+    fs = max(0.0, 1.0 - var_r / float(np.var(stagionalita + residuo)))
+    return ft, fs
+
+
+def esegui_decomposizione_stl(serie, date, label_campione="Training Set, 2013–2023"):
     """
-    Divide la serie originale in 3 componenti:
-    - Trend: la direzione di fondo negli anni (crescita).
-    - Stagionalità: il ciclo che si ripete ogni 12 mesi (mercato estivo e revisioni autunnali).
-    - Residuo: le variazioni impreviste e gli shock (es. COVID).
+    Applica la decomposizione STL (Seasonal and Trend decomposition using Loess) con
+    pesi robusti iterativi (robust=True) e periodo s = 12 mesi.
+    Confronta inoltre le metriche di forza del trend e della stagionalità anche in scala
+    logaritmica (decomposizione moltiplicativa) ed escludendo l'outlier di aprile 2020.
     """
-    print(">>> [1/4] Esecuzione della Decomposizione STL (periodo = 12 mesi)...")
-    serie_con_tempo = pd.Series(serie.values, index=pd.to_datetime(date))
+    print(f">>> [1/4] Decomposizione STL ({label_campione}, s = {SEASONAL_PERIOD} mesi)...")
+    idx_time = pd.to_datetime(date)
+    serie_t = pd.Series(np.asarray(serie, dtype=float), index=idx_time)
 
-    # STL (Seasonal and Trend decomposition using Loess) con stima robusta agli outlier
-    res_stl = STL(serie_con_tempo, period=SEASONAL_PERIOD, robust=True).fit()
+    res_stl = STL(serie_t, period=SEASONAL_PERIOD, robust=True).fit()
+    trend, stagionalita, residuo = res_stl.trend, res_stl.seasonal, res_stl.resid
+    ft, fs = _forza_stl(trend, stagionalita, residuo)
 
-    trend = res_stl.trend
-    stagionalita = res_stl.seasonal
-    residuo = res_stl.resid
+    # Verifica escludendo il singolo outlier di aprile 2020
+    mask_nc = residuo.index != pd.Timestamp("2020-04-01")
+    _, fs_nc = _forza_stl(trend[mask_nc], stagionalita[mask_nc], residuo[mask_nc])
 
-    # Calcolo della forza del trend e della stagionalità (formule standard di Wang et al.)
-    var_residuo = np.var(residuo)
-    forza_trend = max(0.0, 1.0 - var_residuo / np.var(trend + residuo))
-    forza_stagionalita = max(0.0, 1.0 - var_residuo / np.var(stagionalita + residuo))
+    # Verifica in scala logaritmica (equivalente a modello moltiplicativo)
+    res_log = STL(np.log(serie_t), period=SEASONAL_PERIOD, robust=True).fit()
+    ft_log, fs_log = _forza_stl(res_log.trend, res_log.seasonal, res_log.resid)
+    _, fs_log_nc = _forza_stl(res_log.trend[mask_nc], res_log.seasonal[mask_nc], res_log.resid[mask_nc])
 
-    print(f"   -> Forza del Trend: {forza_trend:.3f} (molto forte, vicino a 1.0)")
-    print(f"   -> Forza della Stagionalità: {forza_stagionalita:.3f}")
+    print(f"   -> Livelli: F_T = {ft:.3f} | F_S = {fs:.3f} (escl. Apr 2020: {fs_nc:.3f})")
+    print(f"   -> Log:     F_T = {ft_log:.3f} | F_S = {fs_log:.3f} (escl. Apr 2020: {fs_log_nc:.3f})")
 
-    # FIGURA 12: I 4 pannelli della decomposizione STL (impilati in verticale ben leggibili)
+    # FIGURA 12: I 4 pannelli della decomposizione STL
     fig, axes = plt.subplots(4, 1, figsize=(11.5, 9.5), sharex=True)
 
-    axes[0].plot(date, serie, color="#2b5c8f", linewidth=2.4)
+    axes[0].plot(idx_time, serie_t.values, color="#2b5c8f", linewidth=2.4)
     axes[0].set_ylabel("Serie reale (Mld)", fontweight="bold", fontsize=10.5)
     axes[0].set_title(
-        "Decomposizione STL della serie storica del valore rose Top-5 (2011–2026)",
-        fontsize=12.5,
-        fontweight="bold",
-        pad=10,
+        f"Decomposizione STL additiva robusta della serie Top-5 ({label_campione})",
+        fontsize=12.5, fontweight="bold", pad=10,
     )
 
-    axes[1].plot(date, trend, color="#d95f02", linewidth=2.4)
+    axes[1].plot(idx_time, trend.values, color="#d95f02", linewidth=2.4)
     axes[1].set_ylabel("Trend (Mld)", fontweight="bold", fontsize=10.5)
-    axes[1].set_title(
-        f"Componente di Trend di lungo periodo (Forza trend = {forza_trend:.2f})",
-        fontsize=11,
-        fontweight="bold",
-    )
+    axes[1].set_title(f"Componente di trend di lungo periodo (forza F_T = {ft:.3f})", fontsize=11, fontweight="bold")
 
-    axes[2].plot(date, stagionalita, color="#2ca02c", linewidth=2.0)
+    axes[2].plot(idx_time, stagionalita.values, color="#2ca02c", linewidth=2.0)
+    axes[2].axhline(0, color="black", linestyle="--", linewidth=0.8, alpha=0.7)
     axes[2].set_ylabel("Stagionalità (Mld)", fontweight="bold", fontsize=10.5)
     axes[2].set_title(
-        f"Componente Stagionale annuale regolare (Periodo s = 12 mesi, Forza = {forza_stagionalita:.2f})",
-        fontsize=11,
-        fontweight="bold",
+        f"Componente stagionale annuale (s = 12 mesi, F_S = {fs:.3f}; in scala log: {fs_log:.3f})",
+        fontsize=11, fontweight="bold",
     )
-    axes[2].axhline(0, color="black", linestyle="--", linewidth=0.8, alpha=0.7)
 
-    axes[3].scatter(date, residuo, color="#7570b3", s=24, alpha=0.85)
+    axes[3].scatter(idx_time, residuo.values, color="#7570b3", s=26, alpha=0.85)
     axes[3].axhline(0, color="black", linestyle="--", linewidth=0.8)
     axes[3].set_ylabel("Residuo (Mld)", fontweight="bold", fontsize=10.5)
     axes[3].set_xlabel("Data", fontweight="bold", fontsize=11)
-    axes[3].set_title(
-        "Componente Residuale irregolare (Shock esterni ed eventi anomali)",
-        fontsize=11,
-        fontweight="bold",
-    )
+    axes[3].set_title("Componente residuale irregolare (shock esterni ed eventi anomali)", fontsize=11, fontweight="bold")
 
-    # Evidenziamo il crollo COVID nel residuo
     data_covid = pd.Timestamp("2020-04-01")
-    axes[3].annotate(
-        "Shock COVID-19\n(Apr 2020: -6,1 Mld)",
-        xy=(data_covid, residuo.loc[data_covid]),
-        xytext=(pd.Timestamp("2015-06-01"), -3.8),
-        arrowprops=dict(arrowstyle="->", color="#e41a1c", lw=1.5),
-        fontweight="bold",
-        color="#b30000",
-        fontsize=9.5,
-    )
+    if data_covid in residuo.index:
+        val_cov = float(residuo.loc[data_covid])
+        axes[3].annotate(
+            f"Shock COVID-19\n(Apr 2020: {val_cov:.2f} Mld)",
+            xy=(data_covid, val_cov),
+            xytext=(pd.Timestamp("2016-01-01"), val_cov * 0.78),
+            arrowprops=dict(arrowstyle="->", color="#e41a1c", lw=1.5),
+            fontweight="bold", color="#b30000", fontsize=9.5,
+        )
 
     plt.tight_layout()
     salva_figura(fig, "fig12_stl_decomposizione_completa.png", CAP8_IMG_DIR)
 
-    # FIGURA 13: Il profilo medio stagionale dei 12 mesi (da Gennaio a Dicembre)
-    fig_profilo, ax_p = crea_figura(larghezza=11.0, altezza=5.6)
+    # FIGURA 13: Profilo stagionale medio mensile (su Training Set)
+    fig_p, ax_p = crea_figura(larghezza=11.0, altezza=5.6)
     profilo_12m = stagionalita.groupby(stagionalita.index.month).mean()
     nomi_mesi = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"]
 
     colori_barre = ["#2b5c8f" if v >= 0 else "#d95f02" for v in profilo_12m]
     barre = ax_p.bar(nomi_mesi, profilo_12m.values, color=colori_barre, width=0.58, alpha=0.88)
     ax_p.axhline(0, color="black", linewidth=1.0)
-    ax_p.set_ylim(-0.20, 0.35)
+    ymin_p = min(float(profilo_12m.min()), -0.1) * 1.35
+    ymax_p = max(float(profilo_12m.max()), 0.1) * 1.30
+    ax_p.set_ylim(ymin_p, ymax_p)
 
     ax_p.set_ylabel("Effetto stagionale medio (Miliardi EUR)", fontweight="bold", fontsize=11.5)
     ax_p.set_xlabel("Mese dell'anno", fontweight="bold", fontsize=11.5)
     ax_p.set_title(
-        "Profilo stagionale medio mensile del valore delle rose nei dodici mesi dell'anno",
-        fontsize=12.5,
-        fontweight="bold",
-        pad=12,
+        f"Profilo stagionale medio mensile della componente S_t ({label_campione})",
+        fontsize=12.5, fontweight="bold", pad=12,
     )
 
-    # Aggiungiamo i valori numerici sopra o sotto ogni barra con ampio margine
+    span = ymax_p - ymin_p
     for barra in barre:
         h = barra.get_height()
-        offset = 0.015 if h >= 0 else -0.028
+        offset = 0.03 * span if h >= 0 else -0.055 * span
         ax_p.text(
             barra.get_x() + barra.get_width() / 2.0,
             h + offset,
             f"{h:+.2f}",
-            ha="center",
-            fontsize=10,
-            fontweight="bold",
+            ha="center", fontsize=9.8, fontweight="bold",
         )
 
-    salva_figura(fig_profilo, "fig13_stl_profilo_medio_mensile.png", CAP8_IMG_DIR)
+    salva_figura(fig_p, "fig13_stl_profilo_medio_mensile.png", CAP8_IMG_DIR)
 
     return {
-        "trend": trend,
-        "stagionalita": stagionalita,
-        "residuo": residuo,
-        "forza_trend": round(float(forza_trend), 3),
-        "forza_stagionalita": round(float(forza_stagionalita), 3),
+        "forza_trend_livelli": round(ft, 3),
+        "forza_stagionalita_livelli": round(fs, 3),
+        "forza_stagionalita_livelli_no_covid": round(fs_nc, 3),
+        "forza_trend_log": round(ft_log, 3),
+        "forza_stagionalita_log": round(fs_log, 3),
+        "forza_stagionalita_log_no_covid": round(fs_log_nc, 3),
+        "residuo_covid_apr2020_bn": round(float(residuo.loc[data_covid]), 2) if data_covid in residuo.index else None,
         "profilo_mensile": {m: round(float(v), 3) for m, v in zip(nomi_mesi, profilo_12m.values)},
     }
 
 
-def calcola_test_stazionarieta(serie, nome_serie):
+def calcola_test_stazionarieta(serie, nome_serie, regression="c"):
     """
-    Esegue i due test statistici standard:
-    1. ADF (Augmented Dickey-Fuller): Ipotesi H0 = la serie HA una radice unitaria (NON è stazionaria).
-       Se p-value < 0.05 rifiutiamo H0 -> la serie è stazionaria.
-    2. KPSS: Ipotesi H0 = la serie È stazionaria.
-       Se p-value > 0.05 non possiamo rifiutare H0 -> la serie è stazionaria.
+    Esegue i test ADF (H0: presenza di radice unitaria / non stazionarietà) e KPSS
+    (H0: stazionarietà intorno a costante 'c' o a trend lineare 'ct').
+    Gestisce esplicitamente i limiti tabellari del p-value KPSS (<= 0.01 e >= 0.10).
     """
+    s = pd.Series(serie).dropna()
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        res_adf = adfuller(serie.dropna(), autolag="AIC")
-        stat_adf, pval_adf, _, _, crit_adf, _ = res_adf
-
-        res_kpss = kpss(serie.dropna(), regression="c", nlags="auto")
-        stat_kpss, pval_kpss, _, crit_kpss = res_kpss
+        stat_adf, pval_adf, _, _, crit_adf, _ = adfuller(s, regression=regression, autolag="AIC")
+        stat_kpss, pval_kpss, _, crit_kpss = kpss(s, regression=regression, nlags="auto")
 
     esito_adf = "Stazionaria" if pval_adf < 0.05 else "Non stazionaria"
     esito_kpss = "Stazionaria" if pval_kpss >= 0.05 else "Non stazionaria"
+    kpss_pval_str = "≤ 0.01" if pval_kpss <= 0.01001 else ("≥ 0.10" if pval_kpss >= 0.09999 else f"{pval_kpss:.4f}")
 
-    print(f"   [{nome_serie}]")
-    print(f"      ADF: Statistica = {stat_adf:.3f}, p-value = {pval_adf:.4f} -> {esito_adf}")
-    print(f"      KPSS: Statistica = {stat_kpss:.3f}, p-value = {pval_kpss:.4f} -> {esito_kpss}")
+    print(f"   [{nome_serie} | reg='{regression}']")
+    print(f"      ADF:  stat = {stat_adf:.3f}, p = {pval_adf:.4f} (crit 5% = {crit_adf['5%']:.3f}) -> {esito_adf}")
+    print(f"      KPSS: stat = {stat_kpss:.3f}, p {kpss_pval_str} (crit 5% = {crit_kpss['5%']:.3f}) -> {esito_kpss}")
 
     return {
         "nome": nome_serie,
+        "regression": regression,
         "adf_stat": round(float(stat_adf), 3),
         "adf_pval": round(float(pval_adf), 4),
         "adf_crit_5pct": round(float(crit_adf["5%"]), 3),
         "adf_esito": esito_adf,
         "kpss_stat": round(float(stat_kpss), 3),
         "kpss_pval": round(float(pval_kpss), 4),
+        "kpss_pval_label": kpss_pval_str,
         "kpss_crit_5pct": round(float(crit_kpss["5%"]), 3),
         "kpss_esito": esito_kpss,
     }
 
 
-def analizza_stazionarieta_e_differenziazione(serie, date):
+def analizza_stazionarieta_e_differenziazione(serie_train, date_train, serie_full=None):
     """
-    Confronta la serie originale (livello) con la serie differenziata al mese precedente (d=1).
-    Genera il grafico del confronto e calcola la tabella riassuntiva dei test ADF e KPSS.
+    Esegue i test ADF e KPSS sul Training Set per:
+    - livelli d=0 con solo costante ('c') e con costante + trend ('ct'),
+    - differenze prime d=1 ('c'),
+    - verifica in scala logaritmica (livelli 'ct' e differenze logaritmiche 'c').
+    Genera la Figura 14.
     """
-    print(">>> [2/4] Analisi della stazionarietà e test matematici...")
-    serie_diff1 = serie.diff().dropna()
-    date_diff1 = date.iloc[1:]
+    print(">>> [2/4] Test di stazionarietà ADF e KPSS sul Training Set...")
+    s_tr = pd.Series(np.asarray(serie_train, dtype=float), index=pd.to_datetime(date_train))
+    s_diff1 = s_tr.diff().dropna()
+    s_diff1_nc = s_diff1.copy()
+    data_cov = pd.Timestamp("2020-04-01")
+    if data_cov in s_diff1_nc.index:
+        s_diff1_nc.loc[data_cov] = float(s_diff1.median())
+    date_tr = pd.to_datetime(date_train)
 
-    test_originale = calcola_test_stazionarieta(serie, "Serie originale di livello (d=0)")
-    test_diff1 = calcola_test_stazionarieta(serie_diff1, "Serie differenziata prima (d=1)")
+    risultati = [
+        calcola_test_stazionarieta(s_tr, "Livelli Y_t (d=0, costante)", regression="c"),
+        calcola_test_stazionarieta(s_tr, "Livelli Y_t (d=0, costante + trend)", regression="ct"),
+        calcola_test_stazionarieta(s_diff1, "Differenze prime ΔY_t (d=1, costante)", regression="c"),
+        calcola_test_stazionarieta(np.log(s_tr), "Log-livelli ln(Y_t) (d=0, costante + trend)", regression="ct"),
+        calcola_test_stazionarieta(np.log(s_tr).diff().dropna(), "Differenze logaritmiche Δln(Y_t) (d=1, costante)", regression="c"),
+        calcola_test_stazionarieta(s_diff1_nc, "Verifica ΔY_t depurata da Apr 2020 (d=1, c)", regression="c"),
+        calcola_test_stazionarieta(s_tr.diff().diff(SEASONAL_PERIOD).dropna(), "Verifica doppia diff. ΔΔ12 Y_t (d=1, D=1)", regression="c"),
+    ]
+    if serie_full is not None:
+        s_f = pd.Series(np.asarray(serie_full, dtype=float))
+        calcola_test_stazionarieta(s_f, "Verifica intera serie Y_t (d=0, ct)", regression="ct")
+        calcola_test_stazionarieta(s_f.diff().dropna(), "Verifica intera serie ΔY_t (d=1, c)", regression="c")
 
-    # FIGURA 14: Confronto visivo impilato in verticale (ampio e leggibile)
+    # FIGURA 14: Confronto visivo tra livelli (d=0) e differenze prime (d=1) sul Training Set
     fig, axes = plt.subplots(2, 1, figsize=(11.5, 7.4), sharex=True)
 
-    axes[0].plot(date, serie, color="#2b5c8f", linewidth=2.5)
+    axes[0].plot(date_tr, s_tr.values, color="#2b5c8f", linewidth=2.5)
     axes[0].set_ylabel("Valore (Mld EUR)", fontweight="bold", fontsize=11)
     axes[0].set_title(
-        f"a) Serie originale in livelli: non stazionaria (trend rialzista, p-value ADF = {test_originale['adf_pval']:.3f})",
-        fontsize=12,
-        fontweight="bold",
+        f"a) Serie originale in livelli sul Training Set (d=0): non stazionaria (ADF ct p = {risultati[1]['adf_pval']:.3f}, KPSS ct p {risultati[1]['kpss_pval_label']})",
+        fontsize=11.5, fontweight="bold",
     )
 
-    axes[1].plot(date_diff1, serie_diff1, color="#2ca02c", linewidth=1.9)
+    axes[1].plot(date_tr.iloc[1:], s_diff1.values, color="#2ca02c", linewidth=1.9)
     axes[1].axhline(0, color="black", linestyle="--", linewidth=1.0)
-
-    mu_d = serie_diff1.mean()
-    sd_d = serie_diff1.std()
-    axes[1].axhline(mu_d + 2 * sd_d, color="#d95f02", linestyle=":", linewidth=1.3, label="Banda +2σ")
-    axes[1].axhline(mu_d - 2 * sd_d, color="#d95f02", linestyle=":", linewidth=1.3, label="Banda -2σ")
-
-    axes[1].set_ylabel("Differenza mensile ΔY (Mld)", fontweight="bold", fontsize=11)
-    axes[1].set_xlabel("Data (2011–2026)", fontweight="bold", fontsize=11)
+    mu_d, sd_d = float(s_diff1.mean()), float(s_diff1.std())
+    axes[1].axhline(mu_d + 2 * sd_d, color="#d95f02", linestyle=":", linewidth=1.3, label=f"Fascia μ±2σ ({mu_d - 2*sd_d:.2f} / +{mu_d + 2*sd_d:.2f} Mld)")
+    axes[1].axhline(mu_d - 2 * sd_d, color="#d95f02", linestyle=":", linewidth=1.3)
+    axes[1].set_ylabel("Differenza mensile ΔY_t (Mld)", fontweight="bold", fontsize=11)
+    axes[1].set_xlabel("Data (Training Set: Giugno 2013 – Maggio 2023)", fontweight="bold", fontsize=11)
+    adf_d1_str = "< 0.0001" if risultati[2]["adf_pval"] < 0.0001 else f"= {risultati[2]['adf_pval']:.4f}"
     axes[1].set_title(
-        "b) Serie differenziata prima (d=1): stazionaria attorno a zero (p-value ADF < 0.001, KPSS p-value = 0.10)",
-        fontsize=12,
-        fontweight="bold",
+        f"b) Serie differenziata prima (d=1): stazionaria (ADF p {adf_d1_str}, KPSS p {risultati[2]['kpss_pval_label']})",
+        fontsize=11.5, fontweight="bold",
     )
     axes[1].legend(loc="lower left", fontsize=10)
 
     plt.tight_layout()
     salva_figura(fig, "fig14_stazionarieta_confronto_differenziazione.png", CAP8_IMG_DIR)
+    return risultati
 
-    return [test_originale, test_diff1]
 
-
-def calcola_e_disegna_acf_pacf(serie_diff, max_lags=36):
+def calcola_e_disegna_acf_pacf(serie_train, date_train, max_lags=36):
     """
-    Calcola l'Autocorrelazione (ACF) e l'Autocorrelazione Parziale (PACF)
-    sulla serie differenziata stazionaria fino a 36 ritardi (3 anni di memoria).
-    Disegna i due pannelli impilati a tutta larghezza per la massima leggibilità.
+    Calcola ACF e PACF sulla serie differenziata del Training Set in due versioni:
+    1. Grezza (con il crollo anomalo di aprile 2020);
+    2. Depurata dal singolo shock di aprile 2020 (sostituito con la mediana di ΔY_t),
+       per mostrare come l'outlier pandemico attenui il segnale stagionale a lag 12.
+    La banda ±1,96/sqrt(N) rappresenta l'intervallo di confidenza al 95% sotto ipotesi di
+    rumore bianco.
     """
-    print(">>> [3/4] Calcolo delle funzioni di autocorrelazione ACF e PACF...")
-    valori_acf = acf(serie_diff, nlags=max_lags)
-    valori_pacf = pacf(serie_diff, nlags=max_lags, method="ywm")
+    print(">>> [3/4] Calcolo ACF e PACF (grezza vs depurata dallo shock COVID-19)...")
+    s_tr = pd.Series(np.asarray(serie_train, dtype=float), index=pd.to_datetime(date_train))
+    d_raw = s_tr.diff().dropna()
+    d_clean = d_raw.copy()
+    data_cov = pd.Timestamp("2020-04-01")
+    if data_cov in d_clean.index:
+        d_clean.loc[data_cov] = float(d_raw.median())
 
-    # Intervallo di confidenza al 95% (regola di Bartlett: +-1.96 / sqrt(N))
-    soglia_confidenza = 1.96 / np.sqrt(len(serie_diff))
-    lags = np.arange(max_lags + 1)
+    acf_raw = acf(d_raw.values, nlags=max_lags)
+    pacf_raw = pacf(d_raw.values, nlags=max_lags, method="ywm")
+    acf_cl = acf(d_clean.values, nlags=max_lags)
+    pacf_cl = pacf(d_clean.values, nlags=max_lags, method="ywm")
 
-    # FIGURA 15: Due pannelli a tutta larghezza (impilati verticalmente) per leggere ogni lag
-    fig, axes = plt.subplots(2, 1, figsize=(11.5, 7.6), sharex=True)
+    # Soglia al 95% per processo rumore bianco: +-1.96 / sqrt(N)
+    soglia = 1.96 / np.sqrt(len(d_raw))
+    lags = np.arange(1, max_lags + 1)
 
-    # Pannello Superiore: ACF
-    ax_a = axes[0]
-    ax_a.stem(lags, valori_acf, linefmt="#2b5c8f", markerfmt="o", basefmt="k-")
-    ax_a.axhspan(
-        -soglia_confidenza,
-        soglia_confidenza,
-        color="#2b5c8f",
-        alpha=0.15,
-        label="Intervallo di confidenza 95% (soglia di Bartlett ±0,146)",
+    # FIGURA 15: 2x2 confronto ACF/PACF grezza (sinistra) vs depurata da Apr 2020 (destra)
+    fig, axes = plt.subplots(2, 2, figsize=(13.6, 8.2), sharex=True, sharey=True)
+
+    pannelli = [
+        (axes[0, 0], acf_raw[1:], "#2b5c8f", "o", "a) ACF su ΔY_t grezza (con shock Apr 2020)"),
+        (axes[0, 1], acf_cl[1:], "#2b5c8f", "o", "b) ACF su ΔY_t depurata dallo shock Apr 2020"),
+        (axes[1, 0], pacf_raw[1:], "#2ca02c", "s", "c) PACF su ΔY_t grezza (con shock Apr 2020)"),
+        (axes[1, 1], pacf_cl[1:], "#2ca02c", "s", "d) PACF su ΔY_t depurata dallo shock Apr 2020"),
+    ]
+    for ax, vals, col, mk, titolo in pannelli:
+        ax.stem(lags, vals, linefmt=col, markerfmt=mk, basefmt="k-")
+        ax.axhspan(-soglia, soglia, color=col, alpha=0.14, label=f"Banda rumore bianco 95% (±{soglia:.3f})")
+        for s_lag in [12, 24, 36]:
+            ax.axvline(s_lag, color="#d95f02", linestyle="--", linewidth=1.2, alpha=0.8)
+        ax.set_title(titolo, fontsize=11.2, fontweight="bold")
+        ax.set_ylim(-0.35, 0.55)
+        ax.set_xticks(np.arange(0, max_lags + 1, 6))
+        ax.legend(loc="upper right", fontsize=8.8)
+
+    axes[0, 0].set_ylabel("Autocorrelazione (ACF)", fontweight="bold", fontsize=10.5)
+    axes[1, 0].set_ylabel("Autocorrelazione parziale (PACF)", fontweight="bold", fontsize=10.5)
+    axes[1, 0].set_xlabel("Ritardo in mesi (lag k)", fontweight="bold", fontsize=10.5)
+    axes[1, 1].set_xlabel("Ritardo in mesi (lag k)", fontweight="bold", fontsize=10.5)
+
+    plt.suptitle(
+        "Funzioni ACF e PACF sulla serie differenziata ΔY_t (Training Set, N = 119): effetto di mascheramento dello shock COVID-19",
+        fontsize=12.4, fontweight="bold", y=1.01,
     )
-    ax_a.axvline(12, color="#d95f02", linestyle="--", linewidth=1.4, alpha=0.85, label="Ciclo stagionale annuale (Lag 12, 24, 36)")
-    ax_a.axvline(24, color="#d95f02", linestyle="--", linewidth=1.4, alpha=0.85)
-    ax_a.axvline(36, color="#d95f02", linestyle="--", linewidth=1.4, alpha=0.85)
-    ax_a.set_title(
-        "a) Funzione di Autocorrelazione (ACF) sulla serie differenziata ΔY (guida per ordini MA q, Q)",
-        fontsize=12,
-        fontweight="bold",
-    )
-    ax_a.set_ylabel("Autocorrelazione (ACF)", fontweight="bold", fontsize=11)
-    ax_a.set_ylim(-0.35, 1.08)
-    ax_a.legend(loc="upper right", fontsize=9.5)
-
-    # Pannello Inferiore: PACF
-    ax_p = axes[1]
-    ax_p.stem(lags, valori_pacf, linefmt="#2ca02c", markerfmt="s", basefmt="k-")
-    ax_p.axhspan(
-        -soglia_confidenza,
-        soglia_confidenza,
-        color="#2ca02c",
-        alpha=0.15,
-        label="Intervallo di confidenza 95% (±0,146)",
-    )
-    ax_p.axvline(12, color="#d95f02", linestyle="--", linewidth=1.4, alpha=0.85, label="Ciclo stagionale annuale (Lag 12, 24, 36)")
-    ax_p.axvline(24, color="#d95f02", linestyle="--", linewidth=1.4, alpha=0.85)
-    ax_p.axvline(36, color="#d95f02", linestyle="--", linewidth=1.4, alpha=0.85)
-    ax_p.set_title(
-        "b) Funzione di Autocorrelazione Parziale (PACF) sulla serie differenziata ΔY (guida per ordini AR p, P)",
-        fontsize=12,
-        fontweight="bold",
-    )
-    ax_p.set_xlabel("Ritardo temporale in mesi (Lag k = 0, 1, ..., 36)", fontweight="bold", fontsize=11)
-    ax_p.set_ylabel("Autocorrelazione Parziale", fontweight="bold", fontsize=11)
-    ax_p.set_ylim(-0.35, 1.08)
-    ax_p.set_xticks(np.arange(0, max_lags + 1, 3))
-    ax_p.legend(loc="upper right", fontsize=9.5)
-
     plt.tight_layout()
     salva_figura(fig, "fig15_acf_pacf_serie_differenziata.png", CAP8_IMG_DIR)
 
     return {
-        "lag1_acf": round(float(valori_acf[1]), 3),
-        "lag12_acf": round(float(valori_acf[12]), 3),
-        "lag1_pacf": round(float(valori_pacf[1]), 3),
-        "lag12_pacf": round(float(valori_pacf[12]), 3),
-        "soglia_confidenza": round(float(soglia_confidenza), 3),
+        "n_diff_train": int(len(d_raw)),
+        "soglia_rumore_bianco_95": round(float(soglia), 3),
+        "raw": {
+            "lag1_acf": round(float(acf_raw[1]), 3),
+            "lag2_acf": round(float(acf_raw[2]), 3),
+            "lag12_acf": round(float(acf_raw[12]), 3),
+            "lag24_acf": round(float(acf_raw[24]), 3),
+            "lag1_pacf": round(float(pacf_raw[1]), 3),
+            "lag2_pacf": round(float(pacf_raw[2]), 3),
+            "lag12_pacf": round(float(pacf_raw[12]), 3),
+        },
+        "no_covid": {
+            "lag1_acf": round(float(acf_cl[1]), 3),
+            "lag2_acf": round(float(acf_cl[2]), 3),
+            "lag5_acf": round(float(acf_cl[5]), 3),
+            "lag7_acf": round(float(acf_cl[7]), 3),
+            "lag12_acf": round(float(acf_cl[12]), 3),
+            "lag24_acf": round(float(acf_cl[24]), 3),
+            "lag1_pacf": round(float(pacf_cl[1]), 3),
+            "lag2_pacf": round(float(pacf_cl[2]), 3),
+            "lag12_pacf": round(float(pacf_cl[12]), 3),
+            "lag24_pacf": round(float(pacf_cl[24]), 3),
+        },
     }

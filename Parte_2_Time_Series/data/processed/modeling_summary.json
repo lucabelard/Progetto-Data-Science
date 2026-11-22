@@ -1,63 +1,822 @@
 {
-  "n_train_months": 144,
+  "n_train_months": 120,
   "n_test_months": 36,
-  "train_period": "2011-06 .. 2023-05",
+  "train_period": "2013-06 .. 2023-05",
   "test_period": "2023-06 .. 2026-05",
-  "modelli_top5": {
+  "modelli_top5_holdout_36m": {
     "Baseline Naive": {
-      "RMSE": 2.078,
-      "MAE": 1.877,
-      "MAPE": 5.64
+      "RMSE": 2.602,
+      "MAE": 2.227,
+      "MAPE": 7.18
     },
-    "ARIMA(1,1,1)": {
-      "RMSE": 0.978,
-      "MAE": 0.817,
-      "MAPE": 2.45,
-      "AIC": 274.0,
-      "BIC": 285.8
+    "Seasonal Naive (s=12)": {
+      "RMSE": 3.239,
+      "MAE": 2.929,
+      "MAPE": 9.52
+    },
+    "Random Walk + drift": {
+      "RMSE": 0.58,
+      "MAE": 0.456,
+      "MAPE": 1.52,
+      "AIC": 244.7,
+      "BIC": 250.2
     },
     "Holt-Winters (s=12)": {
-      "RMSE": 0.797,
-      "MAE": 0.625,
-      "MAPE": 1.88,
-      "AIC": -123.7,
-      "BIC": -73.2
+      "RMSE": 1.225,
+      "MAE": 0.938,
+      "MAPE": 3.03
     },
-    "SARIMA(1,1,1)(1,0,1)12": {
-      "RMSE": 0.703,
-      "MAE": 0.476,
-      "MAPE": 1.45,
-      "AIC": 265.4,
-      "BIC": 282.6
+    "SARIMA(0,1,0)(1,0,0)12": {
+      "RMSE": 0.563,
+      "MAE": 0.437,
+      "MAPE": 1.46,
+      "AIC": 245.2,
+      "BIC": 253.5
     },
-    "SARIMAX (con esogene)": {
-      "RMSE": 0.589,
-      "MAE": 0.39,
-      "MAPE": 1.19,
-      "AIC": 158.8,
-      "BIC": 190.2
+    "SARIMAX + COVID": {
+      "RMSE": 1.204,
+      "MAE": 1.061,
+      "MAPE": 3.47,
+      "AIC": 114.2,
+      "BIC": 125.3
+    },
+    "SARIMAX + COVID + Spesa 12m": {
+      "RMSE": 1.209,
+      "MAE": 1.066,
+      "MAPE": 3.49,
+      "AIC": 116.2,
+      "BIC": 130.1
     }
   },
-  "diagnostica_ljung_box": {
-    "ljung_box_stat_lag6": 1.862,
-    "ljung_box_pval_lag6": 0.9319,
-    "ljung_box_stat_lag12": 16.587,
-    "ljung_box_pval_lag12": 0.1658,
-    "ljung_box_stat_lag24": 27.102,
-    "ljung_box_pval_lag24": 0.2997
+  "rolling_origin_cv": {
+    "Baseline Naive": {
+      "h1": {
+        "RMSE": 0.454,
+        "MAE": 0.274,
+        "MAPE": 0.91,
+        "n_origini": 36
+      },
+      "h6": {
+        "RMSE": 1.05,
+        "MAE": 0.896,
+        "MAPE": 2.91,
+        "n_origini": 31
+      },
+      "h12": {
+        "RMSE": 1.67,
+        "MAE": 1.592,
+        "MAPE": 5.13,
+        "n_origini": 25
+      }
+    },
+    "Seasonal Naive (s=12)": {
+      "h1": {
+        "RMSE": 1.598,
+        "MAE": 1.514,
+        "MAPE": 4.99,
+        "n_origini": 36
+      },
+      "h6": {
+        "RMSE": 1.632,
+        "MAE": 1.566,
+        "MAPE": 5.1,
+        "n_origini": 31
+      },
+      "h12": {
+        "RMSE": 1.67,
+        "MAE": 1.592,
+        "MAPE": 5.13,
+        "n_origini": 25
+      }
+    },
+    "Random Walk + drift": {
+      "h1": {
+        "RMSE": 0.433,
+        "MAE": 0.298,
+        "MAPE": 0.99,
+        "n_origini": 36
+      },
+      "h6": {
+        "RMSE": 0.577,
+        "MAE": 0.452,
+        "MAPE": 1.47,
+        "n_origini": 31
+      },
+      "h12": {
+        "RMSE": 0.525,
+        "MAE": 0.412,
+        "MAPE": 1.33,
+        "n_origini": 25
+      }
+    },
+    "Holt-Winters (s=12)": {
+      "h1": {
+        "RMSE": 0.394,
+        "MAE": 0.286,
+        "MAPE": 0.95,
+        "n_origini": 36
+      },
+      "h6": {
+        "RMSE": 0.764,
+        "MAE": 0.637,
+        "MAPE": 2.08,
+        "n_origini": 31
+      },
+      "h12": {
+        "RMSE": 1.162,
+        "MAE": 0.987,
+        "MAPE": 3.17,
+        "n_origini": 25
+      }
+    },
+    "SARIMA(0,1,0)(1,0,0)12": {
+      "h1": {
+        "RMSE": 0.418,
+        "MAE": 0.28,
+        "MAPE": 0.93,
+        "n_origini": 36
+      },
+      "h6": {
+        "RMSE": 0.567,
+        "MAE": 0.44,
+        "MAPE": 1.43,
+        "n_origini": 31
+      },
+      "h12": {
+        "RMSE": 0.559,
+        "MAE": 0.437,
+        "MAPE": 1.41,
+        "n_origini": 25
+      }
+    },
+    "SARIMAX + COVID": {
+      "h1": {
+        "RMSE": 0.406,
+        "MAE": 0.272,
+        "MAPE": 0.91,
+        "n_origini": 36
+      },
+      "h6": {
+        "RMSE": 0.559,
+        "MAE": 0.473,
+        "MAPE": 1.54,
+        "n_origini": 31
+      },
+      "h12": {
+        "RMSE": 0.705,
+        "MAE": 0.622,
+        "MAPE": 2.02,
+        "n_origini": 25
+      }
+    },
+    "SARIMAX + COVID + Spesa 12m": {
+      "h1": {
+        "RMSE": 0.407,
+        "MAE": 0.272,
+        "MAPE": 0.91,
+        "n_origini": 36
+      },
+      "h6": {
+        "RMSE": 0.56,
+        "MAE": 0.474,
+        "MAPE": 1.54,
+        "n_origini": 31
+      },
+      "h12": {
+        "RMSE": 0.707,
+        "MAE": 0.625,
+        "MAPE": 2.03,
+        "n_origini": 25
+      }
+    }
+  },
+  "test_accuratezza": {
+    "non_nested_diebold_mariano": {
+      "HW_vs_RWdrift_h1": {
+        "dm_stat": -1.146,
+        "pval": 0.2596,
+        "n": 36
+      },
+      "HW_vs_SARIMAX_COVID_h1": {
+        "dm_stat": -0.42,
+        "pval": 0.6771,
+        "n": 36
+      },
+      "SARIMA_vs_HW_h12": {
+        "dm_stat": -1.508,
+        "pval": 0.1445,
+        "n": 25
+      }
+    },
+    "nested_clark_west": {
+      "SARIMAX_Spesa_over_COVID_h1": {
+        "cw_stat": -1.343,
+        "pval_one_sided": 0.9103,
+        "n": 36
+      },
+      "SARIMAX_Spesa_over_COVID_h6": {
+        "cw_stat": -1.146,
+        "pval_one_sided": 0.8741,
+        "n": 31
+      },
+      "SARIMAX_COVID_over_RWdrift_h1": {
+        "cw_stat": 2.035,
+        "pval_one_sided": 0.0209,
+        "n": 36
+      },
+      "SARIMA_over_Naive_h12": {
+        "cw_stat": 10.505,
+        "pval_one_sided": 0.0,
+        "n": 25
+      },
+      "RWdrift_over_Naive_h12": {
+        "cw_stat": 9.977,
+        "pval_one_sided": 0.0,
+        "n": 25
+      }
+    },
+    "failed_convergences_cv": {
+      "Baseline Naive": 0,
+      "Seasonal Naive (s=12)": 0,
+      "Random Walk + drift": 0,
+      "Holt-Winters (s=12)": 0,
+      "SARIMA(0,1,0)(1,0,0)12": 0,
+      "SARIMAX + COVID": 0,
+      "SARIMAX + COVID + Spesa 12m": 0
+    }
+  },
+  "dettagli_stima_top5": {
+    "convergenza_holdout": {
+      "Random Walk + drift": true,
+      "SARIMA(0,1,0)(1,0,0)12": true,
+      "SARIMAX + COVID": true,
+      "SARIMAX + COVID + Spesa 12m": true
+    },
+    "drift_comparison": {
+      "mean_monthly_diff_train_raw_bn": 0.1377,
+      "mean_monthly_diff_train_excl_apr2020_bn": 0.1873,
+      "mean_monthly_diff_test_bn": 0.1421
+    },
+    "loglikelihood_burn": {
+      "RW_drift": 1,
+      "SARIMA": 1,
+      "SARIMAX_COVID": 1,
+      "SARIMAX_COVID_Spesa": 1
+    },
+    "parametri_rwd": {
+      "intercept": {
+        "coef": 0.1377,
+        "se": 0.061,
+        "z": 2.26,
+        "pval": 0.0239
+      },
+      "sigma2": {
+        "coef": 0.4424,
+        "se": 0.0574,
+        "z": 7.71,
+        "pval": 0.0
+      }
+    },
+    "parametri_sarima": {
+      "intercept": {
+        "coef": 0.1219,
+        "se": 0.0612,
+        "z": 1.99,
+        "pval": 0.0462
+      },
+      "ar.S.L12": {
+        "coef": 0.1081,
+        "se": 0.0923,
+        "z": 1.17,
+        "pval": 0.2414
+      },
+      "sigma2": {
+        "coef": 0.4364,
+        "se": 0.0566,
+        "z": 7.71,
+        "pval": 0.0
+      }
+    },
+    "parametri_sarimax_covid": {
+      "intercept": {
+        "coef": 0.1336,
+        "se": 0.0378,
+        "z": 3.54,
+        "pval": 0.0004
+      },
+      "step_covid_apr2020": {
+        "coef": -5.8212,
+        "se": 0.3657,
+        "z": -15.92,
+        "pval": 0.0
+      },
+      "ar.S.L12": {
+        "coef": 0.2602,
+        "se": 0.0917,
+        "z": 2.84,
+        "pval": 0.0046
+      },
+      "sigma2": {
+        "coef": 0.1419,
+        "se": 0.0184,
+        "z": 7.71,
+        "pval": 0.0
+      }
+    },
+    "parametri_sarimax_full": {
+      "intercept": {
+        "coef": 0.1341,
+        "se": 0.0379,
+        "z": 3.54,
+        "pval": 0.0004
+      },
+      "step_covid_apr2020": {
+        "coef": -5.8215,
+        "se": 0.3656,
+        "z": -15.92,
+        "pval": 0.0
+      },
+      "spesa_acquisti_12m_bn": {
+        "coef": -0.0141,
+        "se": 0.0711,
+        "z": -0.2,
+        "pval": 0.8433
+      },
+      "ar.S.L12": {
+        "coef": 0.2605,
+        "se": 0.0918,
+        "z": 2.84,
+        "pval": 0.0045
+      },
+      "sigma2": {
+        "coef": 0.1419,
+        "se": 0.0184,
+        "z": 7.71,
+        "pval": 0.0
+      }
+    },
+    "parametri_holt_winters": {
+      "alpha": 1.0,
+      "beta": 0.0608,
+      "gamma": 0.0,
+      "phi_damping": 0.962
+    },
+    "verifiche_robustezza": {
+      "SARIMA_010_100_log": {
+        "RMSE": 2.046,
+        "MAE": 1.786,
+        "MAPE": 5.8
+      },
+      "RW_drift_log": {
+        "RMSE": 2.337,
+        "MAE": 2.061,
+        "MAPE": 6.69
+      },
+      "SARIMAX_010_100_spesa_lag1_ex_ante": {
+        "RMSE": 1.14,
+        "MAE": 1.0,
+        "MAPE": 3.27,
+        "AIC": 111.1,
+        "BIC": 124.9,
+        "coef_spesa_lag1": 0.1602,
+        "pval_spesa_lag1": 0.0216,
+        "cv_h1_rmse": 0.407,
+        "converged": true
+      },
+      "SARIMAX_210_100_covid_spesa": {
+        "RMSE": 1.178,
+        "MAE": 1.03,
+        "MAPE": 3.37,
+        "AIC": 115.2,
+        "BIC": 134.6,
+        "pval_spesa": 0.7011,
+        "converged": true
+      }
+    }
+  },
+  "diagnostica_residui": {
+    "sarimax_covid_spesa": {
+      "model_df": 1,
+      "n_residui": 107,
+      "apr2020_resid_z": -0.08,
+      "ljung_box": {
+        "lag6": {
+          "Q": 14.616,
+          "df": 5,
+          "pval": 0.0121
+        },
+        "lag12": {
+          "Q": 22.141,
+          "df": 11,
+          "pval": 0.0233
+        },
+        "lag24": {
+          "Q": 30.096,
+          "df": 23,
+          "pval": 0.1467
+        }
+      },
+      "ljung_box_excl_apr2020": {
+        "lag6": {
+          "Q": 14.519,
+          "df": 5,
+          "pval": 0.0126
+        },
+        "lag12": {
+          "Q": 22.003,
+          "df": 11,
+          "pval": 0.0244
+        },
+        "lag24": {
+          "Q": 29.804,
+          "df": 23,
+          "pval": 0.1551
+        }
+      },
+      "jarque_bera": {
+        "stat": 58.22,
+        "pval": 2.27e-13
+      }
+    },
+    "sarimax_covid": {
+      "model_df": 1,
+      "n_residui": 107,
+      "apr2020_resid_z": -0.08,
+      "ljung_box": {
+        "lag6": {
+          "Q": 14.604,
+          "df": 5,
+          "pval": 0.0122
+        },
+        "lag12": {
+          "Q": 22.305,
+          "df": 11,
+          "pval": 0.0221
+        },
+        "lag24": {
+          "Q": 30.305,
+          "df": 23,
+          "pval": 0.1409
+        }
+      },
+      "ljung_box_excl_apr2020": {
+        "lag6": {
+          "Q": 14.507,
+          "df": 5,
+          "pval": 0.0127
+        },
+        "lag12": {
+          "Q": 22.164,
+          "df": 11,
+          "pval": 0.0231
+        },
+        "lag24": {
+          "Q": 30.009,
+          "df": 23,
+          "pval": 0.1491
+        }
+      },
+      "jarque_bera": {
+        "stat": 59.37,
+        "pval": 1.28e-13
+      }
+    },
+    "sarima_010_100": {
+      "model_df": 1,
+      "n_residui": 107,
+      "apr2020_resid_z": -8.44,
+      "ljung_box": {
+        "lag6": {
+          "Q": 2.468,
+          "df": 5,
+          "pval": 0.7812
+        },
+        "lag12": {
+          "Q": 4.724,
+          "df": 11,
+          "pval": 0.9438
+        },
+        "lag24": {
+          "Q": 10.846,
+          "df": 23,
+          "pval": 0.9847
+        }
+      },
+      "ljung_box_excl_apr2020": {
+        "lag6": {
+          "Q": 13.184,
+          "df": 5,
+          "pval": 0.0217
+        },
+        "lag12": {
+          "Q": 24.742,
+          "df": 11,
+          "pval": 0.0099
+        },
+        "lag24": {
+          "Q": 31.111,
+          "df": 23,
+          "pval": 0.1201
+        }
+      },
+      "jarque_bera": {
+        "stat": 9536.98,
+        "pval": 0.0
+      }
+    },
+    "holt_winters": {
+      "model_df": 0,
+      "n_residui": 107,
+      "apr2020_resid_z": -8.31,
+      "ljung_box": {
+        "lag6": {
+          "Q": 3.626,
+          "df": 6,
+          "pval": 0.7271
+        },
+        "lag12": {
+          "Q": 7.073,
+          "df": 12,
+          "pval": 0.8527
+        },
+        "lag24": {
+          "Q": 15.391,
+          "df": 24,
+          "pval": 0.9088
+        }
+      },
+      "ljung_box_excl_apr2020": {
+        "lag6": {
+          "Q": 7.727,
+          "df": 6,
+          "pval": 0.2588
+        },
+        "lag12": {
+          "Q": 10.648,
+          "df": 12,
+          "pval": 0.5593
+        },
+        "lag24": {
+          "Q": 17.321,
+          "df": 24,
+          "pval": 0.8347
+        }
+      },
+      "jarque_bera": {
+        "stat": 8407.92,
+        "pval": 0.0
+      }
+    }
   },
   "focus_serie_a": {
-    "sarimax_serie_a": {
-      "RMSE": 0.093,
-      "MAE": 0.069,
-      "MAPE": 1.25,
-      "AIC": -213.8,
-      "BIC": -182.3
+    "convergenza_holdout": {
+      "Random Walk + drift": true,
+      "SARIMA(0,1,0)(1,0,0)12": true,
+      "SARIMAX + COVID": true,
+      "SARIMAX + COVID + Spesa 12m": true
     },
-    "naive_serie_a": {
-      "RMSE": 0.255,
-      "MAE": 0.217,
-      "MAPE": 3.9
+    "failed_convergences_cv": {
+      "Baseline Naive": 0,
+      "Random Walk + drift": 0,
+      "SARIMA(0,1,0)(1,0,0)12": 0,
+      "SARIMAX + COVID": 0,
+      "SARIMAX + COVID + Spesa 12m": 0
+    },
+    "metriche": {
+      "Baseline Naive": {
+        "RMSE": 0.451,
+        "MAE": 0.377,
+        "MAPE": 7.26
+      },
+      "Random Walk + drift": {
+        "RMSE": 0.093,
+        "MAE": 0.069,
+        "MAPE": 1.39,
+        "AIC": -121.1,
+        "BIC": -115.6
+      },
+      "SARIMA(0,1,0)(1,0,0)12": {
+        "RMSE": 0.153,
+        "MAE": 0.128,
+        "MAPE": 2.5,
+        "AIC": -126.1,
+        "BIC": -117.8
+      },
+      "SARIMAX + COVID": {
+        "RMSE": 0.166,
+        "MAE": 0.143,
+        "MAPE": 2.79,
+        "AIC": -218.3,
+        "BIC": -207.2
+      },
+      "SARIMAX + COVID + Spesa 12m": {
+        "RMSE": 0.166,
+        "MAE": 0.143,
+        "MAPE": 2.79,
+        "AIC": -216.7,
+        "BIC": -202.8
+      }
+    },
+    "rolling_origin_cv": {
+      "Baseline Naive": {
+        "h1": {
+          "RMSE": 0.104
+        },
+        "h6": {
+          "RMSE": 0.171
+        },
+        "h12": {
+          "RMSE": 0.309
+        }
+      },
+      "Random Walk + drift": {
+        "h1": {
+          "RMSE": 0.103
+        },
+        "h6": {
+          "RMSE": 0.121
+        },
+        "h12": {
+          "RMSE": 0.143
+        }
+      },
+      "SARIMA(0,1,0)(1,0,0)12": {
+        "h1": {
+          "RMSE": 0.094
+        },
+        "h6": {
+          "RMSE": 0.127
+        },
+        "h12": {
+          "RMSE": 0.168
+        }
+      },
+      "SARIMAX + COVID": {
+        "h1": {
+          "RMSE": 0.093
+        },
+        "h6": {
+          "RMSE": 0.136
+        },
+        "h12": {
+          "RMSE": 0.179
+        }
+      },
+      "SARIMAX + COVID + Spesa 12m": {
+        "h1": {
+          "RMSE": 0.092
+        },
+        "h6": {
+          "RMSE": 0.136
+        },
+        "h12": {
+          "RMSE": 0.178
+        }
+      }
+    },
+    "parametri_sarimax_covid": {
+      "intercept": {
+        "coef": 0.0143,
+        "se": 0.0084,
+        "z": 1.71,
+        "pval": 0.0865
+      },
+      "step_covid_apr2020": {
+        "coef": -1.0581,
+        "se": 0.0849,
+        "z": -12.47,
+        "pval": 0.0
+      },
+      "ar.S.L12": {
+        "coef": 0.4367,
+        "se": 0.0859,
+        "z": 5.09,
+        "pval": 0.0
+      },
+      "sigma2": {
+        "coef": 0.0086,
+        "se": 0.0011,
+        "z": 7.69,
+        "pval": 0.0
+      }
+    },
+    "parametri_sarimax_full": {
+      "intercept": {
+        "coef": 0.0141,
+        "se": 0.0083,
+        "z": 1.69,
+        "pval": 0.0919
+      },
+      "step_covid_apr2020": {
+        "coef": -1.0578,
+        "se": 0.0846,
+        "z": -12.51,
+        "pval": 0.0
+      },
+      "spesa_acquisti_12m_bn": {
+        "coef": 0.0324,
+        "se": 0.051,
+        "z": 0.63,
+        "pval": 0.5255
+      },
+      "ar.S.L12": {
+        "coef": 0.4411,
+        "se": 0.0865,
+        "z": 5.1,
+        "pval": 0.0
+      },
+      "sigma2": {
+        "coef": 0.0085,
+        "se": 0.0011,
+        "z": 7.69,
+        "pval": 0.0
+      }
+    },
+    "diagnostica_sarimax_covid": {
+      "model_df": 1,
+      "n_residui": 107,
+      "apr2020_resid_z": -0.1,
+      "ljung_box": {
+        "lag6": {
+          "Q": 11.562,
+          "df": 5,
+          "pval": 0.0413
+        },
+        "lag12": {
+          "Q": 13.854,
+          "df": 11,
+          "pval": 0.2412
+        },
+        "lag24": {
+          "Q": 25.156,
+          "df": 23,
+          "pval": 0.3423
+        }
+      },
+      "ljung_box_excl_apr2020": {
+        "lag6": {
+          "Q": 11.475,
+          "df": 5,
+          "pval": 0.0427
+        },
+        "lag12": {
+          "Q": 13.763,
+          "df": 11,
+          "pval": 0.2464
+        },
+        "lag24": {
+          "Q": 24.916,
+          "df": 23,
+          "pval": 0.3546
+        }
+      },
+      "jarque_bera": {
+        "stat": 75.78,
+        "pval": 3.5e-17
+      }
+    },
+    "diagnostica_sarimax_full": {
+      "model_df": 1,
+      "n_residui": 107,
+      "apr2020_resid_z": -0.1,
+      "ljung_box": {
+        "lag6": {
+          "Q": 11.064,
+          "df": 5,
+          "pval": 0.0501
+        },
+        "lag12": {
+          "Q": 13.426,
+          "df": 11,
+          "pval": 0.2664
+        },
+        "lag24": {
+          "Q": 24.071,
+          "df": 23,
+          "pval": 0.3999
+        }
+      },
+      "ljung_box_excl_apr2020": {
+        "lag6": {
+          "Q": 10.98,
+          "df": 5,
+          "pval": 0.0518
+        },
+        "lag12": {
+          "Q": 13.338,
+          "df": 11,
+          "pval": 0.2718
+        },
+        "lag24": {
+          "Q": 23.839,
+          "df": 23,
+          "pval": 0.4128
+        }
+      },
+      "jarque_bera": {
+        "stat": 93.16,
+        "pval": 5.9e-21
+      }
     }
   }
 }

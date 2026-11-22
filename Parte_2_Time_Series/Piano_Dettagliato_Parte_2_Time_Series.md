@@ -1,4 +1,8 @@
-# Guida Completa e Piano Operativo – Parte 2: Analisi delle Serie Storiche sul Mercato Calcistico (Transfermarkt)
+# Piano Operativo Iniziale (Bozza Storica) – Parte 2: Analisi delle Serie Storiche (Transfermarkt)
+
+> **Nota di aggiornamento:** questo documento conserva il **piano esplorativo iniziale** redatto prima della verifica empirica completa sui dati Transfermarkt (quando si ipotizzava un orizzonte 2012–2026 di 174 mesi e un contributo positivo delle spese di calciomercato). Per i **risultati definitivi, i numeri aggiornati (156 mesi, giugno 2013 – maggio 2026) e le risposte pronte per l'esame orale**, fare riferimento esclusivamente a [`Guida_Completa_Semplicissima_Parte_2.md`](./Guida_Completa_Semplicissima_Parte_2.md) e alla relazione finale in `Relazione/main.pdf`.
+
+---
 
 Questo documento raccoglie in modo **chiaro, semplice, discorsivo ed elementare** tutte le scelte progettuali, le verifiche fatte sui dati reali e il piano di lavoro per la **Parte 2 del progetto di Data Science** (dedicata alle *Time Series*).
 

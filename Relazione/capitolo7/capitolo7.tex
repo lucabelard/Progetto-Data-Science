@@ -1,22 +1,23 @@
 % =========================================================================
-% CAPITOLO 7: ANALISI ESPLORATIVA DEI DATI E DINAMICA DEGLI SHOCK STORICI
+% CAPITOLO 7 (SEZIONE 2 PARTE 2): ANALISI ESPLORATIVA E SHOCK STORICI
 % =========================================================================
 \section{Analisi esplorativa della serie storica e dinamica degli shock di mercato}
+\label{sec:p2_eda}
 
-A partire dal dataset mensile ricostruito nella fase di ETL, l'\textbf{analisi esplorativa dei dati} (\textit{Exploratory Data Analysis}, EDA) esamina l'andamento del mercato calcistico europeo lungo i 180 mesi tra giugno 2011 e maggio 2026. Lo studio, implementato nello script \texttt{02\_eda\_e\_shock.py}, si concentra su tre aspetti: il confronto tra i cinque campionati nazionali, l'impatto dei tre principali shock storici e il legame tra il valore delle rose e le spese effettive di calciomercato.
+A partire dal dataset mensile ricostruito nella fase di ETL, l'\textbf{analisi esplorativa dei dati} (\textit{Exploratory Data Analysis}, EDA) esamina l'andamento del mercato calcistico europeo lungo i \textbf{156 mesi} tra giugno 2013 e maggio 2026. Lo studio, implementato nello script \texttt{02\_eda\_e\_shock.py}, approfondisce tre aspetti: il confronto tra i cinque campionati nazionali, le tre principali fasi evolutive e di shock del mercato, e il legame reale tra valore delle rose e spesa per acquisti una volta depurato il trend comune.
 
 \subsection{Confronto tra i cinque campionati europei e divario strutturale}
 
-Tra giugno 2011 e maggio 2026 il valore complessivo delle rose dei cinque maggiori campionati europei è più che triplicato, passando da \textbf{11,12 miliardi} a \textbf{34,44 miliardi di euro} (\textbf{+209,7\%}). Questa crescita non è stata però uniforme tra i paesi, ma è stata trainata in larga parte dalla \textbf{Premier League} inglese, come mostrato nella Figura \ref{fig:eda_valore_campionati}.
+Tra giugno 2013 e maggio 2026 il valore complessivo delle rose dei cinque maggiori campionati europei è quasi triplicato, passando da \textbf{11,69 miliardi} a \textbf{33,19 miliardi di euro} (\textbf{+183,9\%}). Grazie al controllo di copertura garantito dall'ETL, questa espansione rispecchia fedelmente la crescita reale dei listini individuali: nello stesso arco temporale il valore medio per calciatore attivo sale da \textbf{4,42} a \textbf{12,62 milioni di euro} (+185,6\%) e quello mediano triplica da \textbf{2,00} a \textbf{6,00 milioni di euro}. La crescita non è stata però uniforme tra i paesi, ma è stata trainata in larga misura dalla \textbf{Premier League} inglese, come si osserva nella Figura \ref{fig:eda_valore_campionati}.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.86\textwidth]{capitolo7/img/fig03_eda_valore_campionati.png}
-    \caption{Evoluzione storica del valore di mercato delle rose nei cinque maggiori campionati europei tra giugno 2011 e maggio 2026.}
+    \caption{Evoluzione storica del valore di mercato delle rose nei cinque maggiori campionati europei tra giugno 2013 e maggio 2026.}
     \label{fig:eda_valore_campionati}
 \end{figure}
 
-Come riassunto nella Tabella \ref{tab:confronto_leghe_shock}, nel giugno 2011 il divario tra i campionati era contenuto: la Premier League guidava con 3,15 miliardi di euro, seguita da \textbf{LaLiga} (2,58 miliardi) e dalla \textbf{Serie A} (2,30 miliardi), mentre \textbf{Bundesliga} (1,65 miliardi) e \textbf{Ligue 1} (1,45 miliardi) chiudevano la classifica.
+Come riassunto nella Tabella \ref{tab:confronto_leghe_shock} (con tutte le variazioni percentuali calcolate sui valori esatti non arrotondati), nel giugno 2013 il divario tra i campionati era ancora contenuto: la Premier League guidava con 3,40 miliardi di euro, seguita da \textbf{LaLiga} (2,65 miliardi) e dalla \textbf{Serie A} (2,25 miliardi), mentre \textbf{Bundesliga} (1,99 miliardi) e \textbf{Ligue 1} (1,41 miliardi) chiudevano la classifica.
 
 \begin{table}[!htbp]
 \centering
@@ -27,101 +28,112 @@ Come riassunto nella Tabella \ref{tab:confronto_leghe_shock}, nel giugno 2011 il
 \vspace{0.15cm}
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.5cm} *{5}{>{\centering\arraybackslash}p{1.35cm}} >{\centering\arraybackslash}p{2.1cm} >{\centering\arraybackslash}X}
 \toprule
-\textbf{Campionato} & \textbf{Giu 11} & \textbf{Lug 17} & \textbf{Mar 20} & \textbf{Apr 20} & \textbf{Mag 26} & \textbf{$\Delta\%$ COVID} & \textbf{$\Delta\%$ Totale} \\
+\textbf{Campionato} & \textbf{Giu 13} & \textbf{Lug 17} & \textbf{Mar 20} & \textbf{Apr 20} & \textbf{Mag 26} & \textbf{$\Delta\%$ COVID} & \textbf{$\Delta\%$ totale} \\
 \midrule
-Premier League (GB1) & 3,15 & 6,35 & 10,92 & 8,88 & 13,55 & $-18,70\%$ & $+330,6\%$ \\
-LaLiga (ES1) & 2,58 & 4,08 & 6,92 & 5,65 & 5,72 & $-18,36\%$ & $+122,2\%$ \\
-Serie A (IT1) & 2,30 & 3,60 & 6,08 & 4,97 & 5,40 & $-18,34\%$ & $+134,9\%$ \\
-Bundesliga (L1) & 1,65 & 3,08 & 5,55 & 4,57 & 5,29 & $-17,60\%$ & $+220,0\%$ \\
-Ligue 1 (FR1) & 1,45 & 2,12 & 4,32 & 3,59 & 4,48 & $-17,01\%$ & $+209,4\%$ \\
+Premier League (GB1) & 3,40 & 5,43 & 9,77 & 7,92 & 12,67 & $-18,99\%$ & $+272,9\%$ \\
+LaLiga (ES1) & 2,65 & 3,61 & 6,35 & 5,16 & 5,64 & $-18,78\%$ & $+112,9\%$ \\
+Serie A (IT1) & 2,25 & 3,01 & 5,57 & 4,52 & 5,33 & $-18,93\%$ & $+137,3\%$ \\
+Bundesliga (L1) & 1,99 & 2,70 & 5,10 & 4,18 & 5,17 & $-17,98\%$ & $+159,7\%$ \\
+Ligue 1 (FR1) & 1,41 & 1,71 & 3,90 & 3,21 & 4,38 & $-17,59\%$ & $+211,8\%$ \\
 \midrule
-\textbf{Totale Top-5} & \textbf{11,12} & \textbf{19,23} & \textbf{33,79} & \textbf{27,65} & \textbf{34,44} & \textbf{$-18,17\%$} & \textbf{$+209,7\%$} \\
+\textbf{Totale Top-5} & \textbf{11,69} & \textbf{16,45} & \textbf{30,69} & \textbf{24,99} & \textbf{33,19} & \textbf{$-18,59\%$} & \textbf{$+183,9\%$} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Negli anni successivi, grazie ai ricavi molto più elevati derivanti dai diritti televisivi internazionali, il campionato inglese ha preso il largo: la Premier League è cresciuta del \textbf{330,6\%}, toccando il record di \textbf{13,87 miliardi di euro} nel novembre 2025 e arrivando a rappresentare da sola il \textbf{39,3\% dell'intero mercato europeo} (Figura \ref{fig:eda_quote_mercato}), contro il 28,3\% del 2011.
+Negli anni successivi, spinta dai ricavi molto più elevati derivanti dai diritti televisivi internazionali, la Premier League è cresciuta del \textbf{272,9\%}, toccando il massimo di \textbf{12,78 miliardi di euro} nell'ottobre 2025 e arrivando a rappresentare da sola il \textbf{38,2\% dell'intero mercato europeo} (Figura \ref{fig:eda_quote_mercato}), contro il 29,1\% del 2013.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.85\textwidth]{capitolo7/img/fig04_eda_quote_mercato.png}
-    \caption{Ripartizione percentuale delle quote di mercato tra le cinque leghe europee sul totale Top-5 (2011--2026).}
+    \caption{Ripartizione percentuale delle quote di mercato tra le cinque leghe europee sul totale Top-5 (2013--2026).}
     \label{fig:eda_quote_mercato}
 \end{figure}
 
-La \textbf{Serie A} ha seguito un percorso diviso in tre fasi: una crescita lenta tra il 2011 e il 2015 (da 2,30 a 2,90 miliardi di euro), una forte espansione tra il 2016 e l'inizio del 2020 fino al picco storico di \textbf{6,08 miliardi di euro} (marzo 2020) e infine una fase post-pandemica più prudente. Nel maggio 2026 la Serie A vale \textbf{5,40 miliardi di euro} (\textbf{+134,9\%} rispetto al 2011, pari al \textbf{15,7\%} del totale europeo), mantenendo il terzo posto dietro a Premier League e LaLiga (5,72 miliardi).
+La \textbf{Serie A} ha seguito un percorso diviso in tre fasi: una crescita graduale tra il 2013 e il 2016 (da 2,25 a circa 2,8 miliardi di euro), una forte espansione tra il 2017 e l'inizio del 2020 fino al picco storico di \textbf{5,57 miliardi di euro} (marzo 2020) e una fase post-pandemica più cauta. Nel maggio 2026 la Serie A vale \textbf{5,33 miliardi di euro} (\textbf{+137,3\%} rispetto al 2013, pari al \textbf{16,1\%} del totale europeo), mantenendo il terzo posto dietro a Premier League e LaLiga (5,64 miliardi) e ancora leggermente sotto il proprio massimo pre-pandemico.
 
-\subsection{I tre grandi shock storici del mercato}
+\subsection{Le tre principali fasi evolutive e gli shock storici del mercato}
 
-L'andamento della serie storica non è lineare, ma presenta \textbf{tre rotture strutturali} molto nette che corrispondono a precisi eventi economici e sportivi.
+L'andamento della serie aggregata non è uniforme, ma evidenzia \textbf{tre fasi distinte} legate a precisi eventi economici e sportivi (identificate in chiave descrittiva, senza assumere test formali di rottura strutturale multipla o rapporti causali univoci).
 
-Il \textbf{primo shock} avviene nell'agosto 2017 (\texttt{2017-08}) con il trasferimento record di \textbf{Neymar} dal Barcellona al Paris Saint-Germain per 222 milioni di euro (pagamento integrale della clausola rescissoria, ad oggi il trasferimento più oneroso della storia del calcio), accompagnato dall'entrata in vigore dei nuovi contratti televisivi europei. Come mostra la Figura \ref{fig:eda_shock_neymar}, questo evento ha innescato una forte inflazione dei prezzi cambiando la pendenza della curva: prima dell'estate 2017 il valore complessivo cresceva in media di \textbf{+1,55 miliardi di euro all'anno}, mentre tra agosto 2017 e inizio 2020 la velocità di crescita è quasi quadruplicata ($3{,}78\times$), salendo a \textbf{+5,86 miliardi di euro all'anno}.
+La \textbf{prima fase di accelerazione} si colloca tra l'estate 2017 e l'inizio del 2020, in concomitanza con l'effetto traino dei nuovi contratti televisivi inglesi (entrati in vigore dalla stagione 2016/2017) e con il trasferimento record di \textbf{Neymar} dal Barcellona al Paris Saint-Germain il 3 agosto 2017 per \textbf{222 milioni di euro}, evento che ipotizziamo abbia spostato verso l'alto la scala dei prezzi dell'intero mercato europeo. I dati di \texttt{transfers.csv} mostrano infatti un cambio di scala netto: prima dell'agosto 2017 la soglia dei 100 milioni di euro era stata superata nell'archivio una sola volta (Paul Pogba a 105 milioni nell'agosto 2016), mentre dall'agosto 2017 in poi si contano ben \textbf{16 trasferimenti oltre i 100 milioni}, a partire dall'effetto a catena immediato nella stessa stagione: il Barcellona reinveste su Ousmane Dembélé (\textbf{148 milioni}) ad agosto e su Philippe Coutinho (\textbf{135 milioni}) a gennaio 2018, mentre il Liverpool acquista Virgil van Dijk (\textbf{84,7 milioni}). Di riflesso, nei listini di Transfermarkt il valore medio per calciatore attivo --- che nei quattro anni precedenti (giugno 2013 -- luglio 2017) era salito lentamente da \textbf{4,42} a \textbf{6,58 milioni di euro} (mediana da 2,00 a 2,50 milioni) --- accelera bruscamente fino a \textbf{7,55 milioni} già nel gennaio 2018 e a \textbf{11,13 milioni} nel febbraio 2020 (mediana a 4,50 milioni). Come illustrato a livello descrittivo nella Figura \ref{fig:eda_shock_neymar}, tra giugno 2013 e luglio 2017 la retta di tendenza lineare cresceva di \textbf{+1,13 miliardi di euro all'anno}, mentre tra agosto 2017 e febbraio 2020 la pendenza media è salita a \textbf{+5,47 miliardi di euro all'anno} (quasi cinque volte superiore, $4{,}84\times$).
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.82\textwidth]{capitolo7/img/fig05_eda_shock_neymar_2017.png}
-    \caption{Shock 1: accelerazione del trend di crescita dopo il trasferimento di Neymar nell'agosto 2017.}
+    \caption{Fase 1: confronto descrittivo della pendenza lineare prima e dopo l'estate 2017.}
     \label{fig:eda_shock_neymar}
 \end{figure}
 
-Il \textbf{secondo shock}, visibile nella Figura \ref{fig:eda_shock_covid}, è legato allo scoppio della \textbf{pandemia da COVID-19} e al blocco dei campionati nella primavera del 2020. Ad aprile 2020 Transfermarkt ha applicato un taglio straordinario ai listini (comunicato dell'8 aprile 2020: $-20\%$ generale e $-10\%$ per i nati dal 1998, per un totale mondiale di $9,22$ miliardi svalutati). Nel nostro dataset dei 5 campionati maggiori, il valore è crollato in 30 giorni da 33,79 a 27,65 miliardi di euro (\textbf{$-18,17\%$}, pari a \textbf{-6,14 miliardi di euro}, esattamente due terzi del totale mondiale), mentre la Serie A ha perso il \textbf{18,34\%} scendendo a 4,97 miliardi. Per tornare ai livelli pre-pandemia il mercato ha impiegato \textbf{55 mesi}, superando di nuovo i 33,79 miliardi solo nell'ottobre 2024.
+Il \textbf{secondo shock}, mostrato nella Figura \ref{fig:eda_shock_covid}, è l'unico vero intervento esogeno istantaneo della serie ed è causato dalla \textbf{pandemia da COVID-19}. L'8 aprile 2020 Transfermarkt ha applicato un taglio straordinario generalizzato ai listini ($-20\%$ generale e $-10\%$ per i calciatori nati dal 1998 in poi). Nella nostra serie pulita dei cinque campionati, il valore aggregato è crollato in un solo mese da 30,69 a 24,99 miliardi di euro (\textbf{$-18,59\%$}, pari a \textbf{-5,71 miliardi di euro}), mentre la Serie A ha perso il \textbf{18,93\%} scendendo da 5,57 a 4,52 miliardi: numeri pienamente coerenti con la soglia ufficiale del taglio. Come reso visibile dalla Figura \ref{fig:eda_shock_covid}, il mercato Top-5 ha impiegato esattamente \textbf{60 mesi} (cinque anni) per tornare per la prima volta al livello pre-pandemico nel \textbf{marzo 2025} (30,75 miliardi), consolidando poi stabilmente il superamento dall'\textbf{agosto 2025} (30,81 miliardi, 65 mesi) dopo una lieve flessione tardo-primaverile.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.82\textwidth]{capitolo7/img/fig06_eda_shock_covid_2020.png}
-    \caption{Shock 2: crollo pandemico da COVID-19 nell'aprile 2020 ($-18,17\%$) e tempi di recupero.}
+    \caption{Fase 2: contrazione pandemica da COVID-19 nell'aprile 2020 ($-18,59\%$) e recupero del livello pre-pandemico nel marzo 2025.}
     \label{fig:eda_shock_covid}
 \end{figure}
 
-Il \textbf{terzo shock}, illustrato nella Figura \ref{fig:eda_shock_boom}, riguarda il triennio \textbf{2023--2026}, spinto dagli acquisti dei club della \textbf{Saudi Pro League} a partire dall'estate 2023 e dai maggiori ricavi della nuova \textbf{UEFA Champions League} a 36 squadre (dal 2024/2025). Questa nuova liquidità ha portato il mercato al record di \textbf{34,44 miliardi di euro} nel maggio 2026 e ha concentrato il valore sui giocatori di fascia alta: il valore medio per singolo calciatore (\texttt{mean\_player\_value\_m}), che era di circa 3 milioni di euro fino al 2017 e di 5,07 milioni nel 2020, ha raggiunto gli \textbf{11,01 milioni di euro} nel 2026.
+La \textbf{terza fase}, illustrata nella Figura \ref{fig:eda_shock_boom}, copre il triennio \textbf{2023--2026}, sostenuto dalla nuova liquidità in ingresso dai club della \textbf{Saudi Pro League} (estate 2023) e dall'aumento dei premi della nuova \textbf{UEFA Champions League} a 36 squadre (dalla stagione 2024/2025). Il mercato aggregato raggiunge il nuovo massimo storico di \textbf{33,19 miliardi di euro} nel maggio 2026; parallelamente il valore medio per calciatore attivo sale in modo regolare fino a \textbf{12,62 milioni di euro} e quello mediano si porta a \textbf{6,00 milioni di euro}, confermando una crescita diffusa dei listini priva dei picchi artificiali che si osservano senza la gestione causale delle transizioni estive.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.82\textwidth]{capitolo7/img/fig07_eda_shock_boom_2026.png}
-    \caption{Shock 3: espansione 2023--2026, nuovo massimo storico e crescita del valore medio per calciatore.}
+    \caption{Fase 3: espansione 2023--2026, nuovo massimo storico a 33,19 miliardi e crescita coerente del valore medio e mediano per calciatore.}
     \label{fig:eda_shock_boom}
 \end{figure}
 
-\subsection{Variazioni percentuali mensili e individuazione degli outlier}
+\subsection{Variazioni percentuali mensili e individuazione robusta degli outlier}
 
-Per osservare la volatilità mese per mese senza l'effetto del trend di lungo periodo, è stata analizzata la variazione percentuale mensile $\Delta\%_t = \frac{Y_t - Y_{t-1}}{Y_{t-1}} \cdot 100$, riportata nella Figura \ref{fig:eda_change_pct}.
+Guardando la serie in miliardi di euro, la forte crescita di lungo periodo tende a nascondere i piccoli scossoni che avvengono da un mese all'altro. Per misurare quanto oscilla il mercato nel breve periodo, abbiamo quindi calcolato la \textbf{variazione percentuale mensile} $\Delta\%_t = \frac{Y_t - Y_{t-1}}{Y_{t-1}} \cdot 100$ (Figura \ref{fig:eda_change_pct}), che esprime di quanto il valore delle rose sale o scende rispetto al mese precedente.
+
+Per individuare i mesi davvero anomali (\textit{outlier}) si confrontano due criteri:
+\begin{itemize}
+    \item \textbf{Soglia classica ($\mu \pm 2\sigma$):} utilizza la media ($\mu = +0,71\%$) e la deviazione standard\footnote{La \textbf{deviazione standard} ($\sigma$) misura quanto i dati si disperdono in media attorno alla media aritmetica; risente molto della presenza di valori estremi.} ($\sigma = 2,49\%$), fissando l'intervallo di normalità tra $-4,27\%$ e $+5,69\%$.
+    \item \textbf{Soglia robusta (mediana $\pm 3 \cdot \mathrm{MAD}_n$):} utilizza la mediana\footnote{La \textbf{mediana} è il valore centrale che divide a metà i dati ordinati: a differenza della media, non viene trascinata verso l'alto o verso il basso da un singolo picco estremo.} ($+0,28\%$) e la deviazione assoluta mediana normalizzata\footnote{La \textbf{MAD} (\textit{Median Absolute Deviation}) misura la dispersione tipica attorno alla mediana ed è ``robusta'' perché ignora i valori estremi; moltiplicata per $1,4826$ ($\mathrm{MAD}_n$) diventa direttamente confrontabile con la deviazione standard.} ($\mathrm{MAD}_n = 1,01\%$), restringendo la fascia normale tra $-2,75\%$ e $+3,31\%$.
+\end{itemize}
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.85\textwidth]{capitolo7/img/fig08_eda_change_pct_volatilita.png}
-    \caption{Serie storica delle variazioni percentuali mensili con fasce di confidenza $\pm 2\sigma$ e mesi outlier.}
+    \caption{Serie storica delle variazioni percentuali mensili con soglie classiche $\mu \pm 2\sigma$ e soglie robuste basate su mediana e MAD.}
     \label{fig:eda_change_pct}
 \end{figure}
 
-In condizioni normali il valore delle rose cresce in media dello $\mu = +0,66\%$ al mese con una deviazione standard $\sigma = 2,08\%$, restando quasi sempre dentro la fascia $\mu \pm 2\sigma$ ($[-3,50\%, \, +4,81\%]$). I punti che superano questa soglia identificano statisticamente gli eventi anomali del mercato: il rialzo record di \textbf{gennaio 2018 (+9,24\%)}, dovuto all'adeguamento invernale dei listini dopo il caso Neymar, il crollo estremo di \textbf{aprile 2020 (-18,17\%)}, che si trova a oltre nove deviazioni standard dalla media ($z = -9,07$), e un isolato ribasso invernale a fine 2025.
+Questo doppio confronto è molto istruttivo perché mostra come un singolo evento estremo possa distorcere le misure classiche. Il crollo dell'\textbf{aprile 2020 ($-18,59\%$)} gonfia infatti la deviazione standard $\sigma$: di conseguenza, sullo \textit{z-score} classico\footnote{Lo \textbf{\textit{z-score}} indica di quante deviazioni standard un'osservazione si allontana dalla media: $(x - \mu)/\sigma$.} l'evento appare distante ``solo'' $-7,75\sigma$, mentre sulla scala robusta basata su mediana e MAD risulta distante ben \textbf{$-18,67$ unità}, rivelando quanto fosse eccezionale rispetto a un mese normale. Sul versante opposto, il vero picco positivo del mercato è la rivalutazione invernale di \textbf{gennaio 2018 ($+10,28\%$)}, legata all'adeguamento dei listini dopo il trasferimento di Neymar. Gli altri due punti fuori dalla soglia classica (\textbf{maggio 2015}: $-4,58\%$; \textbf{agosto 2015}: $+8,26\%$) non sono invece veri shock economici, ma piccole oscillazioni residue di copertura della fonte nei primi anni (a maggio 2015 scadde la finestra di 12 mesi per alcuni giocatori privi di cessione registrata in \texttt{transfers.csv}, mentre ad agosto 2015 entrarono in campo i calciatori dei club neopromossi non coperti in seconda divisione).
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.80\textwidth]{capitolo7/img/fig09_eda_distribuzione_kde.png}
-    \caption{Distribuzione di densità (KDE) e istogramma delle variazioni percentuali mensili per i Top-5 campionati e la Serie A.}
+    \caption{Distribuzione empirica di densità (KDE) e istogramma delle variazioni percentuali mensili per i Top-5 campionati e la Serie A.}
     \label{fig:eda_distribuzione_kde}
 \end{figure}
 
-Come mostra la Figura \ref{fig:eda_distribuzione_kde}, nella maggior parte dei mesi il valore delle rose cambia pochissimo e si concentra vicino allo zero (intorno alla media di $+0,66\%$). Gli eventi eccezionali, soprattutto il crollo del COVID-19 a $-18,17\%$, allungano però il grafico verso sinistra creando una coda molto lunga (da cui il valore negativo di asimmetria, \textit{skewness} $= -3,77$, e l'elevata curtosi $= 39,35$). Confrontando le due curve, la linea tratteggiata verde della Serie A è più bassa al centro e leggermente più larga ai lati rispetto a quella blu dei Top-5: questo significa che il campionato italiano oscilla un po' di più da un mese all'altro, perché su una singola lega l'effetto delle sessioni di mercato si sente in modo più diretto rispetto alla media di cinque campionati insieme.
+La Figura \ref{fig:eda_distribuzione_kde} conferma infine che le variazioni mensili non seguono una distribuzione normale a campana: quasi tutti i mesi si concentrano vicino allo zero (mediana $+0,28\%$), ma con una forte asimmetria negativa\footnote{L'\textbf{asimmetria} (\textit{skewness}) misura se la distribuzione pende più da un lato: un valore negativo indica una coda più lunga verso i ribassi.} (\textit{skewness} $= -2,26$) e code molto pesanti (\textbf{curtosi in eccesso}\footnote{La \textbf{curtosi in eccesso} misura quanto sono frequenti gli eventi estremi rispetto a una curva normale (che ha curtosi in eccesso pari a $0$): valori molto alti indicano ``code pesanti'', cioè pochi scossoni ma molto violenti.} $= 24,27$). La curva KDE\footnote{\textit{Kernel Density Estimation}: stima continua e smussata della densità di probabilità empirica.} della Serie A risulta leggermente più larga ($\sigma = 3,21\%$ contro $2,49\%$ dei Top-5), perché su un singolo campionato le oscillazioni mensili si compensano meno rispetto alla media di cinque leghe.
 
-\subsection{Relazione tra valore delle rose e spese nel calciomercato}
+\subsection{Relazione tra valore delle rose e spese per acquisti: livelli vs differenze}
 
-L'ultimo passo dell'analisi esplorativa verifica il legame tra il valore delle rose e i soldi realmente spesi dai club per comprare i giocatori (\texttt{transfer\_spend\_top5\_m}). In quindici anni i cinque campionati hanno registrato \textbf{31.000 trasferimenti} per una spesa totale di \textbf{65,82 miliardi di euro}, di cui \textbf{14,68 miliardi} spesi dai club di Serie A (il 22,3\% del totale europeo).
+L'ultima verifica esplorativa risponde a una domanda intuitiva: \textbf{quando i club spendono di più sul calciomercato, il valore totale delle rose aumenta di conseguenza?} Per controllarlo abbiamo considerato le somme spese per \textbf{soli acquisti in entrata} (\texttt{transfer\_spend\_top5\_m}). Nei 156 mesi analizzati si contano \textbf{16.201 trasferimenti in entrata} nei cinque campionati (di cui 4.950 a pagamento) per un totale di \textbf{56,40 miliardi di euro}, di cui \textbf{10,61 miliardi} sostenuti dalla Serie A (il 18,8\% del totale).
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.85\textwidth]{capitolo7/img/fig10_eda_spese_calciomercato_impulsi.png}
-    \caption{Confronto tra le spese mensili nelle sessioni di calciomercato e la crescita del valore delle rose (2011--2026).}
+    \caption{Spesa mensile per acquisti nelle finestre di calciomercato e crescita del valore delle rose Top-5 (2013--2026).}
     \label{fig:eda_spese_impulsi}
 \end{figure}
 
-Dalla Figura \ref{fig:eda_spese_impulsi} si vede chiaramente che la spesa avviene a impulsi stagionali concentrati a \textbf{luglio e agosto} (e in misura minore a \textbf{gennaio}), ed è cresciuta insieme al valore delle squadre fino al picco record del \textbf{luglio 2025}, mese in cui sono stati spesi \textbf{4,46 miliardi di euro} nei cinque campionati (e 1,13 miliardi in Serie A).
+Come mostra la Figura \ref{fig:eda_spese_impulsi}, la spesa per acquisti non è distribuita lungo tutto l'anno, ma avviene a impulsi concentrati nei mesi di \textbf{luglio e agosto} (e in misura minore a \textbf{gennaio}), raggiungendo il picco mensile di \textbf{3,65 miliardi di euro} nel \textbf{luglio 2025} sui Top-5 (in Serie A il picco mensile è stato nel luglio 2019 con 811,5 milioni).
 
 \begin{figure}[!htb]
     \centering
-    \includegraphics[width=0.76\textwidth]{capitolo7/img/fig11_eda_matrice_correlazione.png}
-    \caption{Matrice di correlazione di Pearson tra il valore delle rose e le metriche di spesa del calciomercato.}
+    \includegraphics[width=0.95\textwidth]{capitolo7/img/fig11_eda_matrice_correlazione.png}
+    \caption{Confronto tra correlazione lineare di Pearson sui livelli (pannello a) e sulle differenze prime mensili $\Delta$ (pannello b), con scala cromatica centrata sullo zero.}
     \label{fig:eda_matrice_corr}
 \end{figure}
 
-La matrice di correlazione nella Figura \ref{fig:eda_matrice_corr} mostra quanto le varie misure di mercato si muovano insieme (valori vicini a $1$ indicano un legame molto forte, valori vicini a $0$ un legame debole). Se guardiamo la \textbf{spesa del singolo mese} (\texttt{Spesa mensile}), il legame con il valore delle rose è basso ($r = 0,22$) per un motivo semplice: il calciomercato è aperto solo pochi mesi all'anno, quindi negli altri mesi la spesa scende quasi a zero mentre il valore delle squadre resta alto. Se invece sommiamo quanto i club hanno speso negli \textbf{ultimi 12 mesi} (\texttt{Spesa mobile 12m}), la correlazione sale moltissimo fino a \textbf{$r = 0,91$} sul totale europeo ($r = 0,95$ per la Premier League e $r = 0,85$ per la Serie A). Sul piano teorico va però precisato che due serie che crescono entrambe nel tempo tendono naturalmente ad avere una correlazione alta anche senza un legame diretto immediato: per questo motivo, nel Capitolo 9 verificheremo se la spesa di mercato aiuta davvero a prevedere il valore delle rose anche dopo aver tolto il trend con la differenziazione ($d = 1$) nel modello SARIMAX.
+La Figura \ref{fig:eda_matrice_corr} mette a confronto la correlazione lineare di Pearson\footnote{La \textbf{correlazione di Pearson} ($r \in [-1, +1]$) misura se due variabili tendono a muoversi insieme nella stessa direzione ($r > 0$) o in direzione opposta ($r < 0$); valori vicini a $0$ indicano assenza di legame lineare.} calcolata in due modi diversi, svelando un classico fenomeno di \textbf{correlazione spuria}\footnote{Si ha \textbf{correlazione spuria} quando due variabili sembrano fortemente legate solo perché entrambe crescono (o calano) nel tempo per effetto di un trend comune, senza che una causi o spieghi l'altra.}:
+\begin{itemize}
+    \item \textbf{Sui livelli (pannello a):} la spesa del singolo mese ha un legame debole ($r = 0,14$) perché si azzera fuori dalle finestre di mercato. Se invece sommiamo gli acquisti degli ultimi 12 mesi (\texttt{Acquisti 12m}), la correlazione con il valore delle rose appare altissima: \textbf{$r = 0,89$} sui Top-5, $r = 0,93$ per la Premier League e $r = 0,89$ per la Serie A (anche amplificata dalla minore copertura di \texttt{transfers.csv} nel 2012--2014). Tuttavia, questo numero inganna perché sia le spese sia il valore delle rose sono cresciuti entrambi nel corso dei 13 anni.
+    \item \textbf{Sulle variazioni mensili $\Delta$ (pannello b):} quando rimuoviamo la crescita comune di lungo periodo passando alle differenze prime\footnote{La \textbf{differenza prima} ($\Delta Y_t = Y_t - Y_{t-1}$) misura la variazione da un mese all'altro, eliminando il trend crescente di fondo.} (cioè chiedendoci se a un aumento della spesa corrisponda nello stesso mese un aumento del valore delle rose), la correlazione crolla letteralmente a zero sia sui Top-5 (\textbf{$r = 0,00$}) sia sulla Serie A (\textbf{$r = 0,03$}). Rimane invece forte la correlazione tra variazione del valore aggregato e variazione del valore medio per calciatore ($r = 0,66$), a conferma che la crescita del mercato riflette soprattutto l'aumento dei listini individuali.
+\end{itemize}
+Questa prima evidenza esplorativa verrà poi verificata in modo formale nella Sezione \ref{sec:p2_modelli} tramite i modelli SARIMAX.

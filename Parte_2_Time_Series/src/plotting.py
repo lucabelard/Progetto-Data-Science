@@ -9,6 +9,7 @@ centrale figures/ che nella cartella specifica del capitolo della Relazione.
 """
 
 import os
+import shutil
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -34,12 +35,10 @@ def salva_figura(fig, nome_file, cartella_capitolo):
     1. Nella cartella centrale: Parte_2_Time_Series/figures/
     2. Nella cartella delle immagini del capitolo: Relazione/capitoloX/img/
     """
-    percorsi = [
-        os.path.join(FIGURES_DIR, nome_file),
-        os.path.join(cartella_capitolo, nome_file),
-    ]
-    for p in percorsi:
-        fig.savefig(p, dpi=600, bbox_inches="tight")
+    p_centrale = os.path.join(FIGURES_DIR, nome_file)
+    p_capitolo = os.path.join(cartella_capitolo, nome_file)
+    fig.savefig(p_centrale, dpi=600, bbox_inches="tight")
+    shutil.copy2(p_centrale, p_capitolo)
     plt.close(fig)
     print(f"   [OK] Immagine salvata con successo (600 DPI Ultra-HD): {nome_file}")
 
