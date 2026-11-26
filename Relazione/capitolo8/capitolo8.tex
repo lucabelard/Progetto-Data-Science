@@ -4,7 +4,7 @@
 \section{Decomposizione stagionale, test di stazionarietà e autocorrelazione}
 \label{sec:p2_stl}
 
-Prima di addestrare i modelli previsionali occorre studiare la struttura temporale della serie del valore delle rose (\texttt{top5\_market\_value\_bn}) attraverso tre passaggi: la separazione in trend, stagionalità e residuo tramite \textbf{decomposizione STL}, la verifica della \textbf{stazionarietà} con i test \textbf{ADF} e \textbf{KPSS}, e lo studio della memoria temporale con le funzioni \textbf{ACF} e \textbf{PACF}. Per evitare qualsiasi forma di \textit{data leakage}\footnote{Utilizzo improprio di informazioni appartenenti al set di verifica durante la scelta dei parametri o della struttura del modello.} nella fase di identificazione, tutte le analisi di questo capitolo sono condotte esclusivamente sul \textbf{training set} (i primi \textbf{120 mesi}, da giugno 2013 a maggio 2023), verificando poi la piena coerenza delle conclusioni anche sull'intera serie. Il codice è implementato in \texttt{src/analysis/stl\_stationarity.py} ed eseguito tramite \texttt{03\_run\_stl\_stationarity.py}.
+Prima di addestrare i modelli previsionali occorre studiare la struttura temporale della serie del valore delle rose (\texttt{top5\_market\_value\_bn}) attraverso tre passaggi: la separazione in trend, stagionalità e residuo tramite \textbf{decomposizione STL}, la verifica della \textbf{stazionarietà} con i test ADF e KPSS, e lo studio della memoria temporale con le funzioni ACF e PACF. Per evitare qualsiasi forma di \textit{data leakage}\footnote{Utilizzo improprio di informazioni appartenenti al set di verifica durante la scelta dei parametri o della struttura del modello.} nella fase di identificazione, tutte le analisi di questo capitolo sono condotte esclusivamente sul training set (i primi 120 mesi, da giugno 2013 a maggio 2023), verificando poi la piena coerenza delle conclusioni anche sull'intera serie. Il codice è implementato in \texttt{src/analysis/stl\_stationarity.py} ed eseguito tramite \texttt{03\_run\_stl\_stationarity.py}.
 
 \subsection{Decomposizione STL della serie storica}
 
@@ -22,7 +22,7 @@ dove $T_t$ è il \textbf{trend}\footnote{Il \textbf{trend} rappresenta la tenden
     \label{fig:stl_decomposizione}
 \end{figure}
 
-La Figura \ref{fig:stl_decomposizione} mostra chiaramente che la serie è dominata dal \textbf{trend di lungo periodo} $T_t$: la sua forza statistica\footnote{La forza del trend $F_T$ e della stagionalità $F_S$ (secondo Wang et al.) variano tra $0$ (componente assente) e $1$ (componente dominante rispetto al residuo).} è pari a \textbf{$F_T = 0,987$} su un massimo di $1,0$. La componente \textbf{stagionale} $S_t$ è più contenuta ma ben visibile (\textbf{$F_S = 0,115$}, che sale a $0,128$ escludendo il solo aprile 2020). Per scrupolo abbiamo ripetuto la stessa scomposizione anche sui logaritmi $\ln(Y_t)$ (che equivalgono a un modello moltiplicativo, cioè in percentuale anziché in miliardi), ottenendo lo stesso quadro qualitativo ($F_T = 0,992$ e $F_S = 0,193$, oppure $0,213$ senza aprile 2020). Manteniamo comunque la formulazione additiva sui livelli perché si legge direttamente in miliardi di euro (il residuo di aprile 2020 isola un crollo anomalo di $-3,27$ miliardi) e perché, come vedremo nella Sezione \ref{sec:p2_modelli}, una crescita lineare in miliardi si adatta molto meglio al rallentamento percentuale del triennio di test rispetto a una crescita esponenziale logaritmica.
+La Figura \ref{fig:stl_decomposizione} mostra chiaramente che la serie è dominata dal trend di lungo periodo $T_t$: la sua forza statistica\footnote{La forza del trend $F_T$ e della stagionalità $F_S$ (secondo Wang et al.) variano tra $0$ (componente assente) e $1$ (componente dominante rispetto al residuo).} è pari a $F_T = 0,987$ su un massimo di $1,0$. La componente stagionale $S_t$ è più contenuta ma ben visibile ($F_S = 0,115$, che sale a $0,128$ escludendo il solo aprile 2020). Per scrupolo abbiamo ripetuto la stessa scomposizione anche sui logaritmi $\ln(Y_t)$ (che equivalgono a un modello moltiplicativo, cioè in percentuale anziché in miliardi), ottenendo lo stesso quadro qualitativo ($F_T = 0,992$ e $F_S = 0,193$, oppure $0,213$ senza aprile 2020). Manteniamo comunque la formulazione additiva sui livelli perché si legge direttamente in miliardi di euro (il residuo di aprile 2020 isola un crollo anomalo di $-3,27$ miliardi) e perché, come vedremo nella Sezione \ref{sec:p2_modelli}, una crescita lineare in miliardi si adatta molto meglio al rallentamento percentuale del triennio di test rispetto a una crescita esponenziale logaritmica.
 
 \begin{figure}[!htb]
     \centering
@@ -31,26 +31,30 @@ La Figura \ref{fig:stl_decomposizione} mostra chiaramente che la serie è domina
     \label{fig:stl_profilo_mensile}
 \end{figure}
 
-La Figura \ref{fig:stl_profilo_mensile} riassume l'effetto stagionale medio mese per mese. Il profilo rispecchia esattamente il calendario del calcio: a \textbf{giugno ($-0,30$ miliardi)} e a \textbf{luglio ($-0,46$ miliardi)} il valore scende leggermente per le revisioni di fine stagione, le scadenze contrattuali, le retrocessioni e il residuo ingresso graduale ad agosto dei giovani dei club neopromossi; da \textbf{settembre ($+0,19$ miliardi)} e \textbf{ottobre ($+0,20$ miliardi)} fino a febbraio ($+0,18$ miliardi) la componente torna invece positiva, quando le rose sono al completo e Transfermarkt pubblica le revisioni autunnali.
+La Figura \ref{fig:stl_profilo_mensile} riassume l'effetto stagionale medio mese per mese. Il profilo rispecchia esattamente il calendario del calcio: a giugno ($-0,30$ miliardi) e a luglio ($-0,46$ miliardi) il valore scende leggermente per le revisioni di fine stagione, le scadenze contrattuali, le retrocessioni e il residuo ingresso graduale ad agosto dei giovani dei club neopromossi; da settembre ($+0,19$ miliardi) e ottobre ($+0,20$ miliardi) fino a febbraio ($+0,18$ miliardi) la componente torna invece positiva, quando le rose sono al completo e Transfermarkt pubblica le revisioni autunnali.
 
 \subsection{Test di stazionarietà e differenziazione della serie}
 
-I modelli della famiglia ARIMA richiedono che la componente stocastica modellata sia \textbf{stazionaria}, ossia priva di radice unitaria e con media stabile nel tempo. Poiché la serie originale $Y_t$ mostra una crescita marcata, si valuta l'effetto della \textbf{differenza prima} ($d = 1$):
+I modelli della famiglia ARIMA richiedono che la serie sia \textbf{stazionaria}, cioè che non presenti un trend crescente o decrescente ma oscilli attorno a una media e a una varianza costanti nel tempo. Poiché la serie originale $Y_t$ cresce da 11,69 a 28,08 miliardi nel training set, è chiaramente non stazionaria; per rimuovere il trend si applica quindi la \textbf{differenza prima} ($d = 1$), calcolando la variazione da un mese al successivo:
 \begin{equation}
     \Delta Y_t = Y_t - Y_{t-1}
     \label{eq:differenziazione_prima}
 \end{equation}
 
-Per verificare formalmente la stazionarietà sul training set si applicano due test complementari: il \textbf{test ADF}\footnote{\textit{Augmented Dickey-Fuller}: testa l'ipotesi nulla $H_0$ di presenza di radice unitaria (serie non stazionaria); un $p$-value $< 0,05$ porta a rifiutare $H_0$.} e il \textbf{test KPSS}\footnote{\textit{Kwiatkowski-Phillips-Schmidt-Shin}: testa l'ipotesi nulla opposta $H_0$ di stazionarietà; un $p$-value $< 0,05$ porta a rifiutare la stazionarietà. I valori critici tabellari di \texttt{statsmodels} sono troncati nell'intervallo $[0{,}01, \, 0{,}10]$.}. Poiché la serie in livelli possiede un trend evidente, i test su $d = 0$ sono stati eseguiti sia con sola costante (\texttt{c}) sia con costante e trend lineare (\texttt{ct}), affiancando anche la verifica in scala logaritmica (Tabella \ref{tab:test_stazionarieta}).
+Per verificare in modo oggettivo se la serie è stazionaria prima e dopo la differenziazione, si applicano sul training set due test complementari:
+\begin{itemize}
+    \item \textbf{Test ADF (\textit{Augmented Dickey-Fuller}):} parte dall'ipotesi che la serie \textit{non} sia stazionaria; se il $p$-value è inferiore a $0,05$, si rifiuta tale ipotesi e la serie è considerata stazionaria.
+    \item \textbf{Test KPSS (\textit{Kwiatkowski-Phillips-Schmidt-Shin}):} parte dall'ipotesi opposta che la serie \textit{sia} stazionaria; se il $p$-value è superiore a $0,05$, la stazionarietà è confermata.
+\end{itemize}
 
 \begin{table}[!htbp]
 \centering
 \small
-\setlength{\tabcolsep}{3.8pt}
-\caption{Risultati dei test ADF e KPSS sul training set (120 mesi) per i livelli ($d=0$), le differenze prime ($d=1$) e la scala logaritmica.}
+\setlength{\tabcolsep}{4.5pt}
+\caption{Risultati dei test di stazionarietà ADF e KPSS sul training set (120 mesi) prima e dopo la differenziazione ($d = 1$).}
 \label{tab:test_stazionarieta}
 \vspace{0.2cm}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5.35cm} cccc >{\centering\arraybackslash}X}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5.5cm} cccc >{\centering\arraybackslash}X}
 \toprule
 \textbf{Serie e specificazione} & \multicolumn{2}{c}{\textbf{Test ADF}} & \multicolumn{2}{c}{\textbf{Test KPSS}} & \textbf{Esito congiunto} \\
 \cmidrule(lr){2-3} \cmidrule(lr){4-5}
@@ -59,14 +63,11 @@ Per verificare formalmente la stazionarietà sul training set si applicano due t
 Livelli $Y_t$ ($d=0$, costante) & $-0,878$ & $0,7951$ & $1,641$ & $\le 0,01$ & \textbf{Non stazionaria} \\
 Livelli $Y_t$ ($d=0$, costante + trend) & $-1,195$ & $0,9115$ & $0,240$ & $\le 0,01$ & \textbf{Non stazionaria} \\
 Differenze prime $\Delta Y_t$ ($d=1$, cost.) & $-10,848$ & $< 0,0001$ & $0,162$ & $\ge 0,10$ & \textbf{Stazionaria} \\
-\midrule
-Log-livelli $\ln(Y_t)$ ($d=0$, cost. + trend) & $-0,781$ & $0,9672$ & $0,286$ & $\le 0,01$ & \textbf{Non stazionaria} \\
-Diff. logaritmiche $\Delta \ln(Y_t)$ ($d=1$) & $-6,571$ & $< 0,0001$ & $0,253$ & $\ge 0,10$ & \textbf{Stazionaria} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-I due test concordano pienamente in ogni specificazione: sui livelli ($d = 0$) l'ipotesi di radice unitaria non viene rifiutata nemmeno includendo un trend deterministico (ADF \texttt{ct} $p = 0,9115$) mentre il test KPSS rifiuta la stazionarietà ($p \le 0,01$). Una singola differenziazione mensile ($d = 1$) rende la serie stazionaria sia nei livelli (ADF $p < 0,0001$, KPSS $p \ge 0,10$) sia nei logaritmi, e lo stesso verdetto si conferma sull'intera serie di 156 mesi. Come ulteriore verifica di sensibilità, sostituendo il singolo picco dell'aprile 2020 con la mediana, il KPSS continua a confermare la stazionarietà di $\Delta Y_t$ ($p \ge 0,10$, statistica $0,306$), mentre l'ADF con selezione automatica AIC seleziona 12 ritardi e perde potenza ($p = 0,2734$) a causa della coesistenza tra stagionalità annuale e cambio di regime di pendenza nel 2017--2020 (applicando anche $\Delta_{12}$, entrambi i test confermano la stazionarietà: ADF $p = 0,0087$, KPSS $p \ge 0,10$). Per evitare la sovra-differenziazione stagionale ($D = 1$) su un campione di soli dieci cicli annuali, nei modelli della Sezione \ref{sec:p2_modelli} si adotta quindi \textbf{$d = 1, D = 0$}, gestendo la ricorrenza annuale con una componente autoregressiva stagionale ($P = 1$). La Figura \ref{fig:stazionarieta_differenziazione} illustra visivamente il passaggio dai livelli non stazionari alle variazioni mensili $\Delta Y_t$.
+Come mostra la Tabella \ref{tab:test_stazionarieta}, i due test concordano pienamente: sui livelli originali ($d = 0$) la serie non è stazionaria (ADF $p > 0,05$ e KPSS $p \le 0,01$). È invece sufficiente una sola differenziazione mensile ($d = 1$) per rendere la serie $\Delta Y_t$ stazionaria secondo entrambi i test (ADF $p < 0,0001$ e KPSS $p \ge 0,10$). Per evitare di differenziare eccessivamente una serie di soli dieci anni, nei modelli del Capitolo successivo si adotta quindi $d = 1$ (senza differenziazione stagionale $D = 1$), gestendo la stagionalità annuale tramite un termine autoregressivo stagionale. La Figura \ref{fig:stazionarieta_differenziazione} mostra visivamente il passaggio dalla serie originale non stazionaria alla serie differenziata stazionaria.
 
 \begin{figure}[!htb]
     \centering
@@ -77,7 +78,7 @@ I due test concordano pienamente in ogni specificazione: sui livelli ($d = 0$) l
 
 \subsection{Analisi delle autocorrelazioni ACF e PACF ed effetto dello shock pandemico}
 
-Sulla serie differenziata del training set ($N = 119$ variazioni mensili) sono state calcolate la funzione di \textbf{autocorrelazione (ACF)} e la funzione di \textbf{autocorrelazione parziale (PACF)} fino a 36 mesi di ritardo (\textit{lag}). Poiché un singolo outlier estremo come il crollo dell'aprile 2020 ($-5,71$ miliardi) gonfia il denominatore della varianza campionaria e può schiacciare le autocorrelazioni reali, la Figura \ref{fig:acf_pacf} mette a confronto diretto i correlogrammi sulla serie $\Delta Y_t$ \textbf{grezza} (colonna sinistra) e sulla stessa serie \textbf{depurata dal solo mese di aprile 2020}, sostituito con la mediana di $\Delta Y_t$ (colonna destra). Le fasce colorate ($\pm 1,96/\sqrt{N} = \pm 0,180$) rappresentano l'intervallo di confidenza al 95\% sotto ipotesi di rumore bianco.
+Sulla serie differenziata del training set ($N = 119$ variazioni mensili) sono state calcolate la funzione di \textbf{autocorrelazione (ACF)} e la funzione di \textbf{autocorrelazione parziale (PACF)} fino a 36 mesi di ritardo (\textit{lag}), per capire quali mesi passati influenzano il valore corrente e scegliere gli ordini del modello. Poiché un singolo crollo estremo come quello dell'aprile 2020 ($-5,71$ miliardi) può schiacciare e nascondere le correlazioni reali, la Figura \ref{fig:acf_pacf} confronta i grafici sulla serie $\Delta Y_t$ grezza (sinistra) e sulla stessa serie depurata dal solo aprile 2020, sostituito con la mediana (destra). Le fasce colorate ($\pm 0,180$) indicano l'intervallo di confidenza al 95\%: i picchi che escono da questa fascia segnalano una correlazione significativa.
 
 \begin{figure}[!htb]
     \centering
@@ -86,11 +87,10 @@ Sulla serie differenziata del training set ($N = 119$ variazioni mensili) sono s
     \label{fig:acf_pacf}
 \end{figure}
 
-Il confronto della Figura \ref{fig:acf_pacf} fornisce tre indicazioni operative molto nitide per l'identificazione secondo Box-Jenkins:
+La Figura \ref{fig:acf_pacf} fornisce due indicazioni molto chiare per scegliere i parametri del modello:
 \begin{itemize}
-    \item \textbf{Assenza di memoria al lag 1:} sia sulla serie grezza ($\mathrm{ACF}(1) = -0,005$) sia dopo aver neutralizzato il crollo del 2020 ($\mathrm{ACF}(1) = -0,020$, $\mathrm{PACF}(1) = -0,020$), il ritardo a un mese è praticamente nullo, rendendo il \textit{random walk} con drift ($p = 0, q = 0$) un punto di partenza parsimonioso naturale.
-    \item \textbf{Segnale moderato al lag 2:} nella serie depurata compaiono un picco al ritardo bimestrale ($\mathrm{ACF}(2) = \mathrm{PACF}(2) = +0,236$, appena oltre la banda $\pm 0,180$) e lievi risonanze ai ritardi 5 ($+0,200$) e 7 ($+0,207$), compatibili sia con la cadenza periodica delle revisioni di Transfermarkt sia con il periodo di accelerazione sostenuta 2017--2020 (nella Sezione \ref{sec:p2_modelli} si verificherà anche la sensibilità a un termine $\mathrm{AR}(2)$ rispetto al nucleo parsimonioso $p = 0$).
-    \item \textbf{Emergenza della stagionalità annuale al lag 12:} sulla serie grezza l'outlier dell'aprile 2020 schiaccia l'autocorrelazione stagionale a 12 mesi sotto la soglia ($\mathrm{ACF}(12) = +0,114$). Neutralizzando quel solo punto, invece, emerge in modo significativo il picco annuale (\textbf{$\mathrm{ACF}(12) = +0,252$}, $\mathrm{PACF}(12) = +0,136$, $\mathrm{ACF}(24) = +0,141$).
+    \item \textbf{Nessuna correlazione al lag 1:} sia sulla serie grezza ($\mathrm{ACF}(1) = -0,005$) sia dopo aver rimosso il crollo del 2020 ($\mathrm{ACF}(1) = -0,020$, $\mathrm{PACF}(1) = -0,020$), il legame con il mese immediatamente precedente è praticamente nullo, quindi non servono termini autoregressivi o a media mobile non stagionali ($p = 0, q = 0$).
+    \item \textbf{Stagionalità annuale al lag 12:} sulla serie grezza l'outlier dell'aprile 2020 nasconde il segnale annuale ($\mathrm{ACF}(12) = +0,114$). Rimuovendo quel solo punto, invece, emerge chiaramente il picco a 12 mesi ($\mathrm{ACF}(12) = +0,252$, oltre la soglia di significatività).
 \end{itemize}
 
-Questo comportamento motiva con esattezza il disegno sperimentale della Sezione \ref{sec:p2_modelli}: adottare come nucleo stagionale parsimonioso e privo di cancellazioni di radici AR/MA il modello \textbf{$\mathrm{SARIMA}(0, 1, 0) \times (1, 0, 0)_{12}$} e condurre un'ablazione \textbf{pura a parità di ordine} introducendo prima la sola variabile di intervento per l'aprile 2020 e poi la spesa per acquisti di calciomercato.
+Queste evidenze motivano direttamente la scelta del modello semplice \textbf{$\mathrm{SARIMA}(0, 1, 0) \times (1, 0, 0)_{12}$} per il Capitolo successivo, su cui verranno poi aggiunte le variabili esogene (step COVID-19 e spesa per acquisti) nel modello SARIMAX.

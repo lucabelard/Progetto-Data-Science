@@ -364,17 +364,16 @@ def addestra_e_confronta_modelli(df, n_train=N_TRAIN_MONTHS):
     )
 
     stili = [
-        ("Baseline Naive", "#888888", ":", 1.8),
-        ("Random Walk + drift", "#ff7f0e", "--", 2.1),
-        ("Holt-Winters (s=12)", "#9467bd", (0, (3, 1, 1, 1)), 2.0),
-        ("SARIMA(0,1,0)(1,0,0)12", "#1f77b4", "-", 2.6),
-        ("SARIMAX + COVID", "#e377c2", "-.", 2.2),
-        ("SARIMAX + COVID + Spesa 12m", "#2ca02c", "-", 2.2),
+        ("Random Walk + drift", "#ff7f0e", "--", 2.1, "ARIMA(0,1,0)"),
+        ("Holt-Winters (s=12)", "#9467bd", (0, (3, 1, 1, 1)), 2.0, "Holt-Winters (s=12)"),
+        ("SARIMA(0,1,0)(1,0,0)12", "#1f77b4", "-", 2.6, "SARIMA(0,1,0)(1,0,0)12"),
+        ("SARIMAX + COVID", "#e377c2", "-.", 2.2, "SARIMAX + COVID"),
+        ("SARIMAX + COVID + Spesa 12m", "#2ca02c", "-", 2.2, "SARIMAX + COVID + Spesa 12m"),
     ]
-    for nome, col, ls, lw in stili:
+    for nome, col, ls, lw, lbl in stili:
         ax.plot(
             date_test, previsioni[nome], color=col, linestyle=ls, linewidth=lw,
-            label=f"{nome} (MAPE: {risultati[nome]['MAPE']:.2f}%)", zorder=5,
+            label=f"{lbl} (MAPE: {risultati[nome]['MAPE']:.2f}%)", zorder=5,
         )
     ax.fill_between(
         date_test, ci_full[:, 0], ci_full[:, 1], color="#2ca02c", alpha=0.14,
@@ -547,36 +546,39 @@ def valuta_rolling_origin(df, risultati_holdout, n_train=N_TRAIN_MONTHS, orizzon
         "failed_convergences_cv": failed_conv,
     }
 
-    # FIGURA 18: Pannello (a) Holdout 36m RMSE | Pannello (b) Rolling-origin RMSE a h=1, 6, 12
-    fig, axes = plt.subplots(1, 2, figsize=(13.6, 5.5))
+    # FIGURA 18: Pannello (a) RMSE sul Test Set 36m | Pannello (b) MAPE (%) sul Test Set 36m
+    fig, axes = plt.subplots(1, 2, figsize=(13.6, 5.4))
 
-    nomi_h = list(risultati_holdout.keys())
-    val_rmse = [risultati_holdout[k]["RMSE"] for k in nomi_h]
-    colori_h = ["#888888", "#bbbbbb", "#ff7f0e", "#9467bd", "#1f77b4", "#e377c2", "#2ca02c"]
-    b1 = axes[0].barh(nomi_h, val_rmse, color=colori_h, alpha=0.88, height=0.58)
+    nomi_h = [
+        ("Random Walk + drift", "ARIMA(0,1,0)", "#ff7f0e"),
+        ("Holt-Winters (s=12)", "Holt-Winters (s=12)", "#9467bd"),
+        ("SARIMA(0,1,0)(1,0,0)12", "SARIMA(0,1,0)(1,0,0)12", "#1f77b4"),
+        ("SARIMAX + COVID", "SARIMAX + COVID", "#e377c2"),
+        ("SARIMAX + COVID + Spesa 12m", "SARIMAX + COVID + Spesa 12m", "#2ca02c"),
+    ]
+    labels_h = [lbl for _, lbl, _ in nomi_h]
+    val_rmse = [risultati_holdout[k]["RMSE"] for k, _, _ in nomi_h]
+    val_mape = [risultati_holdout[k]["MAPE"] for k, _, _ in nomi_h]
+    colori_h = [c for _, _, c in nomi_h]
+
+    b1 = axes[0].barh(labels_h, val_rmse, color=colori_h, alpha=0.88, height=0.58)
     axes[0].set_xlabel("RMSE sul Test Set a 36 mesi (Miliardi EUR)", fontweight="bold", fontsize=10.5)
-    axes[0].set_title("a) Previsione multi-step 36 mesi (holdout unico)", fontsize=11.5, fontweight="bold")
+    axes[0].set_title("a) Errore quadratico medio (RMSE)", fontsize=11.5, fontweight="bold")
     axes[0].set_xlim(0, max(val_rmse) * 1.24)
     axes[0].invert_yaxis()
     for barra in b1:
         w = barra.get_width()
-        axes[0].text(w + 0.05, barra.get_y() + barra.get_height() / 2.0, f"{w:.3f}", va="center", fontweight="bold", fontsize=9.5)
+        axes[0].text(w + 0.03, barra.get_y() + barra.get_height() / 2.0, f"{w:.3f}", va="center", fontweight="bold", fontsize=9.5)
 
-    nomi_cv = list(modelli_cv.keys())
-    x_pos = np.arange(len(nomi_cv))
-    w_bar = 0.25
-    for i, (h, col_h, lbl_h) in enumerate([(1, "#2b5c8f", "h = 1 mese"), (6, "#d95f02", "h = 6 mesi"), (12, "#2ca02c", "h = 12 mesi")]):
-        vals_h = [rolling_summary[m][f"h{h}"]["RMSE"] for m in nomi_cv]
-        axes[1].bar(x_pos + (i - 1) * w_bar, vals_h, width=w_bar, color=col_h, alpha=0.88, label=lbl_h)
-    axes[1].set_xticks(x_pos)
-    axes[1].set_xticklabels(
-        ["Naive", "Seas.\nNaive", "RW+\ndrift", "Holt-W.", "SARIMA", "SARIMAX\nCOVID", "SARIMAX\n+Spesa"],
-        fontsize=8.6, fontweight="bold",
-    )
-    axes[1].set_ylabel("RMSE medio rolling-origin (Miliardi EUR)", fontweight="bold", fontsize=10.5)
-    axes[1].set_title("b) Validazione rolling-origin su più orizzonti (2023–2026)", fontsize=11.5, fontweight="bold")
-    axes[1].set_ylim(0, max(rolling_summary[m]["h12"]["RMSE"] for m in nomi_cv) * 1.22)
-    axes[1].legend(loc="upper right", frameon=True, fontsize=9.2)
+    b2 = axes[1].barh(labels_h, val_mape, color=colori_h, alpha=0.88, height=0.58)
+    axes[1].set_xlabel("MAPE sul Test Set a 36 mesi (%)", fontweight="bold", fontsize=10.5)
+    axes[1].set_title("b) Errore percentuale medio assoluto (MAPE)", fontsize=11.5, fontweight="bold")
+    axes[1].set_xlim(0, max(val_mape) * 1.24)
+    axes[1].invert_yaxis()
+    axes[1].set_yticklabels([])
+    for barra in b2:
+        w = barra.get_width()
+        axes[1].text(w + 0.10, barra.get_y() + barra.get_height() / 2.0, f"{w:.2f}%", va="center", fontweight="bold", fontsize=9.5)
 
     plt.tight_layout()
     salva_figura(fig, "fig18_metriche_errore_modelli.png", CAP9_IMG_DIR)
@@ -672,7 +674,7 @@ def esegui_diagnostica_residui(df, mod_sarima, mod_hw, mod_cov, mod_sarimax_full
     x_grid = np.linspace(-4, 4, 200)
     axes[1].plot(x_grid, stats.norm.pdf(x_grid, 0, 1), color="#e41a1c", linewidth=2.2, linestyle="--", label="Normale standard N(0,1)")
     axes[1].set_title(
-        f"b) Distribuzione dei residui vs curva Gaussiana (Jarque-Bera = {diag_full['jarque_bera']['stat']:.1f}, code pesanti)",
+        "b) Distribuzione empirica dei residui vs curva Gaussiana N(0,1)",
         fontsize=11.5, fontweight="bold",
     )
     axes[1].set_xlabel("Valore del residuo standardizzato", fontweight="bold", fontsize=11)
@@ -803,13 +805,13 @@ def esegui_focus_serie_a(df, n_train=N_TRAIN_MONTHS, orizzonti=(1, 6, 12)):
     ax.plot(df["date"].iloc[n_train - 1:], y_it[n_train - 1:], color="#111111", linewidth=2.5, zorder=5)
     date_test = df["date"].iloc[n_train:]
     ax.plot(date_test, y_te, color="#111111", linewidth=3.0, marker="o", markersize=4.0, label="Valore reale Serie A nel Test Set (2023–2026)", zorder=6)
-    ax.plot(date_test, p_rwd, color="#1f77b4", linewidth=2.3, linestyle="-.", label=f"Random Walk + drift (MAPE: {metriche['Random Walk + drift']['MAPE']:.2f}%)", zorder=5)
+    ax.plot(date_test, p_rwd, color="#1f77b4", linewidth=2.3, linestyle="-.", label=f"ARIMA(0,1,0) (MAPE: {metriche['Random Walk + drift']['MAPE']:.2f}%)", zorder=5)
     ax.plot(date_test, p_sarima, color="#9467bd", linewidth=2.1, linestyle=":", label=f"SARIMA(0,1,0)(1,0,0)12 (MAPE: {metriche['SARIMA(0,1,0)(1,0,0)12']['MAPE']:.2f}%)", zorder=5)
     ax.plot(date_test, p_full, color="#d95f02", linewidth=2.5, linestyle="--", label=f"SARIMAX + COVID + Spesa (MAPE: {metriche['SARIMAX + COVID + Spesa 12m']['MAPE']:.2f}%)", zorder=5)
     ax.fill_between(date_test, ci_full[:, 0], ci_full[:, 1], color="#d95f02", alpha=0.18, label="Fascia 95% condizionata (SARIMAX)")
 
     ax.axvline(df["date"].iloc[n_train], color="#333333", linestyle="--", linewidth=1.4)
-    ax.set_title("Focus Serie A (IT1): confronto multi-step tra Random Walk con drift, SARIMA e SARIMAX (2023–2026)", fontsize=12.2, fontweight="bold", pad=12)
+    ax.set_title("Focus Serie A (IT1): confronto tra ARIMA(0,1,0), SARIMA e SARIMAX (2023–2026)", fontsize=12.2, fontweight="bold", pad=12)
     ax.set_ylabel("Valore rose Serie A (Miliardi EUR)", fontweight="bold", fontsize=11.5)
     ax.set_xlabel("Data (Giugno 2013 – Maggio 2026)", fontweight="bold", fontsize=11.5)
     ax.set_ylim(1.9, max(6.8, float(np.max(ci_full[:, 1])) + 0.25))

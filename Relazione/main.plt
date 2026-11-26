@@ -11,9 +11,9 @@
 \contentsline {table}{\numberline {1}{\ignorespaces Riepilogo delle sette tabelle del dataset di Transfermarkt utilizzate nella pipeline di ETL.}}{3}{table.caption.122}%
 \contentsline {table}{\numberline {2}{\ignorespaces Variabili principali del dataset mensile elaborato \texttt {market\_monthly.csv} (156 osservazioni).}}{8}{table.caption.147}%
 \contentsline {table}{\numberline {3}{\ignorespaces Valore di mercato delle rose (in miliardi di euro) e variazioni percentuali nei cinque campionati europei nelle date chiave.}}{10}{table.caption.151}%
-\contentsline {table}{\numberline {4}{\ignorespaces Risultati dei test ADF e KPSS sul training set (120 mesi) per i livelli ($d=0$), le differenze prime ($d=1$) e la scala logaritmica.}}{21}{table.caption.189}%
-\contentsline {table}{\numberline {5}{\ignorespaces Confronto dei sette modelli sul mercato Top-5: holdout multi-step a 36 mesi, criteri informativi sul training set e RMSE in validazione rolling-origin ($h = 1, 6, 12$ mesi). Tutti i modelli nello spazio degli stati convergono nel 100\% delle stime.}}{27}{table.caption.213}%
-\contentsline {table}{\numberline {6}{\ignorespaces Diagnostica sui residui del training set ($N_{\mathrm {res}} = 107$): test di Ljung-Box (con gradi di libertà corretti \texttt {df}, grezzo ed escluso il singolo outlier di aprile 2020) e test di normalità di Jarque-Bera.}}{31}{table.caption.219}%
-\contentsline {table}{\numberline {7}{\ignorespaces Confronto multi-step (36 mesi), criteri informativi sul training set e validazione rolling-origin ($h = 1, 6, 12$ mesi) per il focus Serie A (\texttt {IT1}).}}{32}{table.caption.222}%
+\contentsline {table}{\numberline {4}{\ignorespaces Risultati dei test di stazionarietà ADF e KPSS sul training set (120 mesi) prima e dopo la differenziazione ($d = 1$).}}{20}{table.caption.184}%
+\contentsline {table}{\numberline {5}{\ignorespaces Confronto dei cinque modelli sul mercato Top-5: errori sul test set (36 mesi) e criteri informativi AIC/BIC sul training set.}}{25}{table.caption.201}%
+\contentsline {table}{\numberline {6}{\ignorespaces Test di Ljung-Box sui residui del training set ($N_{\mathrm {res}} = 107$) ai ritardi 6, 12 e 24 mesi.}}{27}{table.caption.207}%
+\contentsline {table}{\numberline {7}{\ignorespaces Errori sul test set (36 mesi) e criteri informativi AIC/BIC sul training set per il focus Serie A (\texttt {IT1}).}}{28}{table.caption.210}%
 \ttl@stoptoc {part2@1}
 \contentsfinish 

@@ -40,19 +40,19 @@
 \contentsline {figure}{\numberline {5}{\ignorespaces Fase 1: confronto descrittivo della pendenza lineare prima e dopo l'estate 2017.}}{12}{figure.caption.154}%
 \contentsline {figure}{\numberline {6}{\ignorespaces Fase 2: contrazione pandemica da COVID-19 nell'aprile 2020 ($-18,59\%$) e recupero del livello pre-pandemico nel marzo 2025.}}{12}{figure.caption.155}%
 \contentsline {figure}{\numberline {7}{\ignorespaces Fase 3: espansione 2023--2026, nuovo massimo storico a 33,19 miliardi e crescita coerente del valore medio e mediano per calciatore.}}{13}{figure.caption.156}%
-\contentsline {figure}{\numberline {8}{\ignorespaces Serie storica delle variazioni percentuali mensili con soglie classiche $\mu \pm 2\sigma $ e soglie robuste basate su mediana e MAD.}}{14}{figure.caption.161}%
-\contentsline {figure}{\numberline {9}{\ignorespaces Distribuzione empirica di densità (KDE) e istogramma delle variazioni percentuali mensili per i Top-5 campionati e la Serie A.}}{15}{figure.caption.163}%
-\contentsline {figure}{\numberline {10}{\ignorespaces Spesa mensile per acquisti nelle finestre di calciomercato e crescita del valore delle rose Top-5 (2013--2026).}}{16}{figure.caption.168}%
-\contentsline {figure}{\numberline {11}{\ignorespaces Confronto tra correlazione lineare di Pearson sui livelli (pannello a) e sulle differenze prime mensili $\Delta $ (pannello b), con scala cromatica centrata sullo zero.}}{16}{figure.caption.169}%
-\contentsline {figure}{\numberline {12}{\ignorespaces Decomposizione STL additiva robusta della serie storica Top-5 sul training set (120 mesi, $s = 12$).}}{19}{figure.caption.182}%
-\contentsline {figure}{\numberline {13}{\ignorespaces Profilo stagionale medio mensile della componente $S_t$ sul training set (2013--2023).}}{20}{figure.caption.184}%
-\contentsline {figure}{\numberline {14}{\ignorespaces Confronto sul training set tra la serie in livelli ($d=0$, non stazionaria) e la serie differenziata prima $\Delta Y_t$ ($d=1$, stazionaria).}}{21}{figure.caption.190}%
-\contentsline {figure}{\numberline {15}{\ignorespaces Confronto tra ACF e PACF sulla serie differenziata $\Delta Y_t$ del training set: serie grezza con shock COVID-19 (sinistra) e serie depurata dal solo aprile 2020 (destra).}}{22}{figure.caption.192}%
-\contentsline {figure}{\numberline {16}{\ignorespaces Divisione cronologica della serie storica tra training set (120 mesi, giugno 2013 -- maggio 2023) e test set (36 mesi, giugno 2023 -- maggio 2026).}}{24}{figure.caption.195}%
-\contentsline {figure}{\numberline {17}{\ignorespaces Confronto multi-step sul test set (giugno 2023 -- maggio 2026) tra i valori reali e le previsioni dei modelli, con fascia analitica condizionata al 95\% per SARIMAX.}}{27}{figure.caption.212}%
-\contentsline {figure}{\numberline {18}{\ignorespaces Confronto degli errori RMSE sul test set a 36 mesi (pannello a) e in validazione rolling-origin per orizzonti $h = 1, 6, 12$ mesi (pannello b).}}{28}{figure.caption.214}%
-\contentsline {figure}{\numberline {19}{\ignorespaces Residui standardizzati del modello $\mathrm {SARIMAX}(0, 1, 0) \times (1, 0, 0)_{12}$ nel tempo e confronto della distribuzione empirica con la curva normale $\mathcal {N}(0, 1)$.}}{30}{figure.caption.216}%
-\contentsline {figure}{\numberline {20}{\ignorespaces Diagramma Q-Q Plot e funzione di autocorrelazione (ACF) dei residui del modello $\mathrm {SARIMAX}(0, 1, 0) \times (1, 0, 0)_{12}$.}}{30}{figure.caption.217}%
-\contentsline {figure}{\numberline {21}{\ignorespaces Focus Serie A (\texttt {IT1}): confronto multi-step sul triennio di test 2023--2026 tra Random Walk con drift, SARIMA e SARIMAX.}}{32}{figure.caption.221}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Serie storica delle variazioni percentuali mensili con soglia statistica $\mu \pm 2\sigma $ per l'individuazione degli outlier.}}{14}{figure.caption.159}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Distribuzione empirica di densità (KDE) e istogramma delle variazioni percentuali mensili per i Top-5 campionati e la Serie A.}}{14}{figure.caption.160}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Spesa mensile per acquisti nelle finestre di calciomercato e crescita del valore delle rose Top-5 (2013--2026).}}{15}{figure.caption.165}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Confronto tra correlazione lineare di Pearson sui livelli (pannello a) e sulle differenze prime mensili $\Delta $ (pannello b), con scala cromatica centrata sullo zero.}}{16}{figure.caption.166}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Decomposizione STL additiva robusta della serie storica Top-5 sul training set (120 mesi, $s = 12$).}}{18}{figure.caption.179}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Profilo stagionale medio mensile della componente $S_t$ sul training set (2013--2023).}}{19}{figure.caption.181}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Confronto sul training set tra la serie in livelli ($d=0$, non stazionaria) e la serie differenziata prima $\Delta Y_t$ ($d=1$, stazionaria).}}{20}{figure.caption.185}%
+\contentsline {figure}{\numberline {15}{\ignorespaces Confronto tra ACF e PACF sulla serie differenziata $\Delta Y_t$ del training set: serie grezza con shock COVID-19 (sinistra) e serie depurata dal solo aprile 2020 (destra).}}{21}{figure.caption.187}%
+\contentsline {figure}{\numberline {16}{\ignorespaces Divisione cronologica della serie storica tra training set (120 mesi, giugno 2013 -- maggio 2023) e test set (36 mesi, giugno 2023 -- maggio 2026).}}{22}{figure.caption.190}%
+\contentsline {figure}{\numberline {17}{\ignorespaces Confronto sul test set (giugno 2023 -- maggio 2026) tra i valori reali e le previsioni dei modelli, con fascia di confidenza al 95\% per SARIMAX.}}{24}{figure.caption.200}%
+\contentsline {figure}{\numberline {18}{\ignorespaces Confronto degli errori RMSE (pannello a) e MAPE (pannello b) dei cinque modelli sul test set a 36 mesi.}}{25}{figure.caption.202}%
+\contentsline {figure}{\numberline {19}{\ignorespaces Residui standardizzati del modello $\mathrm {SARIMAX}(0, 1, 0) \times (1, 0, 0)_{12}$ nel tempo e confronto della distribuzione empirica con la curva normale $\mathcal {N}(0, 1)$.}}{26}{figure.caption.204}%
+\contentsline {figure}{\numberline {20}{\ignorespaces Diagramma Q-Q Plot e funzione di autocorrelazione (ACF) dei residui del modello $\mathrm {SARIMAX}(0, 1, 0) \times (1, 0, 0)_{12}$.}}{27}{figure.caption.205}%
+\contentsline {figure}{\numberline {21}{\ignorespaces Focus Serie A (\texttt {IT1}): confronto sul triennio di test 2023--2026 tra $\mathrm {ARIMA}(0, 1, 0)$, SARIMA e SARIMAX.}}{28}{figure.caption.209}%
 \ttl@stoptoc {part2@1}
 \contentsfinish 

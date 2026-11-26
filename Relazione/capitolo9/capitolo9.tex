@@ -4,11 +4,15 @@
 \section{Modellazione predittiva, validazione e conclusioni}
 \label{sec:p2_modelli}
 
-In questa sezione conclusiva si mettono a confronto sette modelli di previsione sul valore aggregato dei cinque campionati europei e cinque modelli sul campionato italiano di Serie A, con l'obiettivo di valutare in modo oggettivo sia l'accuratezza su diversi orizzonti temporali sia l'effettivo contributo informativo delle spese per acquisti sul calciomercato. Tutto il codice è implementato in \texttt{src/modeling/sarimax\_models.py} ed eseguito tramite \texttt{04\_run\_modeling.py}.
+Dopo aver ricostruito la serie storica mensile (Capitolo 6), analizzato gli shock principali (Capitolo 7) e verificato che la serie diventa stazionaria con una sola differenziazione e presenta una stagionalità annuale (Capitolo 8), in questo capitolo conclusivo costruiamo e confrontiamo i modelli di previsione. L'obiettivo è doppio: capire quale modello prevede meglio l'andamento futuro del mercato calcistico europeo (con un focus finale sulla Serie A) e verificare in modo oggettivo se le spese per acquisti sul calciomercato migliorino davvero le previsioni. Tutto il codice è implementato in \texttt{src/modeling/sarimax\_models.py} ed eseguito tramite \texttt{04\_run\_modeling.py}.
 
-\subsection{Protocollo di validazione temporale e metriche di errore}
+\subsection{Divisione cronologica e metriche di errore}
 
-Con le serie storiche la validazione deve rispettare rigorosamente l'ordine cronologico. I \textbf{156 mesi} post-ETL (giugno 2013 -- maggio 2026) sono stati divisi in due blocchi mostrati nella Figura \ref{fig:split_train_test}: i primi \textbf{120 mesi} (10 cicli annuali completi, giugno 2013 -- maggio 2023, pari al 76,9\%) costituiscono il \textbf{training set} iniziale, mentre gli ultimi \textbf{36 mesi} (3 cicli annuali completi, giugno 2023 -- maggio 2026, pari al 23,1\%) formano il \textbf{test set}.
+Con le serie storiche non è possibile mescolare casualmente i dati tra addestramento e verifica, perché si userebbe il futuro per prevedere il passato. I 156 mesi disponibili (giugno 2013 -- maggio 2026) vengono quindi divisi rispettando l'ordine cronologico (Figura \ref{fig:split_train_test}):
+\begin{itemize}
+    \item \textbf{Training set (120 mesi, 76,9\%):} i primi dieci anni completi (giugno 2013 -- maggio 2023), utilizzati per stimare i parametri dei modelli.
+    \item \textbf{Test set (36 mesi, 23,1\%):} gli ultimi tre anni completi (giugno 2023 -- maggio 2026), tenuti da parte per valutare quanto le previsioni si avvicinano ai valori reali.
+\end{itemize}
 
 \begin{figure}[!htb]
     \centering
@@ -17,91 +21,86 @@ Con le serie storiche la validazione deve rispettare rigorosamente l'ordine cron
     \label{fig:split_train_test}
 \end{figure}
 
-Poiché la classifica su un singolo split multi-step a 36 mesi può dipendere dalle specificità del punto di partenza e dai cambi di regime, la valutazione combina due protocolli complementari: una \textbf{previsione multi-step unica a 36 mesi} (addestramento su 120 mesi senza aggiornamenti successivi) e una \textbf{validazione a finestra espandibile} (\textit{rolling-origin cross-validation}) su tutti i modelli lungo l'intero triennio di test per tre orizzonti distinti ($h = 1$ mese su 36 origini, $h = 6$ mesi su 31 origini e $h = 12$ mesi su 25 origini). Per verificare la significatività statistica delle differenze di errore si impiegano due test appropriati alla relazione tra i modelli confrontati: il \textbf{test di Diebold-Mariano}\footnote{Test con correzione di Harvey-Leybourne-Newbold per campioni finiti e varianza di lungo periodo di Newey-West: verifica l'ipotesi nulla di uguale errore quadratico medio tra due modelli non annidati.} per i modelli \textbf{non annidati} (per esempio Holt-Winters contro SARIMA/SARIMAX) e il \textbf{test MSPE-adjusted di Clark-West (2007)}\footnote{Per modelli annidati (\textit{nested}), sotto l'ipotesi nulla che i parametri aggiuntivi siano nulli la varianza della statistica di Diebold-Mariano degenera asintoticamente; il test unilaterale di Clark-West corregge tale distorsione aggiungendo il termine $(\hat{y}_{1,t} - \hat{y}_{2,t})^2$.} per i modelli \textbf{annidati} (per esempio l'aggiunta della spesa o dello step COVID sopra il modello più parsimonioso).
-
-Per misurare l'errore di previsione si adottano i tre indicatori standard RMSE\footnote{\textit{Root Mean Squared Error}: radice dell'errore quadratico medio, in miliardi di euro; penalizza maggiormente gli scostamenti elevati.}, MAE\footnote{\textit{Mean Absolute Error}: media degli errori assoluti, in miliardi di euro.} e MAPE\footnote{\textit{Mean Absolute Percentage Error}: errore medio percentuale rispetto al valore reale, utile per confrontare serie di scala diversa come Top-5 e Serie A.}:
+Per misurare quanto sbagliano i modelli sul test set usiamo tre metriche standard:
 \begin{equation}
     \mathrm{RMSE} = \sqrt{\frac{1}{M} \sum_{t=1}^{M} (Y_t - \hat{Y}_t)^2}, \quad
     \mathrm{MAE} = \frac{1}{M} \sum_{t=1}^{M} |Y_t - \hat{Y}_t|, \quad
     \mathrm{MAPE} = \frac{100}{M} \sum_{t=1}^{M} \left|\frac{Y_t - \hat{Y}_t}{Y_t}\right|
     \label{eq:metriche_errore}
 \end{equation}
-Per tutti i modelli stimati nello spazio degli stati (famiglia ARIMA/SARIMA/SARIMAX) vengono riportati anche i criteri informativi \textbf{AIC} e \textbf{BIC} sul training set; imponendo i vincoli di stazionarietà e invertibilità e verificando esplicitamente la convergenza della massima verosimiglianza (100\% di fit convergenti sia su holdout sia su tutte le 36 origini di validazione), tutti i modelli condividono lo stesso periodo di inizializzazione (\texttt{loglikelihood\_burn} $= 1$, pari a 119 osservazioni effettive), rendendo pienamente confrontabili i valori di AIC e BIC tra loro. I criteri di Holt-Winters sono invece esclusi dalla tabella perché calcolati da \texttt{statsmodels} tramite la somma degli errori quadratici (SSE) su una scala non comparabile con la verosimiglianza dei modelli in spazio degli stati.
+dove $Y_t$ è il valore reale, $\hat{Y}_t$ è il valore previsto e $M = 36$ è il numero di mesi del test set. Il \textbf{MAE} indica l'errore medio in miliardi di euro; l'\textbf{RMSE} è sempre in miliardi ma penalizza di più gli errori grandi; il \textbf{MAPE} esprime l'errore medio in percentuale, risultando molto comodo per confrontare serie di grandezza diversa come il mercato Top-5 e la Serie A. Per i modelli della famiglia ARIMA/SARIMA/SARIMAX riportiamo anche i criteri \textbf{AIC} e \textbf{BIC} sul training set, che misurano quanto il modello si adatta bene ai dati penalizzando i modelli con troppi parametri (valori più bassi sono migliori). I criteri di Holt-Winters non sono invece riportati perché calcolati su una scala non confrontabile.
 
-\subsection{I sette modelli in gara e il disegno di ablazione pura}
+\subsection{I cinque modelli confrontati}
 
-Per isolare senza fattori confondenti il contributo di ciascuna componente (trend medio, stagionalità annuale, intervento pandemico e spese di mercato), sono stati confrontati sette modelli mantenendo \textbf{esattamente lo stesso ordine parsimonioso} $(0, 1, 0) \times (1, 0, 0)_{12}$ lungo tutta la scala di ablazione SARIMA $\rightarrow$ SARIMAX: specificazioni più complesse come $(1, 1, 1) \times (1, 0, 1)_{12}$ sono state scartate perché soffrono di quasi-cancellazione tra radici AR e MA vicino al cerchio unitario e di mancata convergenza numerica nella stima MLE. I sette concorrenti sono:
+Per capire cosa aiuta davvero a prevedere il mercato, abbiamo confrontato cinque modelli visti nel corso, in ordine crescente di complessità:
 \begin{enumerate}
-    \item \textbf{Baseline Naive (persistenza):} proietta costante l'ultimo valore osservato nel training set (maggio 2023, 28,08 miliardi).
-    \item \textbf{Seasonal Naive ($s = 12$):} ripete ciclicamente gli ultimi 12 mesi osservati nel training set, senza drift.
-    \item \textbf{Random Walk con drift ($\mathrm{ARIMA}(0, 1, 0) + c$):} costituisce il riferimento realmente competitivo per una serie con trend crescente, proiettando in avanti la variazione media mensile del training set.
-    \item \textbf{Holt-Winters additivo con trend smorzato ($s = 12$):} livellamento esponenziale con livello, pendenza locale adattiva smorzata ($\phi$) e stagionalità additiva.
-    \item \textbf{$\mathrm{SARIMA}(0, 1, 0) \times (1, 0, 0)_{12} + c$:} modello stagionale parsimonioso direttamente motivato dai correlogrammi della Sezione \ref{sec:p2_stl}.
-    \item \textbf{$\mathrm{SARIMAX}(0, 1, 0) \times (1, 0, 0)_{12}$ + step COVID:} primo passo di \textbf{ablazione pura} a parità di ordine, che introduce unicamente la variabile di intervento \texttt{step\_\allowbreak covid\_\allowbreak apr2020} per isolare il crollo pandemico.
-    \item \textbf{$\mathrm{SARIMAX}(0, 1, 0) \times (1, 0, 0)_{12}$ + step COVID + spesa acquisti 12m:} secondo passo di \textbf{ablazione pura}, che aggiunge la spesa cumulata sugli ultimi 12 mesi per soli acquisti in entrata (\texttt{spesa\_\allowbreak acquisti\_\allowbreak 12m\_\allowbreak bn}) secondo la formulazione RegARIMA dell'Equazione \ref{eq:modello_sarimax}, valutata in modo \textbf{condizionato \textit{ex-post}} (fornendo le spese reali del triennio 2023--2026 per testare il massimo potenziale esplicativo della variabile; in un impiego operativo \textit{ex-ante} le esogene andrebbero previste separatamente o ritardate).
+    \item \textbf{$\mathrm{ARIMA}(0, 1, 0)$ (con costante):} è il modello più semplice della famiglia ARIMA; parte dall'ultimo valore noto e aggiunge ogni mese la crescita media registrata nel training set.
+    \item \textbf{Holt-Winters additivo con trend smorzato ($s = 12$):} metodo a livellamento esponenziale che aggiorna nel tempo sia la pendenza della crescita (smorzandola gradualmente con un fattore $\phi$) sia la componente stagionale annuale.
+    \item \textbf{$\mathrm{SARIMA}(0, 1, 0) \times (1, 0, 0)_{12}$ (con costante):} è il modello motivato dai grafici ACF e PACF del Capitolo 8. Mantiene la differenza prima ($d = 1$) e la crescita media ($c$), aggiungendo un legame autoregressivo stagionale ($P = 1$) con lo stesso mese dell'anno precedente.
+    \item \textbf{$\mathrm{SARIMAX}(0, 1, 0) \times (1, 0, 0)_{12}$ + step COVID:} aggiunge al SARIMA la sola variabile binaria \texttt{step\_\allowbreak covid\_\allowbreak apr2020} (che vale 0 prima di aprile 2020 e 1 da aprile 2020 in poi) per isolare l'effetto del crollo pandemico senza fargli distorcere il resto della stima.
+    \item \textbf{$\mathrm{SARIMAX}(0, 1, 0) \times (1, 0, 0)_{12}$ + step COVID + spesa acquisti 12m:} aggiunge anche la spesa cumulata negli ultimi 12 mesi per acquisti sul calciomercato (\texttt{spesa\_\allowbreak acquisti\_\allowbreak 12m\_\allowbreak bn}), fornendo sul test set i valori reali delle spese per verificare se questa informazione esterna migliori la previsione.
 \end{enumerate}
 
+L'equazione generale dei modelli SARIMAX stimati è la seguente:
 \begin{equation}
     (1 - \Phi_1 B^{12})(1 - B) Y_t = c + \sum_{j=1}^{r} \beta_j (1 - \Phi_1 B^{12})(1 - B) X_{j,t} + \varepsilon_t
 \label{eq:modello_sarimax}
 \end{equation}
+In parole semplici, $(1 - B)Y_t$ rappresenta la variazione mensile del valore delle rose, $(1 - \Phi_1 B^{12})$ collega ogni mese allo stesso mese dell'anno precedente, mentre le variabili esterne $X_{j,t}$ entrano anch'esse differenziate: in questo modo \texttt{step\_covid\_apr2020} agisce esattamente sul solo mese del taglio pandemico (aprile 2020), e la spesa cumulata a 12 mesi misura la variazione della spesa rispetto all'anno precedente.
 
-Nella formulazione RegARIMA dell'Equazione \ref{eq:modello_sarimax} (corrispondente alla specifica implementata da \texttt{statsmodels}) i regressori $X_{j,t}$ entrano nei livelli della serie: dopo la differenziazione $(1 - B)$, la variabile a gradino \texttt{step\_\allowbreak covid\_\allowbreak apr2020} (0 prima di aprile 2020, 1 da aprile 2020 in poi) si trasforma automaticamente in un impulso unitario esatto sul solo mese del taglio pandemico, senza introdurre rimbalzi artificiali nei mesi successivi.
+\subsection{Risultati sul test set a 36 mesi}
 
-\subsection{Risultati su holdout a 36 mesi e validazione rolling-origin}
-
-La Figura \ref{fig:confronto_previsioni} mostra le traiettorie previste sul test set a 36 mesi, mentre la Tabella \ref{tab:confronto_modelli_top5} riassume gli errori su holdout unico, i criteri AIC/BIC sul training set e gli errori RMSE nella validazione \textit{rolling-origin} ai tre orizzonti ($h = 1, 6, 12$ mesi) per tutti i sette modelli, visualizzati nella Figura \ref{fig:metriche_errore}.
+La Figura \ref{fig:confronto_previsioni} mostra le traiettorie previste dai modelli sul triennio 2023--2026 rispetto all'andamento reale (linea nera), mentre la Tabella \ref{tab:confronto_modelli_top5} e la Figura \ref{fig:metriche_errore} riassumono gli errori RMSE, MAE, MAPE e i criteri AIC/BIC.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.86\textwidth]{capitolo9/img/fig17_confronto_previsioni_modelli.png}
-    \caption{Confronto multi-step sul test set (giugno 2023 -- maggio 2026) tra i valori reali e le previsioni dei modelli, con fascia analitica condizionata al 95\% per SARIMAX.}
+    \caption{Confronto sul test set (giugno 2023 -- maggio 2026) tra i valori reali e le previsioni dei modelli, con fascia di confidenza al 95\% per SARIMAX.}
     \label{fig:confronto_previsioni}
 \end{figure}
 
 \begin{table}[!htbp]
 \centering
-\scriptsize
-\setlength{\tabcolsep}{3.0pt}
-\caption{Confronto dei sette modelli sul mercato Top-5: holdout multi-step a 36 mesi, criteri informativi sul training set e RMSE in validazione rolling-origin ($h = 1, 6, 12$ mesi). Tutti i modelli nello spazio degli stati convergono nel 100\% delle stime.}
+\small
+\setlength{\tabcolsep}{5.0pt}
+\caption{Confronto dei cinque modelli sul mercato Top-5: errori sul test set (36 mesi) e criteri informativi AIC/BIC sul training set.}
 \label{tab:confronto_modelli_top5}
 \vspace{0.2cm}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.35cm} *{8}{>{\centering\arraybackslash}X}}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5.2cm} *{5}{>{\centering\arraybackslash}X}}
 \toprule
-& \multicolumn{3}{c}{\textbf{Holdout 36 mesi}} & \multicolumn{2}{c}{\textbf{Training}} & \multicolumn{3}{c}{\textbf{Rolling CV (RMSE)}} \\
-\cmidrule(lr){2-4} \cmidrule(lr){5-6} \cmidrule(lr){7-9}
-\textbf{Modello} & \textbf{RMSE} & \textbf{MAE} & \textbf{MAPE} & \textbf{AIC} & \textbf{BIC} & \textbf{$h=1$} & \textbf{$h=6$} & \textbf{$h=12$} \\
+& \multicolumn{3}{c}{\textbf{Test Set (36 mesi)}} & \multicolumn{2}{c}{\textbf{Training Set}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-6}
+\textbf{Modello} & \textbf{RMSE} & \textbf{MAE} & \textbf{MAPE} & \textbf{AIC} & \textbf{BIC} \\
 \midrule
-Baseline Naive & 2,602 & 2,227 & 7,18\% & -- & -- & 0,454 & 1,050 & 1,670 \\
-Seasonal Naive ($s=12$) & 3,239 & 2,929 & 9,52\% & -- & -- & 1,598 & 1,632 & 1,670 \\
-Random Walk + drift & 0,580 & 0,456 & 1,52\% & 244,7 & 250,2 & 0,433 & 0,577 & \textbf{0,525} \\
-Holt-Winters ($s=12$) & 1,225 & 0,938 & 3,03\% & --$^*$ & --$^*$ & \textbf{0,394} & 0,764 & 1,162 \\
-\textbf{$\mathrm{SARIMA}(0,1,0)(1,0,0)_{12}$} & \textbf{0,563} & \textbf{0,437} & \textbf{1,46\%} & 245,2 & 253,5 & 0,418 & 0,567 & 0,559 \\
-$\mathrm{SARIMAX}$ + step COVID & 1,204 & 1,061 & 3,47\% & \textbf{114,2} & \textbf{125,3} & 0,406 & \textbf{0,559} & 0,705 \\
-$\mathrm{SARIMAX}$ + COVID + Spesa & 1,209 & 1,066 & 3,49\% & 116,2 & 130,1 & 0,407 & 0,560 & 0,707 \\
+$\mathrm{ARIMA}(0,1,0)$ & 0,580 & 0,456 & 1,52\% & 244,7 & 250,2 \\
+Holt-Winters ($s=12$) & 1,225 & 0,938 & 3,03\% & --$^*$ & --$^*$ \\
+\textbf{$\mathrm{SARIMA}(0,1,0)(1,0,0)_{12}$} & \textbf{0,563} & \textbf{0,437} & \textbf{1,46\%} & 245,2 & 253,5 \\
+$\mathrm{SARIMAX}$ + step COVID & 1,204 & 1,061 & 3,47\% & \textbf{114,2} & \textbf{125,3} \\
+$\mathrm{SARIMAX}$ + COVID + Spesa & 1,209 & 1,066 & 3,49\% & 116,2 & 130,1 \\
 \bottomrule
-\multicolumn{9}{>{\raggedright\arraybackslash}p{\dimexpr\textwidth-2\tabcolsep\relax}}{\footnotesize $^*$ Criteri ETS calcolati tramite SSE e non confrontabili sulla scala di verosimiglianza dello spazio degli stati (\texttt{burn} $= 1$ per tutti i modelli ARIMA/SARIMA/SARIMAX, ordine comune $(0,1,0)(1,0,0)_{12}$). Valori di RMSE e MAE in miliardi di EUR.}
+\multicolumn{6}{>{\raggedright\arraybackslash}p{\dimexpr\textwidth-2\tabcolsep\relax}}{\footnotesize $^*$ Criteri non riportati perché calcolati su una scala non confrontabile con i modelli ARIMA/SARIMAX. RMSE e MAE in miliardi di EUR.}
 \end{tabularx}
 \end{table}
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.92\textwidth]{capitolo9/img/fig18_metriche_errore_modelli.png}
-    \caption{Confronto degli errori RMSE sul test set a 36 mesi (pannello a) e in validazione rolling-origin per orizzonti $h = 1, 6, 12$ mesi (pannello b).}
+    \caption{Confronto degli errori RMSE (pannello a) e MAPE (pannello b) dei cinque modelli sul test set a 36 mesi.}
     \label{fig:metriche_errore}
 \end{figure}
 
-L'analisi congiunta dei due protocolli, dei parametri stimati e dei test di accuratezza porta a quattro risultati netti e metodologicamente istruttivi:
+Leggendo insieme i grafici e la tabella emergono tre risultati molto chiari:
 \begin{itemize}
-    \item \textbf{Sul breve e medio orizzonte ($h = 1$ e $h = 6$ mesi) conviene adattare il trend o isolare il COVID-19:} a un mese di distanza i modelli migliori sono \textbf{Holt-Winters smorzato} ($\mathrm{RMSE} = 0,394$, $\alpha = 1,00$, $\beta = 0,061$, $\gamma = 0,00$, $\phi = 0,962$) e \textbf{SARIMAX + step COVID} ($\mathrm{RMSE} = 0,406$, $\mathrm{MAPE} = 0,91\%$), statisticamente indistinguibili tra loro (test non annidato di Diebold-Mariano: $\mathrm{DM} = -0,420$, $p = 0,677$). Rimuovere il crollo di aprile 2020 ($\hat{\beta}_{\mathrm{COVID}} = -5,82$ miliardi, $z = -15,92$, $p < 0,0001$) libera il vero coefficiente autoregressivo stagionale ($\hat{\Phi}_1 = 0,260$, $z = 2,84$, $p = 0,0046$, contro $\hat{\Phi}_1 = 0,108$, $p = 0,241$ nel SARIMA senza dummy), consentendo al \textbf{SARIMAX + COVID} di battere significativamente il Random Walk con drift a $h = 1$ secondo il test di Clark-West per modelli annidati ($\mathrm{CW} = 2,035$, $p_{\mathrm{unil.}} = 0,0209$) e di ottenere il miglior risultato assoluto a $h = 6$ mesi ($\mathrm{RMSE} = 0,559$).
-    \item \textbf{Sul lungo orizzonte ($h = 12$ e holdout a 36 mesi) prevalgono i modelli univariati parsimoniosi (con un chiaro effetto di regime sul drift):} sull'holdout a 36 mesi vincono \textbf{$\mathrm{SARIMA}(0, 1, 0) \times (1, 0, 0)_{12}$} ($\mathrm{RMSE} = 0,563$, $\mathrm{MAPE} = 1,46\%$) e \textbf{Random Walk con drift} ($\mathrm{RMSE} = 0,580$, $\mathrm{MAPE} = 1,52\%$), confermati a $h = 12$ mesi ($\mathrm{RMSE} = 0,525$ e $0,559$, significativamente migliori della Baseline Naive secondo Clark-West: $\mathrm{CW} = 9,98$ e $10,51$, $p < 0,0001$). È istruttivo spiegare perché il \textbf{SARIMAX + COVID} ottenga invece un RMSE più alto sull'holdout statico a 36 mesi ($1,204$, Figura \ref{fig:confronto_previsioni}) pur migliorando l'AIC di 131 punti: senza la dummy pandemica, il crollo dell'aprile 2020 ($-5,71$ miliardi) abbassa meccanicamente la variazione media mensile del decennio 2013--2023 da $+0,187$ a $+0,138$ miliardi/mese, un ritmo che per coincidenza coincide quasi esattamente con la crescita più moderata del test set 2023--2026 ($+0,142$ miliardi/mese). Depurando il COVID-19, il modello recupera la pendenza media storica non depressa ($+0,187$ miliardi/mese, trainata dall'accelerazione 2017--2020), sovrastimando quindi la traiettoria statica su un orizzonte triennale. Anche Holt-Winters smorzato soffre sul lungo periodo ($\mathrm{RMSE} = 1,225$) perché lo smorzamento ($\phi < 1$) appiattisce troppo presto la crescita. La verifica in scala logaritmica conferma infine la superiorità della formulazione lineare sui livelli ($\mathrm{RMSE} = 2,046$ miliardi per il SARIMA logaritmico e $2,337$ per il Random Walk logaritmico), poiché proiettare il tasso percentuale medio del 2013--2023 produce una crescita esponenziale eccessiva nel 2023--2026.
-    \item \textbf{L'ablazione pura dimostra che il miglioramento in-sample viene solo dal COVID-19:} a parità di ordine $(0, 1, 0) \times (1, 0, 0)_{12}$, l'introduzione del solo \texttt{step\_covid\_apr2020} fa crollare l'AIC da $245,2$ a \textbf{$114,2$} e il BIC da $253,5$ a \textbf{$125,3$}. L'aggiunta della spesa per acquisti 12 mesi peggiora invece entrambi i criteri informativi ($\mathrm{AIC} = 116,2$, $\mathrm{BIC} = 130,1$).
-    \item \textbf{Risposta nettamente negativa all'ipotesi sulle spese di calciomercato (Top-5):} nel modello completo il coefficiente di \texttt{spesa\_acquisti\_12m\_bn} è statisticamente nullo ($\hat{\beta}_{\mathrm{spesa}} = -0,014$, errore standard $0,071$, $z = -0,20$, $p = 0,843$). Fuori campione, persino in valutazione privilegiata \textit{ex-post}, l'aggiunta della spesa non produce alcun guadagno su nessun orizzonte: l'errore peggiora lievemente sull'holdout a 36 mesi ($1,204 \rightarrow 1,209$) e nella rolling CV a $h = 1$ ($0,406 \rightarrow 0,407$, test di Clark-West $\mathrm{CW} = -1,343$, $p_{\mathrm{unil.}} = 0,910$), $h = 6$ ($0,559 \rightarrow 0,560$, $\mathrm{CW} = -1,146$, $p_{\mathrm{unil.}} = 0,874$) e $h = 12$ ($0,705 \rightarrow 0,707$). Identica conclusione si ottiene in due ulteriori verifiche di robustezza: ritardando la spesa di un mese in configurazione strettamente \textit{ex-ante} (nonostante un debole segnale in-sample, nella rolling CV a $h = 1$ l'errore resta identico a $\mathrm{RMSE} = 0,407$ contro $0,406$ senza spesa e sull'holdout a 36 mesi è $1,140$) oppure includendo un termine $\mathrm{AR}(2)$ per il picco al lag 2 visto nella Sezione \ref{sec:p2_stl} ($\mathrm{SARIMAX}(2,1,0)(1,0,0)_{12}$: $\mathrm{BIC} = 134,6$, $p_{\mathrm{spesa}} = 0,701$, holdout $1,178$). La spiegazione economica è trasparente: molti trasferimenti avvengono \textit{tra} club degli stessi cinque campionati (spostando valore all'interno dell'aggregato senza crearne di nuovo) e i listini di Transfermarkt incorporano già età, prestazioni e aspettative oltre ai corrispettivi di cartellino.
+    \item \textbf{I modelli semplici battono tutti sul test set:} sul triennio 2023--2026 il miglior modello è $\mathrm{SARIMA}(0, 1, 0) \times (1, 0, 0)_{12}$ ($\mathrm{RMSE} = 0,563$ miliardi, $\mathrm{MAPE} = 1,46\%$), seguito subito da $\mathrm{ARIMA}(0, 1, 0)$ ($\mathrm{RMSE} = 0,580$, $\mathrm{MAPE} = 1,52\%$). Entrambi superano nettamente Holt-Winters ($\mathrm{RMSE} = 1,225$), che smorza la crescita troppo presto sul lungo periodo.
+    \item \textbf{Perché SARIMAX + COVID migliora molto l'AIC ma prevede peggio sul test set:} inserendo \texttt{step\_covid\_apr2020} ($\hat{\beta}_{\mathrm{COVID}} = -5,82$ miliardi, $p < 0,0001$), l'AIC crolla da $245,2$ a $114,2$ e il termine stagionale diventa significativo ($\hat{\Phi}_1 = 0,260$, $p = 0,0046$). Eppure, sul test set l'errore raddoppia ($\mathrm{RMSE} = 1,204$). Il motivo è intuitivo: nel SARIMA senza dummy, il crollo del 2020 abbassa la crescita media del decennio 2013--2023 da $+0,187$ a $+0,138$ miliardi/mese, un ritmo che per coincidenza è quasi identico alla crescita più moderata del test set 2023--2026 ($+0,142$ miliardi/mese). Togliendo l'effetto del COVID, il modello vede invece la crescita media ``normale'' pre-pandemia ($+0,187$ miliardi/mese) e quindi proietta una salita troppo ripida rispetto alla realtà.
+    \item \textbf{Le spese di calciomercato non migliorano le previsioni:} nel modello completo il coefficiente della spesa (\texttt{spesa\_acquisti\_12m\_bn}) è statisticamente nullo ($\hat{\beta}_{\mathrm{spesa}} = -0,014$, $p = 0,843$). Aggiungerlo peggiora sia l'AIC ($114,2 \rightarrow 116,2$) e il BIC ($125,3 \rightarrow 130,1$), sia l'errore sul test set ($\mathrm{RMSE}: 1,204 \rightarrow 1,209$). La spiegazione economica è semplice: gran parte dei trasferimenti avviene tra club degli stessi cinque campionati (spostando valore all'interno del mercato senza crearne di nuovo) e le valutazioni di Transfermarkt riflettono soprattutto età e rendimento in campo.
 \end{itemize}
 
-\subsection{Diagnostica dei residui dei modelli stimati}
+\subsection{Diagnostica dei residui}
 
-Per verificare l'adeguatezza statistica delle specificazioni adottate è stata condotta la diagnostica sui residui del training set (escludendo i primi 13 mesi di inizializzazione stagionale, $N_{\mathrm{res}} = 107$). La Figura \ref{fig:diagnostica_residui} e la Figura \ref{fig:qqplot_acf_residui} mostrano l'andamento temporale, la distribuzione empirica, il Q-Q Plot e il correlogramma ACF dei residui standardizzati del modello $\mathrm{SARIMAX}(0, 1, 0) \times (1, 0, 0)_{12}$ completo.
+Per controllare se i modelli hanno davvero estratto tutta l'informazione utile dai dati, si analizzano i \textbf{residui} sul training set (escludendo i primi 13 mesi di avvio stagionale, $N_{\mathrm{res}} = 107$), cioè le differenze tra i valori reali e quelli stimati dal modello. In un buon modello i residui dovrebbero comportarsi come rumore casuale attorno allo zero, senza schemi ripetitivi.
+
+Le Figure \ref{fig:diagnostica_residui} e \ref{fig:qqplot_acf_residui} mostrano i quattro grafici diagnostici standard del modello $\mathrm{SARIMAX}(0, 1, 0) \times (1, 0, 0)_{12}$ completo: residui standardizzati nel tempo, istogramma con densità rispetto alla curva normale $\mathcal{N}(0, 1)$, Q-Q Plot e autocorrelazione (ACF) dei residui.
 
 \begin{figure}[!htb]
     \centering
@@ -117,80 +116,78 @@ Per verificare l'adeguatezza statistica delle specificazioni adottate è stata c
     \label{fig:qqplot_acf_residui}
 \end{figure}
 
-Nella Tabella \ref{tab:ljung_box_residui} sono riportati i risultati del \textbf{test di Ljung-Box}\footnote{Test globale di assenza di autocorrelazione residua fino al ritardo $m$. Sui residui di un modello $\mathrm{ARMA}(p,q)(P,Q)$ i gradi di libertà della distribuzione $\chi^2$ vanno corretti sottraendo il numero di parametri autoregressivi e a media mobile stimati: $\mathrm{df} = m - (p + q + P + Q)$.} con la correzione dei gradi di libertà (\texttt{model\_df}) e del \textbf{test di normalità di Jarque-Bera}. Per evitare la trappola del mascheramento da outlier già evidenziata nella Sezione \ref{sec:p2_stl}, per i modelli privi di variabile COVID (\texttt{SARIMA} e \texttt{Holt-Winters}) la tabella riporta sia il test sui residui grezzi sia quello depurato dal singolo residuo estremo dell'aprile 2020 ($z \approx -8,4$).
+La Tabella \ref{tab:ljung_box_residui} riporta invece il \textbf{test di Ljung-Box}\footnote{Verifica l'ipotesi nulla che i residui siano indipendenti fino al ritardo $m$: un $p$-value $> 0,05$ indica assenza di autocorrelazione residua.} ai ritardi 6, 12 e 24 mesi. Per i modelli senza variabile COVID (SARIMA e Holt-Winters) sono mostrati anche i valori escludendo il solo errore estremo di aprile 2020.
 
 \begin{table}[!htbp]
 \centering
-\scriptsize
-\setlength{\tabcolsep}{3.5pt}
-\caption{Diagnostica sui residui del training set ($N_{\mathrm{res}} = 107$): test di Ljung-Box (con gradi di libertà corretti \texttt{df}, grezzo ed escluso il singolo outlier di aprile 2020) e test di normalità di Jarque-Bera.}
+\small
+\setlength{\tabcolsep}{4.5pt}
+\caption{Test di Ljung-Box sui residui del training set ($N_{\mathrm{res}} = 107$) ai ritardi 6, 12 e 24 mesi.}
 \label{tab:ljung_box_residui}
 \vspace{0.2cm}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.95cm} *{3}{>{\centering\arraybackslash}p{2.15cm}} >{\centering\arraybackslash}X}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5.5cm} *{3}{>{\centering\arraybackslash}X}}
 \toprule
-\textbf{Modello} & \textbf{Lag 6} & \textbf{Lag 12} & \textbf{Lag 24} & \textbf{Jarque-Bera} \\
-& \textbf{$Q$ (df; $p$)} & \textbf{$Q$ (df; $p$)} & \textbf{$Q$ (df; $p$)} & \textbf{Stat. ($p$-value)} \\
+\textbf{Modello} & \textbf{Lag 6} & \textbf{Lag 12} & \textbf{Lag 24} \\
+& \textbf{$Q$ ($p$-value)} & \textbf{$Q$ ($p$-value)} & \textbf{$Q$ ($p$-value)} \\
 \midrule
-$\mathrm{SARIMAX}$ + COVID + Spesa & 14,62 (5; 0,012) & 22,14 (11; 0,023) & 30,10 (23; 0,147) & 58,2 ($< 10^{-12}$) \\
-$\mathrm{SARIMAX}$ + step COVID & 14,60 (5; 0,012) & 22,31 (11; 0,022) & 30,31 (23; 0,141) & 59,4 ($< 10^{-12}$) \\
+$\mathrm{SARIMAX}$ + COVID + Spesa & 14,62 (0,012) & 22,14 (0,023) & 30,10 (0,147) \\
+$\mathrm{SARIMAX}$ + step COVID & 14,60 (0,012) & 22,31 (0,022) & 30,31 (0,141) \\
 \midrule
-$\mathrm{SARIMA}(0,1,0)(1,0,0)_{12}$ (grezzi) & 2,47 (5; 0,781) & 4,72 (11; 0,944) & 10,85 (23; 0,985) & 9537,0 ($< 10^{-30}$) \\
-$\mathrm{SARIMA}(0,1,0)(1,0,0)_{12}$ (escl. Apr 20) & 13,18 (5; 0,022) & 24,74 (11; 0,010) & 31,11 (23; 0,120) & -- \\
+$\mathrm{SARIMA}(0,1,0)(1,0,0)_{12}$ (grezzi) & 2,47 (0,781) & 4,72 (0,944) & 10,85 (0,985) \\
+$\mathrm{SARIMA}(0,1,0)(1,0,0)_{12}$ (escl. Apr 20) & 13,18 (0,022) & 24,74 (0,010) & 31,11 (0,120) \\
 \midrule
-Holt-Winters ($s=12$, grezzi) & 3,63 (6; 0,727) & 7,07 (12; 0,853) & 15,39 (24; 0,909) & 8407,9 ($< 10^{-30}$) \\
-Holt-Winters ($s=12$, escl. Apr 20) & 7,73 (6; 0,259) & 10,65 (12; 0,559) & 17,32 (24; 0,835) & -- \\
+Holt-Winters ($s=12$, grezzi) & 3,63 (0,727) & 7,07 (0,853) & 15,39 (0,909) \\
+Holt-Winters ($s=12$, escl. Apr 20) & 7,73 (0,259) & 10,65 (0,559) & 17,32 (0,835) \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-La lettura combinata della Tabella \ref{tab:ljung_box_residui} e delle Figure \ref{fig:diagnostica_residui}--\ref{fig:qqplot_acf_residui} offre tre lezioni diagnostiche molto chiare:
+I risultati della diagnostica si riassumono in due punti:
 \begin{itemize}
-    \item \textbf{Effetto di mascheramento nel SARIMA puro:} sui residui grezzi del SARIMA i $p$-value di Ljung-Box sembrano ottimali ($p = 0,781\text{--}0,985$), ma si tratta di un artefatto provocato dal singolo residuo pandemico ($z = -8,44$, $\mathrm{JB} = 9.537$) che schiaccia le autocorrelazioni. Escludendo quel solo punto, i $p$-value del SARIMA scendono a $0,022$ (lag 6) e $0,010$ (lag 12), allineandosi a quelli del SARIMAX.
-    \item \textbf{Effetto del drift costante sui residui di breve periodo:} nei modelli SARIMAX con drift costante $c$, l'ipotesi di assenza di autocorrelazione residua non viene rifiutata sull'orizzonte biennale ($m = 24$: $p = 0,141\text{--}0,147$), mentre permane un residuo segnale a breve raggio ($m = 6$: $p = 0,012$; $m = 12$: $p = 0,022$, visibile attorno al lag 2 nella Figura \ref{fig:qqplot_acf_residui}b). La ragione è ben leggibile nella Figura \ref{fig:diagnostica_residui}a: un drift fisso sul decennio 2013--2023 genera residui prevalentemente positivi durante la rapida accelerazione 2017--2019 e prevalentemente negativi nella fase piatta post-COVID 2021--2022. Al contrario, \textbf{Holt-Winters} aggiorna localmente la pendenza del trend e supera il test di Ljung-Box su tutti e tre i ritardi \textbf{anche dopo aver rimosso aprile 2020} ($p = 0,259$, $0,559$ e $0,835$), spiegando la sua superiorità sulle previsioni a un passo ($h = 1$).
-    \item \textbf{Code pesanti e non-normalità:} in tutti i modelli il test di \textbf{Jarque-Bera rifiuta nettamente la normalità} dei residui ($p < 10^{-12}$), come confermato dalle code del Q-Q Plot (Figura \ref{fig:qqplot_acf_residui}a) e dal picco di rivalutazione di gennaio 2018 ($+4,4\sigma$). Ciò è fisiologico nei dati Transfermarkt, dove gli aggiornamenti avvengono a scatti concentrati in pochi mesi: le fasce gaussiane al 95\% vanno dunque lette come approssimazioni analitiche che tendono a sottostimare il rischio di eventi estremi futuri.
+    \item \textbf{Autocorrelazione residua:} nei modelli SARIMAX il test di Ljung-Box è superato a 24 mesi ($p = 0,141\text{--}0,147$), mentre a 6 e 12 mesi resta un piccolo residuo di correlazione ($p \approx 0,01\text{--}0,02$). Il motivo si vede nella Figura \ref{fig:diagnostica_residui}a: avendo una crescita media fissa, il modello sottostima leggermente il boom 2017--2019 (residui positivi) e sovrastima la fase piatta 2021--2022 (residui negativi). Holt-Winters, che aggiorna la pendenza man mano, supera invece Ljung-Box su tutti i ritardi ($p = 0,259\text{--}0,835$). Da notare anche che nel SARIMA senza COVID i $p$-value grezzi sembrano altissimi ($0,78\text{--}0,98$) solo perché il crollo di aprile 2020 schiaccia tutte le altre correlazioni; togliendolo, tornano in linea con SARIMAX.
+    \item \textbf{Code pesanti:} l'istogramma (Figura \ref{fig:diagnostica_residui}b) e il Q-Q Plot (Figura \ref{fig:qqplot_acf_residui}a) mostrano residui concentrati attorno allo zero ma con qualche picco estremo (come gennaio 2018 a $+4,4\sigma$), perché Transfermarkt aggiorna i listini a scatti in pochi mesi dell'anno.
 \end{itemize}
 
 \subsection{Focus previsionale sulla Serie A}
 
-La stessa architettura parsimoniosa $\mathrm{SARIMA/SARIMAX}(0, 1, 0) \times (1, 0, 0)_{12}$ è stata replicata sulla sola \textbf{Serie A italiana} (\texttt{serie\_\allowbreak a\_\allowbreak market\_\allowbreak value\_\allowbreak bn}), affiancando alla previsione multi-step a 36 mesi anche la \textbf{validazione rolling-origin} ($h = 1, 6, 12$ mesi, 100\% di convergenza) e utilizzando le spese per soli acquisti in entrata dei club italiani (\texttt{transfer\_\allowbreak spend\_\allowbreak serie\_\allowbreak a\_\allowbreak 12m\_\allowbreak bn}). I risultati sul triennio 2023--2026 sono mostrati nella Figura \ref{fig:focus_serie_a} e nella Tabella \ref{tab:risultati_serie_a}.
+Per verificare se le stesse conclusioni valgono anche su un singolo campionato nazionale, abbiamo ripetuto l'analisi sulla sola \textbf{Serie A italiana} (\texttt{serie\_\allowbreak a\_\allowbreak market\_\allowbreak value\_\allowbreak bn}), usando come variabile esogena la spesa per acquisti dei club italiani (\texttt{transfer\_\allowbreak spend\_\allowbreak serie\_\allowbreak a\_\allowbreak 12m\_\allowbreak bn}). I risultati sul test set 2023--2026 sono mostrati nella Figura \ref{fig:focus_serie_a} e nella Tabella \ref{tab:risultati_serie_a}.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.85\textwidth]{capitolo9/img/fig21_focus_previsione_serie_a.png}
-    \caption{Focus Serie A (\texttt{IT1}): confronto multi-step sul triennio di test 2023--2026 tra Random Walk con drift, SARIMA e SARIMAX.}
+    \caption{Focus Serie A (\texttt{IT1}): confronto sul triennio di test 2023--2026 tra $\mathrm{ARIMA}(0, 1, 0)$, SARIMA e SARIMAX.}
     \label{fig:focus_serie_a}
 \end{figure}
 
 \begin{table}[!htbp]
 \centering
-\scriptsize
-\setlength{\tabcolsep}{3.0pt}
-\caption{Confronto multi-step (36 mesi), criteri informativi sul training set e validazione rolling-origin ($h = 1, 6, 12$ mesi) per il focus Serie A (\texttt{IT1}).}
+\small
+\setlength{\tabcolsep}{5.0pt}
+\caption{Errori sul test set (36 mesi) e criteri informativi AIC/BIC sul training set per il focus Serie A (\texttt{IT1}).}
 \label{tab:risultati_serie_a}
 \vspace{0.2cm}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.55cm} *{8}{>{\centering\arraybackslash}X}}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5.2cm} *{5}{>{\centering\arraybackslash}X}}
 \toprule
-& \multicolumn{3}{c}{\textbf{Holdout 36 mesi}} & \multicolumn{2}{c}{\textbf{Training}} & \multicolumn{3}{c}{\textbf{Rolling CV (RMSE)}} \\
-\cmidrule(lr){2-4} \cmidrule(lr){5-6} \cmidrule(lr){7-9}
-\textbf{Modello (Serie A)} & \textbf{RMSE} & \textbf{MAE} & \textbf{MAPE} & \textbf{AIC} & \textbf{BIC} & \textbf{$h=1$} & \textbf{$h=6$} & \textbf{$h=12$} \\
+& \multicolumn{3}{c}{\textbf{Test Set (36 mesi)}} & \multicolumn{2}{c}{\textbf{Training Set}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-6}
+\textbf{Modello (Serie A)} & \textbf{RMSE} & \textbf{MAE} & \textbf{MAPE} & \textbf{AIC} & \textbf{BIC} \\
 \midrule
-Baseline Naive & 0,451 & 0,377 & 7,26\% & -- & -- & 0,104 & 0,171 & 0,309 \\
-\textbf{Random Walk + drift} & \textbf{0,093} & \textbf{0,069} & \textbf{1,39\%} & $-121,1$ & $-115,6$ & 0,103 & \textbf{0,121} & \textbf{0,143} \\
-$\mathrm{SARIMA}(0,1,0)(1,0,0)_{12}$ & 0,153 & 0,128 & 2,50\% & $-126,1$ & $-117,8$ & 0,094 & 0,127 & 0,168 \\
-$\mathrm{SARIMAX}$ + step COVID & 0,166 & 0,143 & 2,79\% & \textbf{$-218,3$} & \textbf{$-207,2$} & 0,093 & 0,136 & 0,179 \\
-$\mathrm{SARIMAX}$ + COVID + Spesa & 0,166 & 0,143 & 2,79\% & $-216,7$ & $-202,8$ & \textbf{0,092} & 0,136 & 0,178 \\
+\textbf{$\mathrm{ARIMA}(0,1,0)$} & \textbf{0,093} & \textbf{0,069} & \textbf{1,39\%} & $-121,1$ & $-115,6$ \\
+$\mathrm{SARIMA}(0,1,0)(1,0,0)_{12}$ & 0,153 & 0,128 & 2,50\% & $-126,1$ & $-117,8$ \\
+$\mathrm{SARIMAX}$ + step COVID & 0,166 & 0,143 & 2,79\% & \textbf{$-218,3$} & \textbf{$-207,2$} \\
+$\mathrm{SARIMAX}$ + COVID + Spesa & 0,166 & 0,143 & 2,79\% & $-216,7$ & $-202,8$ \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Il focus italiano conferma in pieno il quadro emerso sul mercato europeo. Eliminati gli artefatti estivi in fase di ETL, anche sulla singola Serie A il miglioramento di adattamento deriva unicamente dallo step pandemico ($\hat{\beta}_{\mathrm{COVID}} = -1,058$ miliardi, $z = -12,47$, $p < 0,0001$; $\mathrm{AIC}: -126,1 \rightarrow -218,3$, $\mathrm{BIC}: -117,8 \rightarrow -207,2$), mentre il coefficiente della spesa per acquisti 12 mesi risulta \textbf{non statisticamente significativo} ($\hat{\beta}_{\mathrm{spesa}} = +0,032$, errore standard $0,051$, $z = 0,63$, $p = 0,526$) e peggiora entrambi i criteri informativi ($\mathrm{AIC} = -216,7$, $\mathrm{BIC} = -202,8$). Sui residui del modello completo, la diagnostica di Ljung-Box (\texttt{model\_df} $= 1$) si colloca sulla soglia critica al lag 6 ($Q = 11,06$, $\mathrm{df} = 5$, $p = 0,050$; $p = 0,041$ nel modello con solo COVID) ed è pienamente coerente ai lag 12 ($p = 0,266$) e 24 ($p = 0,400$), con analoga non-normalità di Jarque-Bera ($\mathrm{JB} = 93,2$, $p < 10^{-20}$). Sul piano previsionale, a un mese di distanza la componente stagionale e lo step COVID riducono leggermente l'errore ($\mathrm{RMSE} = 0,092\text{--}0,093$ contro $0,103$ del Random Walk con drift), mentre sui medi e lunghi orizzonti ($h = 6$, $h = 12$ e holdout a 36 mesi) il \textbf{Random Walk con drift} ($\mathrm{RMSE} = 0,093$ miliardi, $\mathrm{MAPE} = 1,39\%$) supera nettamente sia il SARIMA sia i modelli SARIMAX, confermando la forza della parsimonia su serie brevi interessate da cambi di regime.
+Il focus sulla Serie A conferma in pieno quanto visto sul mercato europeo: il miglioramento dell'AIC deriva unicamente dallo step pandemico ($\hat{\beta}_{\mathrm{COVID}} = -1,058$ miliardi, $p < 0,0001$; $\mathrm{AIC}: -126,1 \rightarrow -218,3$), mentre la spesa per acquisti non è statisticamente significativa ($\hat{\beta}_{\mathrm{spesa}} = +0,032$, $p = 0,526$) e peggiora i criteri informativi. Anche sui residui il test di Ljung-Box è superato ai ritardi 12 ($p = 0,266$) e 24 ($p = 0,400$). Sul test set il modello più preciso è $\mathrm{ARIMA}(0, 1, 0)$ ($\mathrm{RMSE} = 0,093$ miliardi, $\mathrm{MAPE} = 1,39\%$), a conferma che su serie relativamente brevi i modelli più semplici sono spesso i più affidabili.
 
 \subsection{Conclusioni}
 
-Questa seconda parte ha mostrato come trasformare un database relazionale complesso e irregolare come quello di Transfermarkt in una serie storica mensile metodologicamente pulita su 156 mesi (giugno 2013 -- maggio 2026), risolvendo in modo puramente causale la staticità dei club e dei campionati (promozioni e retrocessioni), escludendo le presenze per Nazionali, riallineando i rientri gratuiti da prestito del 30 giugno al 1° luglio, correggendo il calendario pandemico di luglio 2020 e garantendo una copertura stabile delle rose attorno ai 27,6 calciatori attivi per squadra.
+Questa seconda parte ha mostrato come trasformare un database relazionale complesso come quello di Transfermarkt in una serie storica mensile pulita su 156 mesi (giugno 2013 -- maggio 2026), risolvendo in modo causale la staticità di club e campionati, escludendo le presenze per Nazionali, spostando i rientri gratuiti da prestito dal 30 giugno al 1° luglio e garantendo una copertura stabile delle rose attorno ai 27,6 calciatori attivi per squadra.
 
-L'analisi esplorativa, la decomposizione STL e i correlogrammi sul solo training set hanno evidenziato un mercato dominato dal trend di crescita ($F_T = 0,987$), attraversato dallo shock pandemico dell'aprile 2020 ($-18,59\%$, recuperato dopo 60 mesi nel marzo 2025 e consolidato dall'agosto 2025) e dotato di una componente stagionale annuale reale ($F_S = 0,115$) che emerge sull'ACF una volta neutralizzato l'outlier del 2020.
+L'analisi esplorativa, la decomposizione STL e i correlogrammi sul solo training set hanno evidenziato un mercato guidato dal trend di crescita ($F_T = 0,987$), colpito dallo shock pandemico dell'aprile 2020 ($-18,59\%$, recuperato dopo 60 mesi nel marzo 2025) e caratterizzato da una stagionalità annuale ($F_S = 0,115$) che emerge chiaramente sull'ACF una volta neutralizzato l'outlier del 2020.
 
-La valutazione predittiva — condotta con ablazione pura a parità di ordine parsimonioso $(0, 1, 0) \times (1, 0, 0)_{12}$ e convergenza MLE verificata al 100\% sia su holdout a 36 mesi sia in \textit{rolling-origin} ($h = 1, 6, 12$ mesi) con test di Diebold-Mariano e Clark-West — offre una risposta chiara, coerente e statisticamente solida alla domanda iniziale: \textbf{una volta rimosso il trend comune tramite differenziazione ($d = 1$) e isolato lo shock COVID-19, le spese di calciomercato non migliorano le previsioni né sul mercato Top-5 ($p = 0,843$) né sulla singola Serie A ($p = 0,526$)}. Per la previsione operativa a breve termine ($h = 1$ mese) risultano preferibili i modelli con trend locale adattivo (\textbf{Holt-Winters}, $\mathrm{RMSE} = 0,394$) o con controllo dello shock pandemico (\textbf{SARIMAX + COVID}, $\mathrm{RMSE} = 0,406$, migliore anche a $h = 6$ mesi con $0,559$), mentre sul lungo orizzonte ($h = 12$ e 36 mesi) i modelli univariati parsimoniosi (\textbf{$\mathrm{SARIMA}(0, 1, 0) \times (1, 0, 0)_{12}$} e \textbf{Random Walk con drift}) sono i più affidabili ($\mathrm{MAPE} \approx 1,4\%\text{--}1,5\%$). La scelta di modelli statistici classici invece di architetture neurali complesse (come le reti LSTM) rimane infine ben giustificata dalla dimensione campionaria ridotta (120 mesi di addestramento); estensioni con modelli a cambiamento di regime (\textit{Markov-switching} o \textit{state-space} a pendenza variabile nel tempo) ed errori a code pesanti ($t$ di Student) per gestire la non-normalità dei residui rappresentano naturali sviluppi futuri.
+La valutazione predittiva offre infine una risposta chiara alla domanda iniziale: \textbf{una volta rimosso il trend comune tramite differenziazione ($d = 1$) e isolato lo shock COVID-19, le spese di calciomercato non migliorano le previsioni né sul mercato Top-5 ($p = 0,843$) né sulla Serie A ($p = 0,526$)}. Sul triennio di test 2023--2026 i modelli più semplici ($\mathrm{SARIMA}(0, 1, 0) \times (1, 0, 0)_{12}$ sui Top-5 e $\mathrm{ARIMA}(0, 1, 0)$ sulla Serie A) risultano i più affidabili ($\mathrm{MAPE} \approx 1,4\%\text{--}1,5\%$). La scelta di modelli statistici classici invece di reti neurali complesse (come le LSTM) è ben giustificata dalla dimensione campionaria ridotta (120 mesi di addestramento).
 
-Unendo la \textbf{Parte 1 (Spotify)} e la \textbf{Parte 2 (Transfermarkt)}, emerge una lezione metodologica coerente: la qualità di un'analisi di data science dipende prima di tutto dal rigore nella preparazione dei dati, dal controllo delle distorsioni nascoste e dalla capacità di validare criticamente le proprie ipotesi, accettando con trasparenza anche i risultati negativi quando sono supportati dall'evidenza empirica.
+Complessivamente, lo studio su Transfermarkt conferma quanto la qualità di un'analisi di serie storiche dipenda prima di tutto dal rigore nella preparazione dei dati, dal controllo delle distorsioni temporali e dalla capacità di validare criticamente le proprie ipotesi, accettando con trasparenza anche i risultati negativi quando sono supportati dai dati.

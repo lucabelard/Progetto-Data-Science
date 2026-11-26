@@ -1,3 +1,4 @@
+
 """
 ========================================================================================
 Progetto di Data Science - Parte 2: Analisi delle Serie Storiche (Transfermarkt)
@@ -270,10 +271,8 @@ def run_eda_single_figures():
     z_covid_robust = (covid_drop_pct - med_pct) / mad_n
 
     ax.axhline(0, color="black", linewidth=1.0)
-    ax.axhline(mu_pct + 2 * sd_pct, color="#d95f02", linestyle="--", linewidth=1.3, label=f"Soglia classica μ±2σ ({mu_pct - 2*sd_pct:.2f}% / +{mu_pct + 2*sd_pct:.2f}%)")
+    ax.axhline(mu_pct + 2 * sd_pct, color="#d95f02", linestyle="--", linewidth=1.3, label=f"Soglia μ±2σ ({mu_pct - 2*sd_pct:.2f}% / +{mu_pct + 2*sd_pct:.2f}%)")
     ax.axhline(mu_pct - 2 * sd_pct, color="#d95f02", linestyle="--", linewidth=1.3)
-    ax.axhline(med_pct + 3 * mad_n, color="#7570b3", linestyle=":", linewidth=1.4, label=f"Soglia robusta mediana±3·MAD ({med_pct - 3*mad_n:.2f}% / +{med_pct + 3*mad_n:.2f}%)")
-    ax.axhline(med_pct - 3 * mad_n, color="#7570b3", linestyle=":", linewidth=1.4)
 
     ax.plot(dates_pct, pct_top5, color="#2b5c8f", linewidth=1.9, label="Variazione % mensile Top-5")
     ax.plot(dates_pct, pct_it1, color="#2ca02c", linewidth=1.2, alpha=0.65, linestyle=":", label="Variazione % mensile Serie A")
@@ -301,7 +300,7 @@ def run_eda_single_figures():
         color="#1b3b5c",
     )
 
-    ax.set_title("Variazioni percentuali mensili e individuazione degli outlier con soglie classiche e robuste", fontsize=12.3, fontweight="bold", pad=12)
+    ax.set_title("Variazioni percentuali mensili e individuazione degli outlier (soglia μ±2σ)", fontsize=12.3, fontweight="bold", pad=12)
     ax.set_ylabel("Variazione percentuale mensile (%)", fontweight="bold", fontsize=11.5)
     ax.set_xlabel("Data (2013–2026)", fontweight="bold", fontsize=11.5)
     ax.legend(loc="lower right", ncol=1, frameon=True, fontsize=8.5)
@@ -381,7 +380,7 @@ def run_eda_single_figures():
         corr_lvl, annot=True, fmt=".2f", cmap="RdBu_r", vmin=-1.0, vmax=1.0, center=0.0,
         cbar=True, square=True, ax=axes[0], annot_kws={"size": 9.2, "weight": "bold"},
     )
-    axes[0].set_title("a) Correlazione sui livelli (influenzata dal trend comune)", fontsize=11.5, fontweight="bold", pad=10)
+    axes[0].set_title("a) Correlazione sui livelli\n(influenzata dal trend comune)", fontsize=11.0, fontweight="bold", pad=10)
     axes[0].tick_params(axis="x", rotation=35, labelsize=9.2)
     axes[0].tick_params(axis="y", rotation=0, labelsize=9.2)
 
@@ -389,7 +388,7 @@ def run_eda_single_figures():
         corr_diff, annot=True, fmt=".2f", cmap="RdBu_r", vmin=-1.0, vmax=1.0, center=0.0,
         cbar=True, square=True, ax=axes[1], annot_kws={"size": 9.2, "weight": "bold"},
     )
-    axes[1].set_title("b) Correlazione sulle differenze prime Δ (senza trend)", fontsize=11.5, fontweight="bold", pad=10)
+    axes[1].set_title("b) Correlazione sulle differenze prime Δ\n(senza trend comune)", fontsize=11.0, fontweight="bold", pad=10)
     axes[1].tick_params(axis="x", rotation=35, labelsize=9.2)
     axes[1].tick_params(axis="y", rotation=0, labelsize=9.2)
 
